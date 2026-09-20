@@ -6,6 +6,7 @@ import { CSS } from "@dnd-kit/utilities";
 import type { Risk } from "@/lib/types";
 import { SEAT_SWATCH } from "@/lib/constants";
 import { riskHref } from "@/lib/paths";
+import { useRiskStore } from "@/lib/store";
 import { LightBadge, SeatBadge } from "./Badges";
 
 export function RiskCard({
@@ -13,16 +14,23 @@ export function RiskCard({
   overlay = false,
   dragging = false,
   hideOwner = false,
+  mine = false,
 }: {
   risk: Risk;
   overlay?: boolean;
   dragging?: boolean;
   hideOwner?: boolean;
+  mine?: boolean;
 }) {
   return (
     <article
-      className={`border border-line bg-surface p-3 ${overlay ? "border-ink" : "hover:border-ink/40"}`}
-      style={{ borderLeft: `4px solid ${SEAT_SWATCH[risk.ownerSeat]}` }}
+      className={`border bg-surface p-3 ${
+        overlay ? "border-ink" : mine ? "border-ink/50 hover:border-ink" : "border-line hover:border-ink/40"
+      }`}
+      style={{
+        borderLeft: `4px solid ${SEAT_SWATCH[risk.ownerSeat]}`,
+        background: mine ? `color-mix(in oklab, ${SEAT_SWATCH[risk.ownerSeat]} 8%, #ffffff)` : undefined,
+      }}
     >
       <div className="flex items-center justify-between gap-2">
         <span className="font-mono text-[12px] text-mute">{risk.id}</span>
@@ -50,6 +58,7 @@ export function RiskCard({
 }
 
 export function SortableRiskCard({ risk, hideOwner }: { risk: Risk; hideOwner?: boolean }) {
+  const { mySeat, seatLocked } = useRiskStore();
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: risk.id,
     data: { type: "card", risk },
@@ -69,7 +78,12 @@ export function SortableRiskCard({ risk, hideOwner }: { risk: Risk; hideOwner?: 
       {...attributes}
       {...listeners}
     >
-      <RiskCard risk={risk} dragging={isDragging} hideOwner={hideOwner} />
+      <RiskCard
+        risk={risk}
+        dragging={isDragging}
+        hideOwner={hideOwner}
+        mine={seatLocked && risk.ownerSeat === mySeat}
+      />
     </div>
   );
 }

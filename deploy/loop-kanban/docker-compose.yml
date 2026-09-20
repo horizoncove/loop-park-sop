@@ -44,6 +44,13 @@ services:
     environment:
       PORT: "3010"
       DATABASE_URL: ${DATABASE_URL:?set DATABASE_URL in .env}
+      API_KEY: ${API_KEY:-}
+      SESSION_SECRET: ${SESSION_SECRET:-}
+      REQUIRE_AUTH: ${REQUIRE_AUTH:-1}
+      CORS_ORIGINS: ${CORS_ORIGINS:-https://zhidaoflow.cn}
+      SEAT_PASSWORDS_JSON: ${SEAT_PASSWORDS_JSON:-}
+    ports:
+      - "127.0.0.1:3010:3010"
     healthcheck:
       test:
         [

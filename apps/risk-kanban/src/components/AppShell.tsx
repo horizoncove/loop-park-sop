@@ -2,11 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { APP_NAME, APP_SUBTITLE } from "@/lib/constants";
+import { APP_NAME, APP_SUBTITLE, SEAT_META, SEAT_SWATCH } from "@/lib/constants";
+import { AuthProvider, useAuth } from "@/lib/auth";
 import { normalizePathname } from "@/lib/paths";
 import { RiskProvider, useRiskStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
 import { BoardViewToggle } from "./BoardFilters";
+import { LoginScreen } from "./LoginScreen";
 
 const NAV = [
   { href: "/", label: "看板" },
@@ -17,11 +19,12 @@ const NAV = [
 
 function Header() {
   const pathname = normalizePathname(usePathname());
-  const { risks, persistError, resetSeed } = useRiskStore();
+  const { risks, persistError, resetSeed, mySeat, seatLocked, isAdmin, logout } = useRiskStore();
   const red = risks.filter((r) => r.light === "红").length;
   const yellow = risks.filter((r) => r.light === "黄").length;
   const gray = risks.filter((r) => r.light === "灰").length;
   const home = pathname === "/";
+  const canReset = isAdmin || !seatLocked;
 
   return (
     <header className="sticky top-0 z-30 border-b border-line bg-surface">
@@ -51,28 +54,50 @@ function Header() {
 
         {home ? <BoardViewToggle className="hidden sm:flex" /> : null}
 
-        <div className="ml-auto hidden items-center gap-4 text-[12px] text-mute md:flex">
-          <span>
-            红灯 <span className={cn("font-mono", red > 0 ? "text-signal-red" : "text-ink")}>{red}</span>
-          </span>
-          <span>
-            黄灯{" "}
-            <span className={cn("font-mono", yellow > 0 ? "text-signal-amber" : "text-ink")}>{yellow}</span>
-          </span>
-          <span>
-            灰灯 <span className={cn("font-mono", gray > 0 ? "text-mute" : "text-ink")}>{gray}</span>
-          </span>
-          <button
-            type="button"
-            onClick={() => {
-              if (confirm("恢复种子数据？当前看板与备注会被覆盖。")) {
-                void resetSeed();
-              }
-            }}
-            className="border border-line px-2 py-1 text-mute hover:border-ink hover:text-ink"
-          >
-            重置种子
-          </button>
+        <div className="ml-auto flex items-center gap-3 text-[12px] text-mute">
+          <div className="hidden items-center gap-4 md:flex">
+            <span>
+              红灯 <span className={cn("font-mono", red > 0 ? "text-signal-red" : "text-ink")}>{red}</span>
+            </span>
+            <span>
+              黄灯{" "}
+              <span className={cn("font-mono", yellow > 0 ? "text-signal-amber" : "text-ink")}>{yellow}</span>
+            </span>
+            <span>
+              灰灯 <span className={cn("font-mono", gray > 0 ? "text-mute" : "text-ink")}>{gray}</span>
+            </span>
+          </div>
+          {seatLocked ? (
+            <span
+              className="inline-flex items-center gap-2 border border-line px-2 py-1 text-ink"
+              style={{ borderLeft: `4px solid ${SEAT_SWATCH[mySeat]}` }}
+              title={SEAT_META[mySeat].duty}
+            >
+              {mySeat}
+            </span>
+          ) : null}
+          {canReset ? (
+            <button
+              type="button"
+              onClick={() => {
+                if (confirm("恢复种子数据？当前看板与备注会被覆盖。")) {
+                  void resetSeed();
+                }
+              }}
+              className="hidden border border-line px-2 py-1 text-mute hover:border-ink hover:text-ink sm:inline"
+            >
+              重置种子
+            </button>
+          ) : null}
+          {logout && seatLocked ? (
+            <button
+              type="button"
+              onClick={logout}
+              className="border border-line px-2 py-1 text-mute hover:border-ink hover:text-ink"
+            >
+              退出
+            </button>
+          ) : null}
         </div>
       </div>
       {persistError ? (
@@ -84,11 +109,26 @@ function Header() {
   );
 }
 
-export function AppShell({ children }: { children: React.ReactNode }) {
+function AuthedShell({ children }: { children: React.ReactNode }) {
+  const { ready, loginRequired, session } = useAuth();
+  if (!ready) {
+    return <p className="px-6 py-16 text-[13px] text-mute">核对席位…</p>;
+  }
+  if (loginRequired && !session) {
+    return <LoginScreen />;
+  }
   return (
     <RiskProvider>
       <Header />
       <main className="flex-1">{children}</main>
     </RiskProvider>
+  );
+}
+
+export function AppShell({ children }: { children: React.ReactNode }) {
+  return (
+    <AuthProvider>
+      <AuthedShell>{children}</AuthedShell>
+    </AuthProvider>
   );
 }

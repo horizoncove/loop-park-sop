@@ -14,7 +14,7 @@ import { formatDateTime, gatesForSeat, nowIso, uid, uniqueSeats } from "@/lib/ut
 export function RiskDetailClient() {
   const search = useSearchParams();
   const id = (search.get("id") ?? "").trim();
-  const { risks, ready, upsert } = useRiskStore();
+  const { risks, ready, upsert, mySeat } = useRiskStore();
   const risk = risks.find((item) => item.id === id);
 
   if (!ready) {
@@ -34,15 +34,17 @@ export function RiskDetailClient() {
     );
   }
 
-  return <RiskEditor key={risk.id + risk.updatedAt} risk={risk} onSave={upsert} />;
+  return <RiskEditor key={risk.id + risk.updatedAt} risk={risk} onSave={upsert} authorSeat={mySeat} />;
 }
 
 function RiskEditor({
   risk,
   onSave,
+  authorSeat,
 }: {
   risk: Risk;
   onSave: (risk: Risk) => Promise<void>;
+  authorSeat: OwnerSeat;
 }) {
   const router = useRouter();
   const [draft, setDraft] = useState<Risk>(risk);
@@ -86,7 +88,7 @@ function RiskEditor({
         {
           id: uid("note"),
           body,
-          authorSeat: draft.ownerSeat,
+          authorSeat,
           createdAt: nowIso(),
         },
         ...draft.notes,

@@ -44,6 +44,7 @@ export function BoardFilters() {
     boardView,
     mySeat,
     setMySeat,
+    seatLocked,
     mineOnly,
     setMineOnly,
   } = useRiskStore();
@@ -100,18 +101,24 @@ export function BoardFilters() {
       >
         只看我的席
       </button>
-      <select
-        value={mySeat}
-        onChange={(e) => setMySeat(e.target.value as OwnerSeat)}
-        className="border border-line bg-surface px-2 py-1.5 text-[13px] text-ink"
-        title={SEAT_META[mySeat].duty}
-      >
-        {OWNER_SEATS.map((seat) => (
-          <option key={seat} value={seat}>
-            {seat}
-          </option>
-        ))}
-      </select>
+      {seatLocked ? (
+        <span className="border border-line bg-surface px-2 py-1.5 text-[13px] text-ink" title={SEAT_META[mySeat].duty}>
+          {mySeat}
+        </span>
+      ) : (
+        <select
+          value={mySeat}
+          onChange={(e) => setMySeat(e.target.value as OwnerSeat)}
+          className="border border-line bg-surface px-2 py-1.5 text-[13px] text-ink"
+          title={SEAT_META[mySeat].duty}
+        >
+          {OWNER_SEATS.map((seat) => (
+            <option key={seat} value={seat}>
+              {seat}
+            </option>
+          ))}
+        </select>
+      )}
       {active ? (
         <button
           type="button"

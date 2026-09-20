@@ -9,7 +9,7 @@ import { belongsToSeat, cn } from "@/lib/utils";
 import { riskHref } from "@/lib/paths";
 
 export default function SeatsPage() {
-  const { risks, ready, setBoardView, setMySeat, setMineOnly } = useRiskStore();
+  const { risks, ready, setBoardView, setMySeat, setMineOnly, setFilters, mySeat, seatLocked } = useRiskStore();
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8 lg:px-6">
@@ -27,8 +27,9 @@ export default function SeatsPage() {
             seat={seat}
             risks={risks}
             onFocus={() => {
-              setMySeat(seat);
-              setMineOnly(true);
+              if (!seatLocked || seat === mySeat) setMySeat(seat);
+              setMineOnly(seat === mySeat || !seatLocked);
+              if (seatLocked && seat !== mySeat) setFilters({ seat });
               setBoardView("seat");
             }}
           />

@@ -22,11 +22,11 @@ npm start
 
 - 默认看板：**按灯性**（红灯阻断 / 黄灯观察 / 绿灯闭环 / 灰灯待分级）。拖动事件改灯性。
 - 也可切 **按席位**（八将）或 **按状态**（待排查 → 关闭）
-- 「只看我的席」+ 席位选择（默认反将，记在本机）
+- 「只看我的席」；生产以席位口令登录（八将），不是完整账号
 - `/seats` 八席仪表盘
 - `/gates` 九条红线，标注执法席
 - `/sop` 周节奏与开业里程碑
-- 无登录。生产数据在 Postgres（`/loop-kanban/api`）；本地默认 localStorage
+- 生产数据在 Postgres（`/loop-kanban/api`）；本地无 API 时 localStorage
 
 ## 八将职责
 
@@ -43,6 +43,7 @@ npm start
 
 ## 数据
 
-- 生产：Postgres `events`，经 `NEXT_PUBLIC_API_BASE=/loop-kanban/api`
+- 生产：Postgres `events`，经 `NEXT_PUBLIC_API_BASE=/loop-kanban/api`（席位会话或 `API_KEY`）
 - 浏览器缓存：`localStorage` 键 `loop-park-risk-kanban-v3`
-- 本地无 API 时仅 localStorage；`next start` 仍可选同步 `GET/PUT /api/risks`
+- 外部系统怎么调：[`../loop-kanban-api/API.md`](../loop-kanban-api/API.md)
+- 部署：[`DEPLOY-zhidaoflow.md`](./DEPLOY-zhidaoflow.md)

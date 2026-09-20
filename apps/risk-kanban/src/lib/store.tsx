@@ -21,6 +21,7 @@ import { SEED_PAYLOAD } from "./seed";
 import type { BoardView, ColumnId, Light, OwnerSeat, Risk, StorePayload } from "./types";
 import {
   belongsToSeat,
+  isOwnerSeat,
   isReadableStore,
   migratePickerSeat,
   migrateRisk,
@@ -30,6 +31,8 @@ import {
 } from "./utils";
 import { eventsApiBase, eventsListUrl, eventsResetUrl } from "./paths";
 import { usePersistedJson } from "./usePersistedJson";
+import { useAuth } from "./auth";
+import { authHeaders, parseAuthResponse } from "./session";
 
 type Filters = {
   category: string;
@@ -58,6 +61,9 @@ type StoreContextValue = {
   setBoardView: (view: BoardView) => void;
   mySeat: OwnerSeat;
   setMySeat: (seat: OwnerSeat) => void;
+  seatLocked: boolean;
+  isAdmin: boolean;
+  logout: (() => void) | null;
   mineOnly: boolean;
   setMineOnly: (on: boolean) => void;
   upsert: (risk: Risk) => Promise<void>;
@@ -114,7 +120,7 @@ async function fetchRemote(): Promise<StorePayload | null> {
   const url = eventsListUrl();
   if (!url) return null;
   try {
-    const res = await fetch(url, { cache: "no-store" });
+    const res = await parseAuthResponse(await fetch(url, { cache: "no-store", headers: authHeaders() }));
     if (!res.ok) return null;
     return payloadFromUnknown(await res.json());
   } catch {
@@ -135,6 +141,9 @@ function newer(a: StorePayload | null, b: StorePayload | null) {
 }
 
 export function RiskProvider({ children }: { children: React.ReactNode }) {
+  const auth = useAuth();
+  const sessionSeat = isOwnerSeat(auth.session?.seat) ? auth.session.seat : null;
+  const isAdmin = Boolean(auth.session?.admin);
   const [risks, setRisks] = useState<Risk[]>(SEED_PAYLOAD.risks);
   const [ready, setReady] = useState(false);
   const [persistError, setPersistError] = useState<string | null>(null);
@@ -142,9 +151,19 @@ export function RiskProvider({ children }: { children: React.ReactNode }) {
   const [filters, setFiltersState] = useState<Filters>(EMPTY_FILTERS);
   const [boardView, setBoardView] = usePersistedJson<BoardView>(BOARD_VIEW_KEY, "light");
   const [rawSeat, setRawSeat] = usePersistedJson<string>(MY_SEAT_KEY, "反将");
-  const mySeat = migratePickerSeat(rawSeat);
-  const setMySeat = useCallback((seat: OwnerSeat) => setRawSeat(seat), [setRawSeat]);
+  const mySeat = sessionSeat ?? migratePickerSeat(rawSeat);
+  const setMySeat = useCallback(
+    (seat: OwnerSeat) => {
+      if (sessionSeat) return;
+      setRawSeat(seat);
+    },
+    [sessionSeat, setRawSeat],
+  );
   const [mineOnly, setMineOnly] = usePersistedJson<boolean>(MINE_ONLY_KEY, false);
+
+  useEffect(() => {
+    if (sessionSeat) setRawSeat(sessionSeat);
+  }, [sessionSeat, setRawSeat]);
 
   const persist = useCallback(async (nextRisks: Risk[]) => {
     const payload: StorePayload = {
@@ -161,11 +180,15 @@ export function RiskProvider({ children }: { children: React.ReactNode }) {
       return;
     }
     try {
-      const res = await fetch(listUrl, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(dedicated ? { events: payload.risks } : payload),
-      });
+      const res = await parseAuthResponse(
+        await fetch(listUrl, {
+          method: "PUT",
+          headers: authHeaders(),
+          body: JSON.stringify(dedicated ? { events: payload.risks } : payload),
+        }),
+      );
+      if (res.status === 401) throw new Error("未登录");
+      if (res.status === 403) throw new Error("没有写入权限");
       if (!res.ok) throw new Error("保存失败");
       apiAvailableRef.current = true;
       setPersistError(null);
@@ -319,11 +342,14 @@ export function RiskProvider({ children }: { children: React.ReactNode }) {
     const dedicated = Boolean(eventsApiBase());
     if (!resetUrl || (!dedicated && !apiAvailableRef.current)) return;
     try {
-      const res = await fetch(resetUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(dedicated ? {} : { action: "reset" }),
-      });
+      const res = await parseAuthResponse(
+        await fetch(resetUrl, {
+          method: "POST",
+          headers: authHeaders(),
+          body: JSON.stringify(dedicated ? {} : { action: "reset" }),
+        }),
+      );
+      if (res.status === 403) throw new Error("重置需要正将");
       if (!res.ok) throw new Error("reset failed");
       const parsed = payloadFromUnknown(await res.json());
       if (parsed) {
@@ -366,6 +392,9 @@ export function RiskProvider({ children }: { children: React.ReactNode }) {
       setBoardView,
       mySeat,
       setMySeat,
+      seatLocked: Boolean(sessionSeat),
+      isAdmin,
+      logout: auth.logout,
       mineOnly,
       setMineOnly,
       upsert,
@@ -388,10 +417,13 @@ export function RiskProvider({ children }: { children: React.ReactNode }) {
       ready,
       resetSeed,
       risks,
+      isAdmin,
+      sessionSeat,
       setBoardView,
       setMineOnly,
       setMySeat,
       upsert,
+      auth.logout,
     ],
   );
 
