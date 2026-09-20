@@ -4,10 +4,10 @@ import { useState } from "react";
 import { Plus } from "lucide-react";
 import { CATEGORIES, OWNER_SEATS } from "@/lib/constants";
 import { useRiskStore } from "@/lib/store";
-import type { Category, OwnerSeat, Risk, Severity } from "@/lib/types";
+import type { Category, Light, OwnerSeat, Risk, Severity } from "@/lib/types";
 import { nowIso, uid } from "@/lib/utils";
 
-export function NewRiskButton() {
+export function NewRiskButton({ defaultLight = "灰" }: { defaultLight?: Light }) {
   const [open, setOpen] = useState(false);
   return (
     <>
@@ -17,14 +17,14 @@ export function NewRiskButton() {
         className="flex w-full items-center justify-center gap-1 border border-line py-2 text-[12px] text-mute hover:border-ink hover:text-ink"
       >
         <Plus className="h-3.5 w-3.5" />
-        新增风险
+        新建事件
       </button>
-      {open ? <NewRiskModal onClose={() => setOpen(false)} /> : null}
+      {open ? <NewRiskModal defaultLight={defaultLight} onClose={() => setOpen(false)} /> : null}
     </>
   );
 }
 
-function NewRiskModal({ onClose }: { onClose: () => void }) {
+function NewRiskModal({ onClose, defaultLight }: { onClose: () => void; defaultLight: Light }) {
   const { upsert, risks, mySeat } = useRiskStore();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -42,7 +42,7 @@ function NewRiskModal({ onClose }: { onClose: () => void }) {
       description: description.trim() || "待补充描述。",
       category,
       severity,
-      light: "灰",
+      light: defaultLight,
       ownerSeat,
       collabSeats: [],
       triggers: [],
@@ -63,8 +63,8 @@ function NewRiskModal({ onClose }: { onClose: () => void }) {
         onSubmit={submit}
         className="w-full max-w-md border border-line bg-surface p-5"
       >
-        <h3 className="text-[16px] font-medium">新增风险卡片</h3>
-        <p className="mt-1 text-[12px] text-mute">先记上，再补触发条件与红线闸。</p>
+        <h3 className="text-[16px] font-medium">新建事件</h3>
+        <p className="mt-1 text-[12px] text-mute">先记上灯性与席位，再补触发条件与红线闸。</p>
         <label className="mt-4 block text-[12px] text-mute">
           标题
           <input
@@ -126,7 +126,7 @@ function NewRiskModal({ onClose }: { onClose: () => void }) {
             取消
           </button>
           <button type="submit" className="border border-ink bg-ink px-4 py-2 text-[13px] font-medium text-bg">
-            加入待排查
+            加入{defaultLight}灯
           </button>
         </div>
       </form>

@@ -13,7 +13,7 @@ export async function GET(
   const store = await readStore();
   const risk = store.risks.find((item) => item.id === decodeURIComponent(id));
   if (!risk) {
-    return Response.json({ error: "未找到该风险" }, { status: 404 });
+    return Response.json({ error: "未找到该事件" }, { status: 404 });
   }
   return Response.json(risk);
 }
@@ -27,7 +27,7 @@ export async function PATCH(
   const store = await readStore();
   const current = store.risks.find((item) => item.id === decodeURIComponent(id));
   if (!current) {
-    return Response.json({ error: "未找到该风险" }, { status: 404 });
+    return Response.json({ error: "未找到该事件" }, { status: 404 });
   }
   const next: Risk = {
     ...current,

@@ -17,7 +17,7 @@ import {
   STORE_VERSION,
 } from "./constants";
 import { SEED_PAYLOAD } from "./seed";
-import type { BoardView, ColumnId, OwnerSeat, Risk, StorePayload } from "./types";
+import type { BoardView, ColumnId, Light, OwnerSeat, Risk, StorePayload } from "./types";
 import {
   belongsToSeat,
   isReadableStore,
@@ -61,6 +61,7 @@ type StoreContextValue = {
   upsert: (risk: Risk) => Promise<void>;
   moveRisk: (id: string, status: ColumnId, beforeId?: string | null) => Promise<void>;
   moveRiskSeat: (id: string, ownerSeat: OwnerSeat, beforeId?: string | null) => Promise<void>;
+  moveRiskLight: (id: string, light: Light, beforeId?: string | null) => Promise<void>;
   resetSeed: () => Promise<void>;
   filtered: Risk[];
 };
@@ -118,7 +119,7 @@ export function RiskProvider({ children }: { children: React.ReactNode }) {
   const [ready, setReady] = useState(false);
   const [persistError, setPersistError] = useState<string | null>(null);
   const [filters, setFiltersState] = useState<Filters>(EMPTY_FILTERS);
-  const [boardView, setBoardView] = usePersistedJson<BoardView>(BOARD_VIEW_KEY, "status");
+  const [boardView, setBoardView] = usePersistedJson<BoardView>(BOARD_VIEW_KEY, "light");
   const [rawSeat, setRawSeat] = usePersistedJson<string>(MY_SEAT_KEY, "反将");
   const mySeat = migratePickerSeat(rawSeat);
   const setMySeat = useCallback((seat: OwnerSeat) => setRawSeat(seat), [setRawSeat]);
@@ -240,6 +241,20 @@ export function RiskProvider({ children }: { children: React.ReactNode }) {
     [persist, place, risks],
   );
 
+  const moveRiskLight = useCallback(
+    async (id: string, light: Light, beforeId?: string | null) => {
+      const current = risks.find((item) => item.id === id);
+      if (!current) return;
+      const moved: Risk = {
+        ...current,
+        light,
+        updatedAt: nowIso(),
+      };
+      await persist(place(moved, beforeId));
+    },
+    [persist, place, risks],
+  );
+
   const resetSeed = useCallback(async () => {
     localStorage.removeItem(STORAGE_KEY);
     for (const key of LEGACY_STORAGE_KEYS) localStorage.removeItem(key);
@@ -292,6 +307,7 @@ export function RiskProvider({ children }: { children: React.ReactNode }) {
       upsert,
       moveRisk,
       moveRiskSeat,
+      moveRiskLight,
       resetSeed,
       filtered,
     }),
@@ -302,6 +318,7 @@ export function RiskProvider({ children }: { children: React.ReactNode }) {
       mineOnly,
       moveRisk,
       moveRiskSeat,
+      moveRiskLight,
       mySeat,
       persistError,
       ready,

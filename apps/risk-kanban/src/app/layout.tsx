@@ -17,8 +17,8 @@ const jetbrains = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "LOOP 风险看板",
-  description: "LOOP PARK 红线闸与风险看板 MVP — 待排查到关闭的交通灯运营台",
+  title: "LOOP 事件看板",
+  description: "LOOP PARK 事件看板 — 按红黄绿灰灯性分级的运营台",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

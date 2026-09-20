@@ -18,7 +18,7 @@ export default function RiskDetailPage() {
   const risk = risks.find((item) => item.id === id);
 
   if (!ready) {
-    return <p className="px-6 py-16 text-[13px] text-mute">加载风险卡片…</p>;
+    return <p className="px-6 py-16 text-[13px] text-mute">加载事件…</p>;
   }
   if (!risk) {
     return (
@@ -278,7 +278,29 @@ function RiskEditor({
 
         <aside className="h-fit space-y-4 lg:sticky lg:top-20">
           <section className="border border-line bg-surface p-4">
-            <h2 className="text-[13px] font-medium">状态移动</h2>
+            <h2 className="text-[13px] font-medium">灯性</h2>
+            <div className="mt-3 grid grid-cols-2 gap-0 border border-line">
+              {LIGHTS.map((item) => (
+                <button
+                  key={item}
+                  type="button"
+                  onClick={async () => {
+                    const next = { ...draft, light: item, updatedAt: nowIso() };
+                    setDraft(next);
+                    await onSave(next);
+                  }}
+                  className={`border-b border-r border-line px-3 py-2 text-left text-[13px] ${
+                    draft.light === item ? "bg-ink text-bg" : "text-mute hover:text-ink"
+                  }`}
+                >
+                  {item}灯
+                </button>
+              ))}
+            </div>
+          </section>
+
+          <section className="border border-line bg-surface p-4">
+            <h2 className="text-[13px] font-medium">排查进度</h2>
             <div className="mt-3 grid gap-0 border border-line">
               {COLUMNS.map((col) => (
                 <button

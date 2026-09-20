@@ -1,6 +1,6 @@
 import { clsx, type ClassValue } from "clsx";
 import type { CardGate, Light, OwnerSeat, Risk, RiskNote, StorePayload } from "./types";
-import { GLOBAL_GATES, OWNER_SEATS, STORE_VERSION } from "./constants";
+import { GLOBAL_GATES, LIGHTS, OWNER_SEATS, STORE_VERSION } from "./constants";
 
 export function cn(...inputs: ClassValue[]) {
   return clsx(inputs);
@@ -50,6 +50,10 @@ export function suggestLight(risk: Pick<Risk, "status" | "redLineGates" | "sever
 
 export function uid(prefix = "n") {
   return `${prefix}-${Math.random().toString(36).slice(2, 8)}`;
+}
+
+export function isLight(value: unknown): value is Light {
+  return typeof value === "string" && (LIGHTS as readonly string[]).includes(value);
 }
 
 export function isOwnerSeat(value: unknown): value is OwnerSeat {
@@ -139,7 +143,7 @@ export function migrateRisk(raw: Risk): Risk {
       item.authorSeat === "系统" ? "系统" : (normalizeSeat(item.authorSeat, hint) ?? ownerSeat);
     return { ...item, authorSeat };
   });
-  return { ...raw, ownerSeat, collabSeats, notes };
+  return { ...raw, ownerSeat, collabSeats, notes, light: isLight(raw.light) ? raw.light : suggestLight(raw) };
 }
 
 export function migrateStore(payload: StorePayload): StorePayload {

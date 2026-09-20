@@ -1,4 +1,4 @@
-import type { GlobalGate, OwnerSeat } from "./types";
+import type { GlobalGate, Light, OwnerSeat } from "./types";
 
 export {
   CATEGORIES,
@@ -9,14 +9,14 @@ export {
   SEVERITIES,
 } from "./types";
 
-export const APP_NAME = "LOOP 风险看板";
+export const APP_NAME = "LOOP 事件看板";
 export const APP_SUBTITLE = "LOOP PARK · 千门八将";
 export const STORAGE_KEY = "loop-park-risk-kanban-v3";
 export const LEGACY_STORAGE_KEYS = [
   "loop-park-risk-kanban-v2",
   "loop-park-risk-kanban-v1",
 ];
-export const BOARD_VIEW_KEY = "loop-park-board-view-v1";
+export const BOARD_VIEW_KEY = "loop-park-board-view-v2";
 export const MY_SEAT_KEY = "loop-park-my-seat-v2";
 export const MINE_ONLY_KEY = "loop-park-mine-only-v1";
 export const STORE_VERSION = 3;
@@ -115,27 +115,42 @@ export function seatBand(seat: OwnerSeat, amount = 16) {
 }
 
 export const LIGHT_META: Record<
-  "红" | "黄" | "绿" | "灰",
-  { label: string; className: string; dot: string }
+  Light,
+  { label: string; hint: string; className: string; dot: string }
 > = {
   红: {
-    label: "红灯阻断",
+    label: "红灯",
+    hint: "阻断 / 立即处理",
     className: "text-signal-red border-signal-red/30",
     dot: "bg-signal-red",
   },
   黄: {
-    label: "黄灯观察",
+    label: "黄灯",
+    hint: "观察 / 限期整改",
     className: "text-signal-amber border-signal-amber/30",
     dot: "bg-signal-amber",
   },
   绿: {
-    label: "绿灯闭环",
+    label: "绿灯",
+    hint: "可控 / 已闭环",
     className: "text-signal-green border-signal-green/30",
     dot: "bg-signal-green",
   },
   灰: {
-    label: "灰色待核",
+    label: "灰灯",
+    hint: "未定性 / 待分级",
     className: "text-mute border-line",
     dot: "bg-mute",
   },
 };
+
+export const LIGHT_SWATCH: Record<Light, string> = {
+  红: "#c23b3b",
+  黄: "#c4922a",
+  绿: "#2f7d4a",
+  灰: "#6b7280",
+};
+
+export function lightBand(light: Light, amount = 14) {
+  return `color-mix(in oklab, ${LIGHT_SWATCH[light]} ${amount}%, #ffffff)`;
+}

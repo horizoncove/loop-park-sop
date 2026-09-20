@@ -39,7 +39,7 @@ export default function GatesPage() {
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="text-[16px] font-medium">红线闸总览</h1>
-          <p className="mt-2 text-[13px] text-mute">九条硬闸。未勾选且未关闭的关联风险会把闸口打成红/黄。</p>
+          <p className="mt-2 text-[13px] text-mute">九条硬闸。未勾选且未关闭的关联事件会把闸口打成红/黄。</p>
         </div>
         <select
           value={seat}
@@ -92,7 +92,7 @@ export default function GatesPage() {
             ) : (
               <p className="mt-4 text-[12px] text-mute">
                 {linked.length === 0
-                  ? "暂无卡片挂接此闸。可在风险详情中勾选关联。"
+                  ? "暂无事件挂接此闸。可在事件详情中勾选关联。"
                   : "关联卡片均已勾选或已关闭。"}
               </p>
             )}

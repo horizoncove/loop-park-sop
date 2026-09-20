@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { APP_NAME, APP_SUBTITLE } from "@/lib/constants";
 import { RiskProvider, useRiskStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
+import { BoardViewToggle } from "./BoardFilters";
 
 const NAV = [
   { href: "/", label: "看板" },
@@ -15,10 +16,10 @@ const NAV = [
 
 function Header() {
   const pathname = usePathname();
-  const { risks, persistError, resetSeed, boardView, setBoardView } = useRiskStore();
+  const { risks, persistError, resetSeed } = useRiskStore();
   const red = risks.filter((r) => r.light === "红").length;
-  const blocked = risks.filter((r) => r.status === "blocked").length;
-  const p0 = risks.filter((r) => r.severity === "P0" && r.status !== "closed").length;
+  const yellow = risks.filter((r) => r.light === "黄").length;
+  const gray = risks.filter((r) => r.light === "灰").length;
   const home = pathname === "/";
 
   return (
@@ -47,40 +48,18 @@ function Header() {
           })}
         </nav>
 
-        {home ? (
-          <div className="hidden items-center gap-0 border border-line text-[13px] sm:flex">
-            <button
-              type="button"
-              onClick={() => setBoardView("status")}
-              className={cn(
-                "px-3 py-1.5",
-                boardView === "status" ? "bg-ink text-bg" : "bg-surface text-mute hover:text-ink",
-              )}
-            >
-              按状态
-            </button>
-            <button
-              type="button"
-              onClick={() => setBoardView("seat")}
-              className={cn(
-                "border-l border-line px-3 py-1.5",
-                boardView === "seat" ? "bg-ink text-bg" : "bg-surface text-mute hover:text-ink",
-              )}
-            >
-              按席位
-            </button>
-          </div>
-        ) : null}
+        {home ? <BoardViewToggle className="hidden sm:flex" /> : null}
 
         <div className="ml-auto hidden items-center gap-4 text-[12px] text-mute md:flex">
           <span>
             红灯 <span className={cn("font-mono", red > 0 ? "text-signal-red" : "text-ink")}>{red}</span>
           </span>
           <span>
-            阻断 <span className={cn("font-mono", blocked > 0 ? "text-signal-red" : "text-ink")}>{blocked}</span>
+            黄灯{" "}
+            <span className={cn("font-mono", yellow > 0 ? "text-signal-amber" : "text-ink")}>{yellow}</span>
           </span>
           <span>
-            在办 P0 <span className={cn("font-mono", p0 > 0 ? "text-signal-red" : "text-ink")}>{p0}</span>
+            灰灯 <span className={cn("font-mono", gray > 0 ? "text-mute" : "text-ink")}>{gray}</span>
           </span>
           <button
             type="button"

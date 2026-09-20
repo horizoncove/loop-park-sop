@@ -3,8 +3,36 @@
 import { Search, X } from "lucide-react";
 import { CATEGORIES, LIGHTS, OWNER_SEATS, SEAT_META, SEVERITIES } from "@/lib/constants";
 import { useRiskStore } from "@/lib/store";
-import type { OwnerSeat } from "@/lib/types";
+import type { BoardView, OwnerSeat } from "@/lib/types";
 import { cn } from "@/lib/utils";
+
+const VIEWS: { id: BoardView; label: string }[] = [
+  { id: "light", label: "按灯性" },
+  { id: "seat", label: "按席位" },
+  { id: "status", label: "按状态" },
+];
+
+export function BoardViewToggle({ className }: { className?: string }) {
+  const { boardView, setBoardView } = useRiskStore();
+  return (
+    <div className={cn("flex border border-line text-[13px]", className)}>
+      {VIEWS.map((view, index) => (
+        <button
+          key={view.id}
+          type="button"
+          onClick={() => setBoardView(view.id)}
+          className={cn(
+            "px-3 py-1.5",
+            index > 0 ? "border-l border-line" : "",
+            boardView === view.id ? "bg-ink text-bg" : "bg-surface text-mute hover:text-ink",
+          )}
+        >
+          {view.label}
+        </button>
+      ))}
+    </div>
+  );
+}
 
 export function BoardFilters() {
   const {
@@ -14,7 +42,6 @@ export function BoardFilters() {
     filtered,
     risks,
     boardView,
-    setBoardView,
     mySeat,
     setMySeat,
     mineOnly,
@@ -24,32 +51,14 @@ export function BoardFilters() {
 
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <div className="flex border border-line text-[13px] sm:hidden">
-        <button
-          type="button"
-          onClick={() => setBoardView("status")}
-          className={cn("px-3 py-1.5", boardView === "status" ? "bg-ink text-bg" : "text-mute")}
-        >
-          按状态
-        </button>
-        <button
-          type="button"
-          onClick={() => setBoardView("seat")}
-          className={cn(
-            "border-l border-line px-3 py-1.5",
-            boardView === "seat" ? "bg-ink text-bg" : "text-mute",
-          )}
-        >
-          按席位
-        </button>
-      </div>
+      <BoardViewToggle className="sm:hidden" />
 
       <label className="relative min-w-[200px] flex-1">
         <Search className="pointer-events-none absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-mute" />
         <input
           value={filters.query}
           onChange={(e) => setFilters({ query: e.target.value })}
-          placeholder="搜索编号 / 标题 / 席位"
+          placeholder="搜索事件编号 / 标题 / 席位"
           className="w-full border border-line bg-surface py-1.5 pl-8 pr-2 text-[13px] text-ink outline-none placeholder:text-mute"
         />
       </label>
@@ -73,12 +82,14 @@ export function BoardFilters() {
         empty="全部等级"
         options={SEVERITIES.map((c) => ({ value: c, label: c }))}
       />
-      <FilterSelect
-        value={filters.light}
-        onChange={(v) => setFilters({ light: v })}
-        empty="全部灯色"
-        options={LIGHTS.map((c) => ({ value: c, label: `${c}灯` }))}
-      />
+      {boardView !== "light" ? (
+        <FilterSelect
+          value={filters.light}
+          onChange={(v) => setFilters({ light: v })}
+          empty="全部灯性"
+          options={LIGHTS.map((c) => ({ value: c, label: `${c}灯` }))}
+        />
+      ) : null}
       <button
         type="button"
         onClick={() => setMineOnly(!mineOnly)}
