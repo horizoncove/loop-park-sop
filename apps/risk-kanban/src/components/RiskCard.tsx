@@ -6,16 +6,18 @@ import { CSS } from "@dnd-kit/utilities";
 import { GripVertical } from "lucide-react";
 import type { Risk } from "@/lib/types";
 import { formatRelative, openGateCount } from "@/lib/utils";
-import { CategoryChip, LightDot, SeatBadge, SeverityBadge } from "./Badges";
+import { CategoryChip, LightBadge, LightDot, SeatBadge, SeverityBadge } from "./Badges";
 
 export function RiskCard({
   risk,
   overlay = false,
   dragging = false,
+  hideOwner = false,
 }: {
   risk: Risk;
   overlay?: boolean;
   dragging?: boolean;
+  hideOwner?: boolean;
 }) {
   const openGates = openGateCount(risk.redLineGates);
   const border =
@@ -42,7 +44,7 @@ export function RiskCard({
             <span className="font-mono text-[11px] text-gold">{risk.id}</span>
             <SeverityBadge severity={risk.severity} />
             <span className="ml-auto">
-              <LightDot light={risk.light} />
+              {hideOwner ? <LightBadge light={risk.light} /> : <LightDot light={risk.light} />}
             </span>
           </div>
           <Link
@@ -60,7 +62,10 @@ export function RiskCard({
           <p className="mt-1 line-clamp-2 text-xs text-mute">{risk.description}</p>
           <div className="mt-2 flex flex-wrap items-center gap-1.5">
             <CategoryChip category={risk.category} />
-            <SeatBadge seat={risk.ownerSeat} />
+            {!hideOwner ? <SeatBadge seat={risk.ownerSeat} /> : null}
+            {(risk.collabSeats ?? []).map((seat) => (
+              <SeatBadge key={seat} seat={seat} collab />
+            ))}
             {openGates > 0 ? (
               <span className="rounded-md bg-red-500/10 px-1.5 py-0.5 text-[11px] text-red-300">
                 未过闸 {openGates}
@@ -77,7 +82,7 @@ export function RiskCard({
   );
 }
 
-export function SortableRiskCard({ risk }: { risk: Risk }) {
+export function SortableRiskCard({ risk, hideOwner }: { risk: Risk; hideOwner?: boolean }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: risk.id,
     data: { type: "card", risk },
@@ -97,7 +102,7 @@ export function SortableRiskCard({ risk }: { risk: Risk }) {
       {...attributes}
       {...listeners}
     >
-      <RiskCard risk={risk} dragging={isDragging} />
+      <RiskCard risk={risk} dragging={isDragging} hideOwner={hideOwner} />
     </div>
   );
 }

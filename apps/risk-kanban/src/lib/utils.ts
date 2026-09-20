@@ -1,6 +1,6 @@
 import { clsx, type ClassValue } from "clsx";
-import type { CardGate, GateId, Light, Risk } from "./types";
-import { GLOBAL_GATES } from "./constants";
+import type { CardGate, GateId, Light, OwnerSeat, Risk, StorePayload } from "./types";
+import { GLOBAL_GATES, OWNER_SEATS, SEAT_ALIASES, STORE_VERSION } from "./constants";
 
 export function cn(...inputs: ClassValue[]) {
   return clsx(inputs);
@@ -50,4 +50,39 @@ export function suggestLight(risk: Pick<Risk, "status" | "redLineGates" | "sever
 
 export function uid(prefix = "n") {
   return `${prefix}-${Math.random().toString(36).slice(2, 8)}`;
+}
+
+export function normalizeSeat(value: unknown): OwnerSeat | null {
+  if (typeof value !== "string") return null;
+  return SEAT_ALIASES[value.trim()] ?? null;
+}
+
+export function belongsToSeat(risk: Pick<Risk, "ownerSeat" | "collabSeats">, seat: OwnerSeat) {
+  if (risk.ownerSeat === seat) return true;
+  return (risk.collabSeats ?? []).includes(seat);
+}
+
+export function uniqueSeats(seats: OwnerSeat[], except?: OwnerSeat) {
+  return OWNER_SEATS.filter((seat) => seats.includes(seat) && seat !== except);
+}
+
+export function gatesForSeat(seat: OwnerSeat) {
+  return GLOBAL_GATES.filter((gate) => gate.enforcingSeats.includes(seat));
+}
+
+export function migrateRisk(raw: Risk): Risk {
+  const ownerSeat = normalizeSeat(raw.ownerSeat) ?? "正将";
+  const collabSeats = uniqueSeats(
+    (raw.collabSeats ?? [])
+      .map((seat) => normalizeSeat(seat))
+      .filter((seat): seat is OwnerSeat => Boolean(seat)),
+    ownerSeat,
+  );
+  return { ...raw, ownerSeat, collabSeats };
+}
+
+export function isCurrentStore(payload: StorePayload | null): payload is StorePayload {
+  return Boolean(
+    payload && payload.version >= STORE_VERSION && Array.isArray(payload.risks) && payload.risks.length > 0,
+  );
 }

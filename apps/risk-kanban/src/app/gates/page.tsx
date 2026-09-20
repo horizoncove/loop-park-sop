@@ -1,10 +1,12 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
-import { GLOBAL_GATES } from "@/lib/constants";
+import { GLOBAL_GATES, OWNER_SEATS, SEAT_META } from "@/lib/constants";
 import { useRiskStore } from "@/lib/store";
-import type { GateId, Light, Risk } from "@/lib/types";
+import type { GateId, Light, OwnerSeat, Risk } from "@/lib/types";
 import { LightBadge, SeatBadge, SeverityBadge } from "@/components/Badges";
+import { cn } from "@/lib/utils";
 
 function gateLight(linked: Risk[]): Light {
   const open = linked.filter((r) => r.status !== "closed").filter((r) =>
@@ -18,6 +20,7 @@ function gateLight(linked: Risk[]): Light {
 
 export default function GatesPage() {
   const { risks, ready } = useRiskStore();
+  const [seat, setSeat] = useState<OwnerSeat | "">("");
 
   const rows = GLOBAL_GATES.map((gate) => {
     const linked = risks.filter((r) => r.redLineGates.some((g) => g.id === gate.id));
@@ -25,7 +28,7 @@ export default function GatesPage() {
       (r) => r.status !== "closed" && r.redLineGates.some((g) => g.id === gate.id && !g.checked),
     );
     return { gate, linked, violators, light: gateLight(linked) };
-  });
+  }).filter((row) => !seat || row.gate.enforcingSeats.includes(seat));
 
   const red = rows.filter((r) => r.light === "红").length;
   const yellow = rows.filter((r) => r.light === "黄").length;
@@ -35,8 +38,20 @@ export default function GatesPage() {
     <div className="mx-auto max-w-5xl px-4 py-8 lg:px-6">
       <h1 className="text-xl font-semibold">红线闸总览</h1>
       <p className="mt-2 text-sm text-mute">
-        九条硬闸。未勾选且未关闭的关联风险会把闸口打成红/黄。卡片上的勾选会同步到这里。
+        九条硬闸，按执法席标注。未勾选且未关闭的关联风险会把闸口打成红/黄。
       </p>
+
+      <div className="mt-4 flex flex-wrap gap-2">
+        <SeatChip active={seat === ""} onClick={() => setSeat("")} label="全部席位" />
+        {OWNER_SEATS.map((item) => (
+          <SeatChip
+            key={item}
+            active={seat === item}
+            onClick={() => setSeat(item)}
+            label={`${item} · ${SEAT_META[item].role}`}
+          />
+        ))}
+      </div>
 
       <div className="mt-5 grid grid-cols-3 gap-3">
         <Score label="红闸" value={red} className="text-signal-red" />
@@ -55,6 +70,12 @@ export default function GatesPage() {
                 <div className="flex flex-wrap items-center gap-2">
                   <h2 className="text-base font-semibold leading-snug">{gate.title}</h2>
                   <LightBadge light={light} />
+                </div>
+                <div className="mt-2 flex flex-wrap gap-1.5">
+                  {gate.enforcingSeats.map((enforcer) => (
+                    <SeatBadge key={enforcer} seat={enforcer} />
+                  ))}
+                  <span className="self-center text-[11px] text-mute">主责执法席</span>
                 </div>
                 <p className="mt-2 text-sm text-mute">{gate.detail}</p>
               </div>
@@ -77,6 +98,29 @@ export default function GatesPage() {
         ))}
       </ol>
     </div>
+  );
+}
+
+function SeatChip({
+  active,
+  onClick,
+  label,
+}: {
+  active: boolean;
+  onClick: () => void;
+  label: string;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={cn(
+        "rounded-full border px-3 py-1 text-xs",
+        active ? "border-gold/50 bg-gold/15 text-gold" : "border-line text-mute hover:text-paper",
+      )}
+    >
+      {label}
+    </button>
   );
 }
 

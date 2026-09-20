@@ -5,11 +5,11 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft, Plus } from "lucide-react";
 import { CategoryChip, LightBadge, SeatBadge, SeverityBadge } from "@/components/Badges";
-import { CATEGORIES, GLOBAL_GATES, LIGHTS, OWNER_SEATS } from "@/lib/constants";
+import { CATEGORIES, GLOBAL_GATES, LIGHTS, OWNER_SEATS, SEAT_META } from "@/lib/constants";
 import { COLUMNS, COLUMN_META } from "@/lib/types";
 import type { CardGate, Category, GateId, Light, OwnerSeat, Risk, Severity } from "@/lib/types";
 import { useRiskStore } from "@/lib/store";
-import { formatDateTime, nowIso, uid } from "@/lib/utils";
+import { formatDateTime, gatesForSeat, nowIso, uid, uniqueSeats } from "@/lib/utils";
 
 export default function RiskDetailPage() {
   const params = useParams<{ id: string }>();
@@ -111,6 +111,9 @@ function RiskEditor({
         <SeverityBadge severity={draft.severity} />
         <LightBadge light={draft.light} />
         <SeatBadge seat={draft.ownerSeat} />
+        {(draft.collabSeats ?? []).map((seat) => (
+          <SeatBadge key={seat} seat={seat} collab />
+        ))}
         <CategoryChip category={draft.category} />
         {dirty ? <span className="text-xs text-amber-200">未保存</span> : null}
         <button
@@ -180,8 +183,12 @@ function RiskEditor({
                 const current = draft.redLineGates.find((g) => g.id === gate.id);
                 const attached = Boolean(current);
                 const checked = Boolean(current?.checked);
+                const seatMustCheck = gate.enforcingSeats.includes(draft.ownerSeat);
                 return (
-                  <li key={gate.id} className="rounded-xl bg-ink/40 px-3 py-2">
+                  <li
+                    key={gate.id}
+                    className={`rounded-xl px-3 py-2 ${seatMustCheck ? "bg-gold/10 ring-1 ring-gold/20" : "bg-ink/40"}`}
+                  >
                     <label className="flex items-start gap-3 text-sm">
                       <input
                         type="checkbox"
@@ -197,7 +204,13 @@ function RiskEditor({
                       />
                       <span>
                         <span className="font-mono text-xs text-gold">{gate.id}</span> {gate.title}
+                        {seatMustCheck ? (
+                          <span className="ml-2 text-[11px] text-gold">本席必核</span>
+                        ) : null}
                         <span className="mt-1 block text-xs text-mute">{gate.detail}</span>
+                        <span className="mt-1 block text-[11px] text-mute">
+                          执法席：{gate.enforcingSeats.join(" / ")}
+                        </span>
                       </span>
                     </label>
                     {attached ? (
@@ -329,17 +342,63 @@ function RiskEditor({
                 ))}
               </select>
             </Field>
-            <Field label="责任席位">
+            <Field label="主责席位">
               <select
                 value={draft.ownerSeat}
-                onChange={(e) => patch("ownerSeat", e.target.value as OwnerSeat)}
+                onChange={(e) => {
+                  const ownerSeat = e.target.value as OwnerSeat;
+                  setDraft((prev) => ({
+                    ...prev,
+                    ownerSeat,
+                    collabSeats: uniqueSeats(prev.collabSeats ?? [], ownerSeat),
+                  }));
+                }}
                 className="w-full rounded-xl border border-line bg-card px-3 py-2 text-sm"
               >
                 {OWNER_SEATS.map((c) => (
-                  <option key={c}>{c}</option>
+                  <option key={c} value={c}>
+                    {c} · {SEAT_META[c].role}
+                  </option>
                 ))}
               </select>
+              <p className="mt-1 text-[11px] text-mute">{SEAT_META[draft.ownerSeat].duty}</p>
             </Field>
+            <div>
+              <p className="text-xs text-mute">共主席位</p>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {OWNER_SEATS.filter((seat) => seat !== draft.ownerSeat).map((seat) => {
+                  const on = (draft.collabSeats ?? []).includes(seat);
+                  return (
+                    <button
+                      key={seat}
+                      type="button"
+                      onClick={() => {
+                        const current = draft.collabSeats ?? [];
+                        patch(
+                          "collabSeats",
+                          on ? current.filter((item) => item !== seat) : uniqueSeats([...current, seat], draft.ownerSeat),
+                        );
+                      }}
+                      className={`rounded-full border px-2 py-1 text-[11px] ${
+                        on ? "border-gold/40 bg-gold/15 text-gold" : "border-line text-mute"
+                      }`}
+                    >
+                      {seat}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+            <div>
+              <p className="text-xs text-mute">本席必核红线</p>
+              <ul className="mt-2 space-y-1 text-[11px] text-mute">
+                {gatesForSeat(draft.ownerSeat).map((gate) => (
+                  <li key={gate.id}>
+                    <span className="font-mono text-gold">{gate.id}</span> {gate.title}
+                  </li>
+                ))}
+              </ul>
+            </div>
             <p className="text-[11px] text-mute">更新于 {formatDateTime(draft.updatedAt)}</p>
           </section>
         </aside>

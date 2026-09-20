@@ -50,6 +50,8 @@ export const OWNER_SEATS = [
 ] as const;
 export type OwnerSeat = (typeof OWNER_SEATS)[number];
 
+export type BoardView = "status" | "seat";
+
 export type GateId = "G1" | "G2" | "G3" | "G4" | "G5" | "G6" | "G7" | "G8" | "G9";
 
 export interface GlobalGate {
@@ -57,6 +59,7 @@ export interface GlobalGate {
   index: number;
   title: string;
   detail: string;
+  enforcingSeats: OwnerSeat[];
 }
 
 export interface CardGate {
@@ -79,6 +82,7 @@ export interface Risk {
   severity: Severity;
   light: Light;
   ownerSeat: OwnerSeat;
+  collabSeats: OwnerSeat[];
   triggers: string[];
   residualRisk: string;
   redLineGates: CardGate[];

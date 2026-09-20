@@ -25,12 +25,12 @@ export function NewRiskButton() {
 }
 
 function NewRiskModal({ onClose }: { onClose: () => void }) {
-  const { upsert, risks } = useRiskStore();
+  const { upsert, risks, mySeat } = useRiskStore();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState<Category>("组织协作");
   const [severity, setSeverity] = useState<Severity>("P1");
-  const [ownerSeat, setOwnerSeat] = useState<OwnerSeat>("正将");
+  const [ownerSeat, setOwnerSeat] = useState<OwnerSeat>(mySeat);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,6 +44,7 @@ function NewRiskModal({ onClose }: { onClose: () => void }) {
       severity,
       light: "灰",
       ownerSeat,
+      collabSeats: [],
       triggers: [],
       residualRisk: "待评估。",
       redLineGates: [],

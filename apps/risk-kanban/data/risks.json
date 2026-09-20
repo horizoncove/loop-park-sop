@@ -1,6 +1,6 @@
 {
-  "version": 1,
-  "updatedAt": "2026-09-20T06:00:00.000Z",
+  "version": 2,
+  "updatedAt": "2026-09-20T07:00:00.000Z",
   "risks": [
     {
       "id": "D-01",
@@ -10,6 +10,9 @@
       "severity": "P0",
       "light": "红",
       "ownerSeat": "火脱",
+      "collabSeats": [
+        "除将"
+      ],
       "triggers": [
         "通道净宽 < 验收值",
         "灭火器/疏散指示被挡",
@@ -36,11 +39,15 @@
     {
       "id": "D-03",
       "title": "开业条件未齐仍要强交铺",
-      "description": "部分铺位开业条件清单（证照、消防、水电点位、移交单）未齐套，招商侧已承诺「先装修后补手续」。",
+      "description": "部分铺位开业条件清单（证照、消防、水电点位、移交单）未齐套，招商侧已承诺「先装修后补手续」。火脱盯开业条件，除将卡住钥匙/上账，正将否决口头承诺。",
       "category": "建设工期开业",
       "severity": "P0",
       "light": "红",
-      "ownerSeat": "正将",
+      "ownerSeat": "火脱",
+      "collabSeats": [
+        "除将",
+        "正将"
+      ],
       "triggers": [
         "移交单缺项",
         "消防验收未出",
@@ -67,11 +74,14 @@
     {
       "id": "B-04",
       "title": "自营网咖方案回流",
-      "description": "有团队再次提出 3#4F 或边厅做自营网咖以「补人气」。与红线冲突：不做自营网咖，4F 只做娱/造场。",
+      "description": "有团队再次提出 3#4F 或边厅做自营网咖以「补人气」。正将拍板否决，提将从母表/Brief 删除该业态。",
       "category": "货盘业态",
       "severity": "P0",
       "light": "红",
       "ownerSeat": "正将",
+      "collabSeats": [
+        "提将"
+      ],
       "triggers": [
         "投资人问网咖回本",
         "4F 空置焦虑",
@@ -91,11 +101,14 @@
     {
       "id": "C-06",
       "title": "公域短稿条件红仍在投放",
-      "description": "抖音/视频号短稿含未分层 ROI 与「稳赚」暗示，条件灯为红，投放账户未停。",
+      "description": "抖音/视频号短稿含未分层 ROI 与「稳赚」暗示，条件灯为红，投放账户未停。风谣停公域，反将改私域一对一邀约。",
       "category": "口径舆情",
       "severity": "P0",
       "light": "红",
       "ownerSeat": "风谣",
+      "collabSeats": [
+        "反将"
+      ],
       "triggers": [
         "投放后台仍在跑",
         "短稿含稳赚/ROI",
@@ -126,11 +139,14 @@
     {
       "id": "H-01",
       "title": "活动无借场书面同意",
-      "description": "拟办校园联赛/市集，场地使用仅有口头答应，无物业/产权方书面借场函，保险与责任主体未写明。",
+      "description": "拟办校园联赛/市集，场地使用仅有口头答应。火脱看场，除将补书面责任与保险条款。",
       "category": "活动造场与联赛",
       "severity": "P0",
       "light": "红",
-      "ownerSeat": "除将",
+      "ownerSeat": "火脱",
+      "collabSeats": [
+        "除将"
+      ],
       "triggers": [
         "无借场函",
         "责任条款空白",
@@ -154,11 +170,14 @@
     {
       "id": "B-02",
       "title": "1F 重油正餐意向铺",
-      "description": "1F 有两家重油正餐在谈，销售认为「香气能聚客」。红线：1F 不招重油正餐。",
+      "description": "1F 有两家重油正餐在谈。提将从母表拿掉重油，火脱核排烟井前不得承诺 2–3F 替代。",
       "category": "货盘业态",
       "severity": "P0",
       "light": "黄",
       "ownerSeat": "提将",
+      "collabSeats": [
+        "火脱"
+      ],
       "triggers": [
         "意向书草稿含炒锅/油烟",
         "铺位在 1F 主轴",
@@ -185,11 +204,14 @@
     {
       "id": "C-04",
       "title": "未分层 ROI 对外口径",
-      "description": "招商话术与朋友圈素材仍出现「带动营业额」「综合 ROI 1:X」且未按铺型/楼层分层。",
+      "description": "招商话术与朋友圈素材仍出现未分层 ROI。风谣换版口径，反将在 A 池邀约中禁用旧话术。",
       "category": "口径舆情",
       "severity": "P0",
       "light": "黄",
       "ownerSeat": "风谣",
+      "collabSeats": [
+        "反将"
+      ],
       "triggers": [
         "话术卡未换版",
         "销售口头讲回报",
@@ -209,11 +231,14 @@
     {
       "id": "C-10",
       "title": "合同附件占位符未验真",
-      "description": "多份合同附件仍为「XXXX」「待补」占位符，平面图、铺位建议、开业条件清单未验真替换。",
+      "description": "多份合同附件仍为「XXXX」「待补」占位符。除将验真，提将对照 V3.0 母表铺号面积。",
       "category": "财务合同合规",
       "severity": "P1",
       "light": "黄",
-      "ownerSeat": "反将",
+      "ownerSeat": "除将",
+      "collabSeats": [
+        "提将"
+      ],
       "triggers": [
         "附件文件名含模板",
         "面积/铺号与 V3.0 不一致",
@@ -234,8 +259,8 @@
       "notes": [
         {
           "id": "n-c10-1",
-          "body": "已列出 6 份待验真清单，优先 P0 铺位。",
-          "authorSeat": "反将",
+          "body": "已列出 6 份待验真清单，优先 P0 铺位。未批不上账。",
+          "authorSeat": "除将",
           "createdAt": "2026-09-20T01:15:00.000Z"
         }
       ],
@@ -244,11 +269,14 @@
     {
       "id": "H-02",
       "title": "活动无保单 / 无医疗点",
-      "description": "造场活动方案有人流预估，但无公众责任险保单，现场无医疗点与应急联系人公示。",
+      "description": "造场活动有人流预估。除将出保单，火脱落医疗点与应急联系人。",
       "category": "活动造场与联赛",
       "severity": "P0",
       "light": "黄",
-      "ownerSeat": "火脱",
+      "ownerSeat": "除将",
+      "collabSeats": [
+        "火脱"
+      ],
       "triggers": [
         "保单未出单",
         "医疗点未落位",
@@ -268,11 +296,14 @@
     {
       "id": "G-01",
       "title": "工期延误挤压开业窗口",
-      "description": "2–3F 机电滞后，开业窗口被压缩。存在「降标准抢开业」压力，可能回潮到交铺红线。",
+      "description": "2–3F 机电滞后，开业窗口被压缩。火脱盯开业条件倒排，正将否决「降标准抢开业」。",
       "category": "建设工期开业",
       "severity": "P1",
       "light": "黄",
-      "ownerSeat": "正将",
+      "ownerSeat": "火脱",
+      "collabSeats": [
+        "正将"
+      ],
       "triggers": [
         "关键节点连续逾期",
         "商家进场请求提前",
@@ -292,11 +323,14 @@
     {
       "id": "D-02",
       "title": "保单未齐却要进场装修",
-      "description": "施工方与部分商家要求先进场打底，公众责任险/施工险尚未齐套。与 D-03 交铺闸联动。",
+      "description": "施工方与部分商家要求先进场打底。除将核对保单/押金条款，火脱禁止未齐套进场。",
       "category": "安全消防物业",
       "severity": "P0",
       "light": "红",
-      "ownerSeat": "火脱",
+      "ownerSeat": "除将",
+      "collabSeats": [
+        "火脱"
+      ],
       "triggers": [
         "保单过期或未出",
         "施工单位人员名单未报",
@@ -313,8 +347,8 @@
       "notes": [
         {
           "id": "n-d02-1",
-          "body": "正在核对三家施工单位保单有效期与保额。",
-          "authorSeat": "火脱",
+          "body": "正在核对三家施工单位保单有效期与保额。未批不上账。",
+          "authorSeat": "除将",
           "createdAt": "2026-09-20T03:40:00.000Z"
         }
       ],
@@ -323,11 +357,12 @@
     {
       "id": "E-01",
       "title": "收款账户未开立",
-      "description": "定金/租金收款账户未完成开户与进件，存在个人卡或第三方代收提议。",
+      "description": "定金/租金收款账户未完成开户与进件，存在个人卡或第三方代收提议。除将闸：未开户不收款、不上账。",
       "category": "财务合同合规",
       "severity": "P0",
       "light": "红",
-      "ownerSeat": "反将",
+      "ownerSeat": "除将",
+      "collabSeats": [],
       "triggers": [
         "开户材料缺件",
         "有人提出个人账户过渡",
@@ -351,11 +386,14 @@
     {
       "id": "A-03",
       "title": "开工口径未钉死",
-      "description": "对内对外关于「已开工/即将开工/示范段」表述不统一，现场进度与宣传图不一致。",
+      "description": "「已开工/即将开工/示范段」表述不统一。风谣锁口径，正将确认现场进度边界。",
       "category": "战略定位",
       "severity": "P1",
       "light": "黄",
-      "ownerSeat": "正将",
+      "ownerSeat": "风谣",
+      "collabSeats": [
+        "正将"
+      ],
       "triggers": [
         "宣传用词超出现场",
         "领导视察口径与销售口径分叉"
@@ -374,11 +412,14 @@
     {
       "id": "C-11",
       "title": "T 码双轨并行",
-      "description": "旧版 T 码（含办公/临时铺号）与 V3.0 铺位码同时在表单、海报、合同里出现，对账与认铺会错位。",
+      "description": "旧版 T 码与 V3.0 铺位码同时在表单、海报、合同里出现。提将废止旧码并挂周入库，风谣停发双码物料。",
       "category": "口径舆情",
       "severity": "P1",
       "light": "黄",
-      "ownerSeat": "风谣",
+      "ownerSeat": "提将",
+      "collabSeats": [
+        "风谣"
+      ],
       "triggers": [
         "同一铺两个编号",
         "CAD 办公图层外流",
@@ -396,7 +437,7 @@
         {
           "id": "n-c11-1",
           "body": "正在做旧码→V3.0 对照表，禁止再发双码物料。",
-          "authorSeat": "风谣",
+          "authorSeat": "提将",
           "createdAt": "2026-09-19T11:30:00.000Z"
         }
       ],
@@ -405,11 +446,15 @@
     {
       "id": "B-10",
       "title": "9# 铺位异常口径",
-      "description": "9# 出现面积、租金、赠送条件的场外口径，销售称「特批」。红线：9# / 价外让利私允无效，归正将闸。",
+      "description": "9# 出现面积、租金、赠送条件的场外口径。正将闸：私允无效。提将改母表，风谣收口对外说法。",
       "category": "货盘业态",
       "severity": "P0",
       "light": "红",
       "ownerSeat": "正将",
+      "collabSeats": [
+        "提将",
+        "风谣"
+      ],
       "triggers": [
         "价外条件出现在微信",
         "面积与货盘不一致",
@@ -429,11 +474,14 @@
     {
       "id": "C-08",
       "title": "超货盘面积 / 业态承诺",
-      "description": "意向沟通中出现超出 V3.0 货盘的面积赠送、后仓、外摆承诺，尚未落成书面，但已有聊天记录。",
+      "description": "意向沟通中出现超出 V3.0 货盘的面积赠送、后仓、外摆。正将否决，提将回写母表。",
       "category": "招商转化",
       "severity": "P0",
       "light": "灰",
-      "ownerSeat": "提将",
+      "ownerSeat": "正将",
+      "collabSeats": [
+        "提将"
+      ],
       "triggers": [
         "聊天记录含赠送面积",
         "外摆未在货盘",
@@ -457,11 +505,15 @@
     {
       "id": "C-09",
       "title": "价外私允（免租/装修补贴）",
-      "description": "传出对重点客户的免租期、装修补贴口报，未走正将闸，也未进合同审批流。",
+      "description": "传出对重点客户的免租期、装修补贴口报。正将闸，除将不得上账，提将不得写入 Brief。",
       "category": "招商转化",
       "severity": "P0",
       "light": "灰",
-      "ownerSeat": "提将",
+      "ownerSeat": "正将",
+      "collabSeats": [
+        "提将",
+        "除将"
+      ],
       "triggers": [
         "口报免租",
         "补贴未立项",
@@ -485,11 +537,14 @@
     {
       "id": "B-06",
       "title": "4# 拆零意向",
-      "description": "4# 被建议拆成多间短租或迷你铺「好招商」。红线：4# 不拆零。",
+      "description": "4# 被建议拆成多间短租或迷你铺。正将钉死不拆零，提将母表保持整铺。",
       "category": "货盘业态",
       "severity": "P0",
       "light": "灰",
       "ownerSeat": "正将",
+      "collabSeats": [
+        "提将"
+      ],
       "triggers": [
         "拆铺草图",
         "多商户认同一编号",
@@ -509,11 +564,14 @@
     {
       "id": "E-05",
       "title": "4# 提前网签压力",
-      "description": "在拆零争议未关闭、附件未验真的情况下，有人推动 4# 先网签占位。",
+      "description": "拆零争议未关闭、附件未验真，有人推动 4# 先网签占位。除将拒签拒上账，正将维持 4# 闸。",
       "category": "财务合同合规",
       "severity": "P0",
       "light": "灰",
-      "ownerSeat": "反将",
+      "ownerSeat": "除将",
+      "collabSeats": [
+        "正将"
+      ],
       "triggers": [
         "网签排期单出现 4#",
         "占位定金要求",
@@ -537,11 +595,12 @@
     {
       "id": "H-03",
       "title": "活动通道堵塞隐患",
-      "description": "联赛/市集动线与消防通道、卸货流线打架，尚未做峰值人流沙盘。与 D-01、H-01 叠加。",
+      "description": "联赛/市集动线与消防通道、卸货流线打架。火脱做峰值人流沙盘，与 D-01、H-01 叠加。",
       "category": "活动造场与联赛",
       "severity": "P1",
       "light": "灰",
       "ownerSeat": "火脱",
+      "collabSeats": [],
       "triggers": [
         "摊位图压疏散线",
         "无单向导流",
@@ -565,11 +624,14 @@
     {
       "id": "F-01",
       "title": "竞品开学季分流",
-      "description": "周边商场开学季促销力度加大，LOOP 尚未锁定差异化内容，存在客流被截流风险。非红线，但会影响开业窗口判断。",
+      "description": "周边商场开学季促销加码。风谣盯情报，反将用私域深耕对冲，不得用违禁口径换量。",
       "category": "竞品客流",
       "severity": "P2",
       "light": "灰",
       "ownerSeat": "风谣",
+      "collabSeats": [
+        "反将"
+      ],
       "triggers": [
         "竞品连开主题市集",
         "校园社群被竞品占坑",
@@ -589,11 +651,12 @@
     {
       "id": "I-01",
       "title": "八将决策未闭环",
-      "description": "多条红线事项在群里讨论过，但无纪要、无责任席位、无下次检查时间，组织上容易「以为已经闸了」。",
+      "description": "多条红线事项在群里讨论过，但无纪要、无责任席位、无下次检查时间。正将把看板当作唯一闸口台账。",
       "category": "组织协作",
       "severity": "P1",
       "light": "灰",
       "ownerSeat": "正将",
+      "collabSeats": [],
       "triggers": [
         "无纪要",
         "同一议题重复讨论",
@@ -606,13 +669,99 @@
       "updatedAt": "2026-09-18T02:10:00.000Z"
     },
     {
+      "id": "R-01",
+      "title": "A 池未分层 / 海选回流",
+      "description": "Scout 名单未按铺型/预算分层，现场又出现海选摊、口报死价。反将重整 A 池：Scout→邀约→养成，禁止海选。",
+      "category": "招商转化",
+      "severity": "P0",
+      "light": "黄",
+      "ownerSeat": "反将",
+      "collabSeats": [
+        "提将"
+      ],
+      "triggers": [
+        "A 池无分层标签",
+        "市集摊位当场报价",
+        "现金激励提议"
+      ],
+      "residualRisk": "分层前任何放量邀约都会把死价锚进商家预期。",
+      "redLineGates": [
+        {
+          "id": "G1",
+          "checked": false
+        }
+      ],
+      "status": "watch",
+      "notes": [],
+      "updatedAt": "2026-09-20T01:15:00.000Z"
+    },
+    {
+      "id": "R-02",
+      "title": "公域红未撤仍在社群放量邀约",
+      "description": "公域短稿仍红，反将侧社群却在群发招商链接。G9：条件红未撤前只做一对一私域邀约。",
+      "category": "招商转化",
+      "severity": "P0",
+      "light": "红",
+      "ownerSeat": "反将",
+      "collabSeats": [
+        "风谣"
+      ],
+      "triggers": [
+        "社群群发招商链接",
+        "短链仍指向红稿落地页",
+        "未走一对一"
+      ],
+      "residualRisk": "即便停投，社群二次传播等同公域放量。",
+      "redLineGates": [
+        {
+          "id": "G9",
+          "checked": false
+        },
+        {
+          "id": "G2",
+          "checked": false
+        }
+      ],
+      "status": "investigating",
+      "notes": [],
+      "updatedAt": "2026-09-20T05:10:00.000Z"
+    },
+    {
+      "id": "T-01",
+      "title": "母表 / Brief 本周未挂周入库",
+      "description": "V3.0 铺位建议、本周 Brief 与认铺进度未入库。提将挂周是八将对照母表的唯一入口。",
+      "category": "货盘业态",
+      "severity": "P1",
+      "light": "灰",
+      "ownerSeat": "提将",
+      "collabSeats": [],
+      "triggers": [
+        "周表缺期",
+        "Brief 仍在个人文档",
+        "母表与现场认铺对不上"
+      ],
+      "residualRisk": "未挂周则 T 码、价外、重油意向都会在场外生长。",
+      "redLineGates": [
+        {
+          "id": "G3",
+          "checked": false
+        }
+      ],
+      "status": "todo",
+      "notes": [],
+      "updatedAt": "2026-09-20T03:40:00.000Z"
+    },
+    {
       "id": "A-01",
       "title": "战略定位口径已锁定",
-      "description": "LOOP PARK 定位（校园生活 + 造场 + 体育奥莱零售，非专业赛场、非自营网咖）已形成对内一页纸，对外话术已换版。",
+      "description": "LOOP PARK 定位（校园生活 + 造场 + 体育奥莱零售，非专业赛场、非自营网咖）已形成对内一页纸。",
       "category": "战略定位",
       "severity": "P1",
       "light": "绿",
       "ownerSeat": "正将",
+      "collabSeats": [
+        "风谣"
+      ],
       "triggers": [
         "新同事沿用旧定位",
         "合作方擅自加赛场头衔"
@@ -642,11 +791,14 @@
     {
       "id": "C-01",
       "title": "海选招摊 / 口报死价已禁止",
-      "description": "已发文禁止海选招摊、现场发现金、口报死价。招商会议改用书面条件表。",
+      "description": "已发文禁止海选招摊、现场发现金、口报死价。反将改 A 池书面邀约，提将 Brief 同步。",
       "category": "招商转化",
       "severity": "P0",
       "light": "绿",
-      "ownerSeat": "提将",
+      "ownerSeat": "反将",
+      "collabSeats": [
+        "提将"
+      ],
       "triggers": [
         "新销售未培训",
         "市集摊位回潮海选"
@@ -665,11 +817,14 @@
     {
       "id": "J-01",
       "title": "市集/联赛共标题招商已拆",
-      "description": "原「LOOP 联赛招商季」主标题已拆成内容向造场标题 + 独立招商物料，避免共标题。",
+      "description": "原「LOOP 联赛招商季」主标题已拆成内容向造场标题 + 独立招商物料。风谣管发行，提将管 Brief。",
       "category": "活动造场与联赛",
       "severity": "P1",
       "light": "绿",
-      "ownerSeat": "除将",
+      "ownerSeat": "风谣",
+      "collabSeats": [
+        "提将"
+      ],
       "triggers": [
         "设计稿再次合并标题",
         "媒体通稿混写"

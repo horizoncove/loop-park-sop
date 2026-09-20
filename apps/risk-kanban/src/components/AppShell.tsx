@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 
 const NAV = [
   { href: "/", label: "看板" },
+  { href: "/seats", label: "席位" },
   { href: "/gates", label: "红线闸" },
   { href: "/sop", label: "SOP 节奏" },
 ];

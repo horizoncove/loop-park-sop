@@ -1,3 +1,4 @@
+import { STORE_VERSION } from "@/lib/constants";
 import { readStore, resetStore, writeStore } from "@/lib/server-store";
 import { SEED_PAYLOAD } from "@/lib/seed";
 import type { StorePayload } from "@/lib/types";
@@ -21,7 +22,7 @@ export async function PUT(request: Request) {
     return Response.json({ error: "risks 必须是数组" }, { status: 400 });
   }
   const store = await writeStore({
-    version: 1,
+    version: STORE_VERSION,
     updatedAt: nowIso(),
     risks: body.risks,
   });

@@ -15,18 +15,28 @@ import {
   type DragStartEvent,
 } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import { OWNER_SEATS, SEAT_COLUMN_ACCENT, SEAT_META } from "@/lib/constants";
 import { COLUMNS, COLUMN_META } from "@/lib/types";
-import type { ColumnId, Risk } from "@/lib/types";
+import type { ColumnId, OwnerSeat, Risk } from "@/lib/types";
 import { useRiskStore } from "@/lib/store";
 import { RiskCard, SortableRiskCard } from "./RiskCard";
 import { NewRiskButton } from "./NewRiskModal";
 
-const COLUMN_ACCENT: Record<ColumnId, string> = {
+const STATUS_ACCENT: Record<ColumnId, string> = {
   todo: "from-stone-500/30",
   investigating: "from-blue-400/30",
   watch: "from-amber-400/40",
   blocked: "from-red-500/40",
   closed: "from-emerald-400/30",
+};
+
+type BoardColumn = {
+  id: string;
+  label: string;
+  hint: string;
+  accent: string;
+  items: Risk[];
+  showAdd?: boolean;
 };
 
 const collisionDetection: CollisionDetection = (args) => {
@@ -44,7 +54,7 @@ const collisionDetection: CollisionDetection = (args) => {
 };
 
 export function KanbanBoard() {
-  const { filtered, ready, moveRisk } = useRiskStore();
+  const { filtered, ready, moveRisk, moveRiskSeat, boardView, mySeat } = useRiskStore();
   const [active, setActive] = useState<Risk | null>(null);
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -52,16 +62,26 @@ export function KanbanBoard() {
     }),
   );
 
-  const grouped = useMemo(() => {
-    const map = Object.fromEntries(COLUMNS.map((id) => [id, [] as Risk[]])) as Record<
-      ColumnId,
-      Risk[]
-    >;
-    for (const risk of filtered) {
-      map[risk.status].push(risk);
+  const columns = useMemo<BoardColumn[]>(() => {
+    if (boardView === "seat") {
+      return OWNER_SEATS.map((seat) => ({
+        id: `seat:${seat}`,
+        label: seat,
+        hint: SEAT_META[seat].duty,
+        accent: SEAT_COLUMN_ACCENT[seat],
+        items: filtered.filter((risk) => risk.ownerSeat === seat),
+        showAdd: seat === mySeat,
+      }));
     }
-    return map;
-  }, [filtered]);
+    return COLUMNS.map((id) => ({
+      id,
+      label: COLUMN_META[id].label,
+      hint: COLUMN_META[id].hint,
+      accent: STATUS_ACCENT[id],
+      items: filtered.filter((risk) => risk.status === id),
+      showAdd: id === "todo",
+    }));
+  }, [boardView, filtered, mySeat]);
 
   const handleDragStart = (event: DragStartEvent) => {
     const risk = filtered.find((item) => item.id === String(event.active.id));
@@ -73,28 +93,38 @@ export function KanbanBoard() {
     const { active: drag, over } = event;
     if (!over) return;
     const overId = String(over.id);
-    const overData = over.data.current as { type?: string; column?: ColumnId; risk?: Risk } | undefined;
-    let nextColumn: ColumnId | undefined;
+    const overData = over.data.current as
+      | { type?: string; column?: string; risk?: Risk }
+      | undefined;
+    let target = overData?.type === "column" ? overData.column : undefined;
     let beforeId: string | null = null;
-    if (overData?.type === "column" && overData.column) {
-      nextColumn = overData.column;
-    } else if (overData?.type === "card" && overData.risk) {
-      nextColumn = overData.risk.status;
+    if (overData?.type === "card" && overData.risk) {
+      target =
+        boardView === "seat" ? `seat:${overData.risk.ownerSeat}` : overData.risk.status;
       beforeId = overData.risk.id === String(drag.id) ? null : overData.risk.id;
-    } else if (COLUMNS.includes(overId as ColumnId)) {
-      nextColumn = overId as ColumnId;
+    } else if (!target) {
+      target = overId;
     }
     const dragged = filtered.find((item) => item.id === String(drag.id));
-    if (!nextColumn || !dragged) return;
-    if (nextColumn === dragged.status && !beforeId) return;
-    void moveRisk(String(drag.id), nextColumn, beforeId);
+    if (!target || !dragged) return;
+
+    if (boardView === "seat") {
+      const seat = target.replace(/^seat:/, "") as OwnerSeat;
+      if (!OWNER_SEATS.includes(seat)) return;
+      if (seat === dragged.ownerSeat && !beforeId) return;
+      void moveRiskSeat(String(drag.id), seat, beforeId);
+      return;
+    }
+    if (!COLUMNS.includes(target as ColumnId)) return;
+    if (target === dragged.status && !beforeId) return;
+    void moveRisk(String(drag.id), target as ColumnId, beforeId);
   };
 
   if (!ready) {
     return (
-      <div className="grid grid-cols-5 gap-3">
-        {COLUMNS.map((id) => (
-          <div key={id} className="h-[70vh] animate-pulse rounded-2xl bg-panel" />
+      <div className="grid grid-cols-6 gap-3">
+        {Array.from({ length: boardView === "seat" ? 6 : 5 }).map((_, i) => (
+          <div key={i} className="h-[70vh] animate-pulse rounded-2xl bg-panel" />
         ))}
       </div>
     );
@@ -108,52 +138,52 @@ export function KanbanBoard() {
       onDragEnd={handleDragEnd}
       onDragCancel={() => setActive(null)}
     >
-      <div className="kanban-scroll flex min-h-[calc(100vh-220px)] gap-3 overflow-x-auto pb-6">
-        {COLUMNS.map((column) => (
-          <Column key={column} id={column} items={grouped[column]} />
+      <div className="kanban-scroll flex min-h-[calc(100vh-260px)] gap-3 overflow-x-auto pb-6">
+        {columns.map((column) => (
+          <Column key={column.id} column={column} />
         ))}
       </div>
       <DragOverlay dropAnimation={null}>
-        {active ? <RiskCard risk={active} overlay /> : null}
+        {active ? <RiskCard risk={active} overlay hideOwner={boardView === "seat"} /> : null}
       </DragOverlay>
     </DndContext>
   );
 }
 
-function Column({ id, items }: { id: ColumnId; items: Risk[] }) {
+function Column({ column }: { column: BoardColumn }) {
+  const { boardView } = useRiskStore();
   const { setNodeRef, isOver } = useDroppable({
-    id,
-    data: { type: "column", column: id },
+    id: column.id,
+    data: { type: "column", column: column.id },
   });
-  const meta = COLUMN_META[id];
 
   return (
     <section
       ref={setNodeRef}
-      className={`flex w-[280px] shrink-0 flex-col rounded-2xl border border-line bg-panel/80 lg:min-w-0 lg:flex-1 ${
+      className={`flex w-[260px] shrink-0 flex-col rounded-2xl border border-line bg-panel/80 lg:min-w-0 lg:flex-1 ${
         isOver ? "ring-1 ring-gold/40" : ""
       }`}
     >
-      <header className={`rounded-t-2xl bg-gradient-to-r ${COLUMN_ACCENT[id]} to-transparent px-3 py-3`}>
+      <header className={`rounded-t-2xl bg-gradient-to-r ${column.accent} to-transparent px-3 py-3`}>
         <div className="flex items-baseline justify-between gap-2">
-          <h2 className="text-sm font-semibold">{meta.label}</h2>
-          <span className="font-mono text-xs text-mute">{items.length}</span>
+          <h2 className="text-sm font-semibold">{column.label}</h2>
+          <span className="font-mono text-xs text-mute">{column.items.length}</span>
         </div>
-        <p className="text-[11px] text-mute">{meta.hint}</p>
+        <p className="text-[11px] text-mute">{column.hint}</p>
       </header>
-      <SortableContext items={items.map((item) => item.id)} strategy={verticalListSortingStrategy}>
+      <SortableContext items={column.items.map((item) => item.id)} strategy={verticalListSortingStrategy}>
         <div className="flex flex-1 flex-col gap-2 overflow-y-auto p-2">
-          {items.map((item) => (
-            <SortableRiskCard key={item.id} risk={item} />
+          {column.items.map((item) => (
+            <SortableRiskCard key={item.id} risk={item} hideOwner={boardView === "seat"} />
           ))}
-          {items.length === 0 ? (
+          {column.items.length === 0 ? (
             <div className="flex flex-1 items-center justify-center rounded-xl border border-dashed border-line px-3 py-10 text-center text-xs text-mute">
-              拖入卡片，或保持空列
+              {boardView === "seat" ? "拖入改主责席" : "拖入卡片，或保持空列"}
             </div>
           ) : null}
         </div>
       </SortableContext>
-      {id === "todo" ? (
+      {column.showAdd ? (
         <div className="p-2 pt-0">
           <NewRiskButton />
         </div>

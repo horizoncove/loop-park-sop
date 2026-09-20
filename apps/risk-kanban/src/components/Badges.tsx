@@ -45,7 +45,7 @@ export function SeverityBadge({ severity }: { severity: Severity }) {
   );
 }
 
-export function SeatBadge({ seat }: { seat: OwnerSeat }) {
+export function SeatBadge({ seat, collab = false }: { seat: OwnerSeat; collab?: boolean }) {
   const tone: Record<string, string> = {
     gold: "bg-amber-300/10 text-gold border-amber-300/25",
     blue: "bg-blue-400/10 text-blue-200 border-blue-400/25",
@@ -57,7 +57,7 @@ export function SeatBadge({ seat }: { seat: OwnerSeat }) {
   const meta = SEAT_META[seat];
   return (
     <span className={cn("rounded-full border px-2 py-0.5 text-[11px]", tone[meta.tone])}>
-      {seat}
+      {collab ? `共主·${seat}` : seat}
     </span>
   );
 }
