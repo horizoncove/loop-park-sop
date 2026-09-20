@@ -98,6 +98,22 @@ export const SEAT_META: Record<OwnerSeat, { role: string; duty: string }> = {
   除将: { role: "钱合同闸", duty: "财务合同合规、保单押金、未批不上账" },
 };
 
+/** Restrained hues on paper #f6f5f2 — eight seats, clearly distinct, not neon. */
+export const SEAT_SWATCH: Record<OwnerSeat, string> = {
+  正将: "#b08a2e",
+  提将: "#3f6f8f",
+  风将: "#2f8aa3",
+  谣将: "#6d5b93",
+  反将: "#a24b5a",
+  火将: "#c0562a",
+  脱将: "#5f8a3a",
+  除将: "#2d7a68",
+};
+
+export function seatBand(seat: OwnerSeat, amount = 16) {
+  return `color-mix(in oklab, ${SEAT_SWATCH[seat]} ${amount}%, #ffffff)`;
+}
+
 export const LIGHT_META: Record<
   "红" | "黄" | "绿" | "灰",
   { label: string; className: string; dot: string }

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import type { Risk } from "@/lib/types";
+import { SEAT_SWATCH } from "@/lib/constants";
 import { LightBadge, SeatBadge } from "./Badges";
 
 export function RiskCard({
@@ -20,6 +21,7 @@ export function RiskCard({
   return (
     <article
       className={`border border-line bg-surface p-3 ${overlay ? "border-ink" : "hover:border-ink/40"}`}
+      style={{ borderLeft: `4px solid ${SEAT_SWATCH[risk.ownerSeat]}` }}
     >
       <div className="flex items-center justify-between gap-2">
         <span className="font-mono text-[12px] text-mute">{risk.id}</span>

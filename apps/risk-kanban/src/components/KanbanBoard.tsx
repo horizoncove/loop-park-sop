@@ -15,10 +15,11 @@ import {
   type DragStartEvent,
 } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
-import { OWNER_SEATS } from "@/lib/constants";
+import { OWNER_SEATS, SEAT_SWATCH, seatBand } from "@/lib/constants";
 import { COLUMNS, COLUMN_META } from "@/lib/types";
 import type { ColumnId, OwnerSeat, Risk } from "@/lib/types";
 import { useRiskStore } from "@/lib/store";
+import { SeatSwatch } from "./Badges";
 import { RiskCard, SortableRiskCard } from "./RiskCard";
 import { NewRiskButton } from "./NewRiskModal";
 import { cn } from "@/lib/utils";
@@ -28,6 +29,7 @@ type BoardColumn = {
   label: string;
   items: Risk[];
   showAdd?: boolean;
+  seat?: OwnerSeat;
 };
 
 const collisionDetection: CollisionDetection = (args) => {
@@ -58,6 +60,7 @@ export function KanbanBoard() {
       return OWNER_SEATS.map((seat) => ({
         id: `seat:${seat}`,
         label: seat,
+        seat,
         items: filtered.filter((risk) => risk.ownerSeat === seat),
         showAdd: seat === mySeat,
       }));
@@ -153,8 +156,26 @@ function Column({ column, first }: { column: BoardColumn; first: boolean }) {
         isOver ? "bg-surface" : "",
       )}
     >
-      <header className="flex items-baseline justify-between gap-2 border-b border-line px-3 py-2">
-        <h2 className="text-[13px] font-medium text-ink">{column.label}</h2>
+      <header
+        className="flex items-center justify-between gap-2 border-b border-line px-3 py-2.5"
+        style={
+          column.seat
+            ? {
+                background: seatBand(column.seat),
+                borderLeft: `5px solid ${SEAT_SWATCH[column.seat]}`,
+              }
+            : undefined
+        }
+      >
+        <h2
+          className={cn(
+            "flex items-center gap-2 leading-none text-ink",
+            column.seat ? "text-[19px] font-medium" : "text-[14px] font-medium",
+          )}
+        >
+          {column.seat ? <SeatSwatch seat={column.seat} size="md" /> : null}
+          {column.label}
+        </h2>
         <span className="font-mono text-[12px] text-mute">{column.items.length}</span>
       </header>
       <SortableContext items={column.items.map((item) => item.id)} strategy={verticalListSortingStrategy}>

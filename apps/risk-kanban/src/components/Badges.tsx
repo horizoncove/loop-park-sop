@@ -1,6 +1,23 @@
-import { LIGHT_META } from "@/lib/constants";
+import { LIGHT_META, SEAT_SWATCH } from "@/lib/constants";
 import type { Light, OwnerSeat, Severity } from "@/lib/types";
 import { cn } from "@/lib/utils";
+
+export function SeatSwatch({
+  seat,
+  size = "sm",
+}: {
+  seat: OwnerSeat;
+  size?: "sm" | "md" | "lg";
+}) {
+  const dim = size === "lg" ? "h-4 w-4" : size === "md" ? "h-3.5 w-3.5" : "h-2.5 w-2.5";
+  return (
+    <span
+      className={cn("inline-block shrink-0", dim)}
+      style={{ background: SEAT_SWATCH[seat] }}
+      aria-hidden
+    />
+  );
+}
 
 export function LightDot({ light, size = "md" }: { light: Light; size?: "sm" | "md" }) {
   const meta = LIGHT_META[light];
@@ -40,7 +57,14 @@ export function SeverityBadge({ severity }: { severity: Severity }) {
 
 export function SeatBadge({ seat, collab = false }: { seat: OwnerSeat; collab?: boolean }) {
   return (
-    <span className={cn("border border-line px-1.5 py-0.5 text-[12px]", collab ? "text-mute" : "text-ink")}>
+    <span
+      className={cn(
+        "inline-flex items-center gap-1.5 border border-line px-1.5 py-0.5 text-[12px]",
+        collab ? "text-mute" : "text-ink",
+      )}
+      style={{ background: `color-mix(in oklab, ${SEAT_SWATCH[seat]} 12%, #ffffff)` }}
+    >
+      <SeatSwatch seat={seat} />
       {collab ? `共主 ${seat}` : seat}
     </span>
   );

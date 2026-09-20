@@ -1,10 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { OWNER_SEATS, SEAT_META } from "@/lib/constants";
+import { OWNER_SEATS, SEAT_META, SEAT_SWATCH, seatBand } from "@/lib/constants";
 import { useRiskStore } from "@/lib/store";
 import type { OwnerSeat, Risk } from "@/lib/types";
-import { LightBadge, SeatBadge, SeverityBadge } from "@/components/Badges";
+import { LightBadge, SeatBadge, SeatSwatch, SeverityBadge } from "@/components/Badges";
 import { belongsToSeat, cn } from "@/lib/utils";
 
 export default function SeatsPage() {
@@ -60,21 +60,31 @@ function SeatCard({
   const meta = SEAT_META[seat];
 
   return (
-    <section className="border-b border-r border-line bg-surface p-4">
-      <div className="flex items-start justify-between gap-3">
+    <section className="border-b border-r border-line bg-surface">
+      <div
+        className="flex items-start justify-between gap-3 border-b border-line px-4 py-3"
+        style={{
+          background: seatBand(seat),
+          borderLeft: `5px solid ${SEAT_SWATCH[seat]}`,
+        }}
+      >
         <div>
-          <h2 className="text-[16px] font-medium">{seat}</h2>
-          <p className="text-[12px] text-mute">{meta.role}</p>
-          <p className="mt-1 text-[13px] text-ink">{meta.duty}</p>
+          <h2 className="flex items-center gap-2 text-[20px] font-medium leading-none">
+            <SeatSwatch seat={seat} size="md" />
+            {seat}
+          </h2>
+          <p className="mt-1.5 text-[12px] text-mute">{meta.role}</p>
         </div>
         <Link
           href="/"
           onClick={onFocus}
-          className="shrink-0 border border-line px-2 py-1 text-[12px] text-mute hover:border-ink hover:text-ink"
+          className="shrink-0 border border-line bg-surface px-2 py-1 text-[12px] text-mute hover:border-ink hover:text-ink"
         >
           看本席
         </Link>
       </div>
+      <div className="p-4">
+        <p className="text-[13px] text-ink">{meta.duty}</p>
 
       <div className="mt-4 grid grid-cols-4 gap-2 text-[12px]">
         <Mini label="红" value={red} warn={red > 0} />
@@ -104,6 +114,7 @@ function SeatCard({
           ))}
         </ul>
       )}
+      </div>
     </section>
   );
 }
