@@ -1,0 +1,73 @@
+@import "tailwindcss";
+
+:root {
+  --ink: #0b0f0d;
+  --panel: #121815;
+  --card: #181f1b;
+  --card-2: #1e2722;
+  --line: #2b362f;
+  --mute: #93a097;
+  --paper: #e8eee8;
+  --gold: #d7b162;
+  --red: #f05252;
+  --amber: #f0b429;
+  --green: #3dce8e;
+  --blue: #6ea8ff;
+}
+
+@theme inline {
+  --color-ink: var(--ink);
+  --color-panel: var(--panel);
+  --color-card: var(--card);
+  --color-card-2: var(--card-2);
+  --color-line: var(--line);
+  --color-mute: var(--mute);
+  --color-paper: var(--paper);
+  --color-gold: var(--gold);
+  --color-signal-red: var(--red);
+  --color-signal-amber: var(--amber);
+  --color-signal-green: var(--green);
+  --color-signal-blue: var(--blue);
+  --font-sans: var(--font-noto), "PingFang SC", "Microsoft YaHei", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jet), ui-monospace, monospace;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #3a463e transparent;
+}
+
+html,
+body {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+body {
+  font-family: var(--font-sans);
+  line-height: 1.65;
+  min-height: 100%;
+}
+
+::selection {
+  background: color-mix(in oklab, var(--gold) 40%, transparent);
+}
+
+.kanban-scroll {
+  scrollbar-gutter: stable;
+}
+
+.card-enter {
+  animation: rise 180ms ease-out;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0.4;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "name": "loop-park-sop",
+  "private": true,
+  "scripts": {
+    "dev": "npm run dev --prefix apps/risk-kanban",
+    "build": "npm run build --prefix apps/risk-kanban",
+    "start": "npm run start --prefix apps/risk-kanban",
+    "lint": "npm run lint --prefix apps/risk-kanban",
+    "postinstall": "npm install --prefix apps/risk-kanban"
+  }
+}

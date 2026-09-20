@@ -1,0 +1,689 @@
+{
+  "version": 1,
+  "updatedAt": "2026-09-20T06:00:00.000Z",
+  "risks": [
+    {
+      "id": "D-01",
+      "title": "消防通道 / 疏散被占",
+      "description": "3# 卸货区与 1F 主通道被物料、广告架临时侵占，疏散宽度不足。一旦活动或装修交叉，疏散路径会被二次压缩。",
+      "category": "安全消防物业",
+      "severity": "P0",
+      "light": "红",
+      "ownerSeat": "火脱",
+      "triggers": [
+        "通道净宽 < 验收值",
+        "灭火器/疏散指示被挡",
+        "活动布展占道"
+      ],
+      "residualRisk": "清障后若无每日巡检，活动日仍可能复占。",
+      "redLineGates": [
+        {
+          "id": "G7",
+          "checked": false
+        }
+      ],
+      "status": "blocked",
+      "notes": [
+        {
+          "id": "n-d01-1",
+          "body": "已拍照存证并通知物业。未完成清障前禁止该区域交铺。",
+          "authorSeat": "火脱",
+          "createdAt": "2026-09-20T01:15:00.000Z"
+        }
+      ],
+      "updatedAt": "2026-09-20T01:15:00.000Z"
+    },
+    {
+      "id": "D-03",
+      "title": "开业条件未齐仍要强交铺",
+      "description": "部分铺位开业条件清单（证照、消防、水电点位、移交单）未齐套，招商侧已承诺「先装修后补手续」。",
+      "category": "建设工期开业",
+      "severity": "P0",
+      "light": "红",
+      "ownerSeat": "正将",
+      "triggers": [
+        "移交单缺项",
+        "消防验收未出",
+        "商家要求提前拿钥匙"
+      ],
+      "residualRisk": "即使暂缓交铺，口头承诺会形成合同预期，需书面撤回。",
+      "redLineGates": [
+        {
+          "id": "G7",
+          "checked": false
+        }
+      ],
+      "status": "blocked",
+      "notes": [
+        {
+          "id": "n-d03-1",
+          "body": "正将闸：开业条件未齐套的铺位一律不得交钥匙。",
+          "authorSeat": "正将",
+          "createdAt": "2026-09-20T03:40:00.000Z"
+        }
+      ],
+      "updatedAt": "2026-09-20T03:40:00.000Z"
+    },
+    {
+      "id": "B-04",
+      "title": "自营网咖方案回流",
+      "description": "有团队再次提出 3#4F 或边厅做自营网咖以「补人气」。与红线冲突：不做自营网咖，4F 只做娱/造场。",
+      "category": "货盘业态",
+      "severity": "P0",
+      "light": "红",
+      "ownerSeat": "正将",
+      "triggers": [
+        "投资人问网咖回本",
+        "4F 空置焦虑",
+        "竞品网咖客流对比"
+      ],
+      "residualRisk": "口头否决后若无书面货盘锁定，下轮招商仍可能被塞回。",
+      "redLineGates": [
+        {
+          "id": "G4",
+          "checked": false
+        }
+      ],
+      "status": "blocked",
+      "notes": [],
+      "updatedAt": "2026-09-19T11:30:00.000Z"
+    },
+    {
+      "id": "C-06",
+      "title": "公域短稿条件红仍在投放",
+      "description": "抖音/视频号短稿含未分层 ROI 与「稳赚」暗示，条件灯为红，投放账户未停。",
+      "category": "口径舆情",
+      "severity": "P0",
+      "light": "红",
+      "ownerSeat": "风谣",
+      "triggers": [
+        "投放后台仍在跑",
+        "短稿含稳赚/ROI",
+        "评论区开始追问回报"
+      ],
+      "residualRisk": "停投后历史素材仍可被转发，需准备口径卡。",
+      "redLineGates": [
+        {
+          "id": "G2",
+          "checked": false
+        },
+        {
+          "id": "G9",
+          "checked": false
+        }
+      ],
+      "status": "blocked",
+      "notes": [
+        {
+          "id": "n-c06-1",
+          "body": "已要求投放停量。未撤红前只做私域邀约。",
+          "authorSeat": "风谣",
+          "createdAt": "2026-09-20T05:10:00.000Z"
+        }
+      ],
+      "updatedAt": "2026-09-20T05:10:00.000Z"
+    },
+    {
+      "id": "H-01",
+      "title": "活动无借场书面同意",
+      "description": "拟办校园联赛/市集，场地使用仅有口头答应，无物业/产权方书面借场函，保险与责任主体未写明。",
+      "category": "活动造场与联赛",
+      "severity": "P0",
+      "light": "红",
+      "ownerSeat": "除将",
+      "triggers": [
+        "无借场函",
+        "责任条款空白",
+        "活动宣发已预告日期"
+      ],
+      "residualRisk": "补函前若宣发已出去，存在改期舆情。",
+      "redLineGates": [
+        {
+          "id": "G5",
+          "checked": false
+        },
+        {
+          "id": "G7",
+          "checked": false
+        }
+      ],
+      "status": "blocked",
+      "notes": [],
+      "updatedAt": "2026-09-19T06:05:00.000Z"
+    },
+    {
+      "id": "B-02",
+      "title": "1F 重油正餐意向铺",
+      "description": "1F 有两家重油正餐在谈，销售认为「香气能聚客」。红线：1F 不招重油正餐。",
+      "category": "货盘业态",
+      "severity": "P0",
+      "light": "黄",
+      "ownerSeat": "提将",
+      "triggers": [
+        "意向书草稿含炒锅/油烟",
+        "铺位在 1F 主轴",
+        "未提供替代业态"
+      ],
+      "residualRisk": "劝退后商家可能转向 2–3F，须先核排烟井再谈。",
+      "redLineGates": [
+        {
+          "id": "G6",
+          "checked": false
+        }
+      ],
+      "status": "watch",
+      "notes": [
+        {
+          "id": "n-b02-1",
+          "body": "已改推轻餐/饮品方案，等待商家回复。",
+          "authorSeat": "提将",
+          "createdAt": "2026-09-19T11:30:00.000Z"
+        }
+      ],
+      "updatedAt": "2026-09-19T11:30:00.000Z"
+    },
+    {
+      "id": "C-04",
+      "title": "未分层 ROI 对外口径",
+      "description": "招商话术与朋友圈素材仍出现「带动营业额」「综合 ROI 1:X」且未按铺型/楼层分层。",
+      "category": "口径舆情",
+      "severity": "P0",
+      "light": "黄",
+      "ownerSeat": "风谣",
+      "triggers": [
+        "话术卡未换版",
+        "销售口头讲回报",
+        "未分层测算表外流"
+      ],
+      "residualRisk": "即便公域停投，私域一对一仍可能复述旧口径。",
+      "redLineGates": [
+        {
+          "id": "G2",
+          "checked": false
+        }
+      ],
+      "status": "watch",
+      "notes": [],
+      "updatedAt": "2026-09-19T01:20:00.000Z"
+    },
+    {
+      "id": "C-10",
+      "title": "合同附件占位符未验真",
+      "description": "多份合同附件仍为「XXXX」「待补」占位符，平面图、铺位建议、开业条件清单未验真替换。",
+      "category": "财务合同合规",
+      "severity": "P1",
+      "light": "黄",
+      "ownerSeat": "反将",
+      "triggers": [
+        "附件文件名含模板",
+        "面积/铺号与 V3.0 不一致",
+        "缺签字页扫描件"
+      ],
+      "residualRisk": "验真前若网签，占位符可能被解释为空白授权。",
+      "redLineGates": [
+        {
+          "id": "G3",
+          "checked": false
+        },
+        {
+          "id": "G8",
+          "checked": false
+        }
+      ],
+      "status": "watch",
+      "notes": [
+        {
+          "id": "n-c10-1",
+          "body": "已列出 6 份待验真清单，优先 P0 铺位。",
+          "authorSeat": "反将",
+          "createdAt": "2026-09-20T01:15:00.000Z"
+        }
+      ],
+      "updatedAt": "2026-09-20T01:15:00.000Z"
+    },
+    {
+      "id": "H-02",
+      "title": "活动无保单 / 无医疗点",
+      "description": "造场活动方案有人流预估，但无公众责任险保单，现场无医疗点与应急联系人公示。",
+      "category": "活动造场与联赛",
+      "severity": "P0",
+      "light": "黄",
+      "ownerSeat": "火脱",
+      "triggers": [
+        "保单未出单",
+        "医疗点未落位",
+        "人流峰值>预案"
+      ],
+      "residualRisk": "补保后仍需核对保额是否覆盖联赛对抗项目。",
+      "redLineGates": [
+        {
+          "id": "G7",
+          "checked": false
+        }
+      ],
+      "status": "watch",
+      "notes": [],
+      "updatedAt": "2026-09-19T06:05:00.000Z"
+    },
+    {
+      "id": "G-01",
+      "title": "工期延误挤压开业窗口",
+      "description": "2–3F 机电滞后，开业窗口被压缩。存在「降标准抢开业」压力，可能回潮到交铺红线。",
+      "category": "建设工期开业",
+      "severity": "P1",
+      "light": "黄",
+      "ownerSeat": "正将",
+      "triggers": [
+        "关键节点连续逾期",
+        "商家进场请求提前",
+        "开业倒排出现负缓冲"
+      ],
+      "residualRisk": "即使调整开业日，宣发日历与招商承诺要对齐。",
+      "redLineGates": [
+        {
+          "id": "G7",
+          "checked": true
+        }
+      ],
+      "status": "watch",
+      "notes": [],
+      "updatedAt": "2026-09-18T08:40:00.000Z"
+    },
+    {
+      "id": "D-02",
+      "title": "保单未齐却要进场装修",
+      "description": "施工方与部分商家要求先进场打底，公众责任险/施工险尚未齐套。与 D-03 交铺闸联动。",
+      "category": "安全消防物业",
+      "severity": "P0",
+      "light": "红",
+      "ownerSeat": "火脱",
+      "triggers": [
+        "保单过期或未出",
+        "施工单位人员名单未报",
+        "动火作业申请"
+      ],
+      "residualRisk": "临时保单若限额不足，仍视为未齐。",
+      "redLineGates": [
+        {
+          "id": "G7",
+          "checked": false
+        }
+      ],
+      "status": "investigating",
+      "notes": [
+        {
+          "id": "n-d02-1",
+          "body": "正在核对三家施工单位保单有效期与保额。",
+          "authorSeat": "火脱",
+          "createdAt": "2026-09-20T03:40:00.000Z"
+        }
+      ],
+      "updatedAt": "2026-09-20T03:40:00.000Z"
+    },
+    {
+      "id": "E-01",
+      "title": "收款账户未开立",
+      "description": "定金/租金收款账户未完成开户与进件，存在个人卡或第三方代收提议。",
+      "category": "财务合同合规",
+      "severity": "P0",
+      "light": "红",
+      "ownerSeat": "反将",
+      "triggers": [
+        "开户材料缺件",
+        "有人提出个人账户过渡",
+        "商家已要打定金"
+      ],
+      "residualRisk": "开户完成前任何收款都可能造成资金与合同错配。",
+      "redLineGates": [
+        {
+          "id": "G1",
+          "checked": true
+        },
+        {
+          "id": "G8",
+          "checked": true
+        }
+      ],
+      "status": "investigating",
+      "notes": [],
+      "updatedAt": "2026-09-20T05:10:00.000Z"
+    },
+    {
+      "id": "A-03",
+      "title": "开工口径未钉死",
+      "description": "对内对外关于「已开工/即将开工/示范段」表述不统一，现场进度与宣传图不一致。",
+      "category": "战略定位",
+      "severity": "P1",
+      "light": "黄",
+      "ownerSeat": "正将",
+      "triggers": [
+        "宣传用词超出现场",
+        "领导视察口径与销售口径分叉"
+      ],
+      "residualRisk": "钉死后历史海报仍需下架或打码。",
+      "redLineGates": [
+        {
+          "id": "G3",
+          "checked": false
+        }
+      ],
+      "status": "investigating",
+      "notes": [],
+      "updatedAt": "2026-09-19T01:20:00.000Z"
+    },
+    {
+      "id": "C-11",
+      "title": "T 码双轨并行",
+      "description": "旧版 T 码（含办公/临时铺号）与 V3.0 铺位码同时在表单、海报、合同里出现，对账与认铺会错位。",
+      "category": "口径舆情",
+      "severity": "P1",
+      "light": "黄",
+      "ownerSeat": "风谣",
+      "triggers": [
+        "同一铺两个编号",
+        "CAD 办公图层外流",
+        "合同引用旧码"
+      ],
+      "residualRisk": "废止旧码后，历史意向书需要批量勘误。",
+      "redLineGates": [
+        {
+          "id": "G3",
+          "checked": false
+        }
+      ],
+      "status": "investigating",
+      "notes": [
+        {
+          "id": "n-c11-1",
+          "body": "正在做旧码→V3.0 对照表，禁止再发双码物料。",
+          "authorSeat": "风谣",
+          "createdAt": "2026-09-19T11:30:00.000Z"
+        }
+      ],
+      "updatedAt": "2026-09-19T11:30:00.000Z"
+    },
+    {
+      "id": "B-10",
+      "title": "9# 铺位异常口径",
+      "description": "9# 出现面积、租金、赠送条件的场外口径，销售称「特批」。红线：9# / 价外让利私允无效，归正将闸。",
+      "category": "货盘业态",
+      "severity": "P0",
+      "light": "红",
+      "ownerSeat": "正将",
+      "triggers": [
+        "价外条件出现在微信",
+        "面积与货盘不一致",
+        "声称已特批"
+      ],
+      "residualRisk": "即便作废私允，对方可能主张信赖利益。",
+      "redLineGates": [
+        {
+          "id": "G8",
+          "checked": false
+        }
+      ],
+      "status": "investigating",
+      "notes": [],
+      "updatedAt": "2026-09-20T01:15:00.000Z"
+    },
+    {
+      "id": "C-08",
+      "title": "超货盘面积 / 业态承诺",
+      "description": "意向沟通中出现超出 V3.0 货盘的面积赠送、后仓、外摆承诺，尚未落成书面，但已有聊天记录。",
+      "category": "招商转化",
+      "severity": "P0",
+      "light": "灰",
+      "ownerSeat": "提将",
+      "triggers": [
+        "聊天记录含赠送面积",
+        "外摆未在货盘",
+        "业态超分区"
+      ],
+      "residualRisk": "核查后需统一书面否定，并同步风谣口径。",
+      "redLineGates": [
+        {
+          "id": "G8",
+          "checked": false
+        },
+        {
+          "id": "G3",
+          "checked": false
+        }
+      ],
+      "status": "todo",
+      "notes": [],
+      "updatedAt": "2026-09-18T02:10:00.000Z"
+    },
+    {
+      "id": "C-09",
+      "title": "价外私允（免租/装修补贴）",
+      "description": "传出对重点客户的免租期、装修补贴口报，未走正将闸，也未进合同审批流。",
+      "category": "招商转化",
+      "severity": "P0",
+      "light": "灰",
+      "ownerSeat": "提将",
+      "triggers": [
+        "口报免租",
+        "补贴未立项",
+        "绕过审批群"
+      ],
+      "residualRisk": "即使未签约，口报会成为谈判锚点。",
+      "redLineGates": [
+        {
+          "id": "G1",
+          "checked": false
+        },
+        {
+          "id": "G8",
+          "checked": false
+        }
+      ],
+      "status": "todo",
+      "notes": [],
+      "updatedAt": "2026-09-18T02:10:00.000Z"
+    },
+    {
+      "id": "B-06",
+      "title": "4# 拆零意向",
+      "description": "4# 被建议拆成多间短租或迷你铺「好招商」。红线：4# 不拆零。",
+      "category": "货盘业态",
+      "severity": "P0",
+      "light": "灰",
+      "ownerSeat": "正将",
+      "triggers": [
+        "拆铺草图",
+        "多商户认同一编号",
+        "短租话术"
+      ],
+      "residualRisk": "需在货盘上把 4# 整铺锁定，避免「先拆再合并」。",
+      "redLineGates": [
+        {
+          "id": "G8",
+          "checked": false
+        }
+      ],
+      "status": "todo",
+      "notes": [],
+      "updatedAt": "2026-09-18T08:40:00.000Z"
+    },
+    {
+      "id": "E-05",
+      "title": "4# 提前网签压力",
+      "description": "在拆零争议未关闭、附件未验真的情况下，有人推动 4# 先网签占位。",
+      "category": "财务合同合规",
+      "severity": "P0",
+      "light": "灰",
+      "ownerSeat": "反将",
+      "triggers": [
+        "网签排期单出现 4#",
+        "占位定金要求",
+        "附件仍为模板"
+      ],
+      "residualRisk": "网签一旦发生，拆零与价外条件更难撤回。",
+      "redLineGates": [
+        {
+          "id": "G8",
+          "checked": false
+        },
+        {
+          "id": "G7",
+          "checked": false
+        }
+      ],
+      "status": "todo",
+      "notes": [],
+      "updatedAt": "2026-09-18T08:40:00.000Z"
+    },
+    {
+      "id": "H-03",
+      "title": "活动通道堵塞隐患",
+      "description": "联赛/市集动线与消防通道、卸货流线打架，尚未做峰值人流沙盘。与 D-01、H-01 叠加。",
+      "category": "活动造场与联赛",
+      "severity": "P1",
+      "light": "灰",
+      "ownerSeat": "火脱",
+      "triggers": [
+        "摊位图压疏散线",
+        "无单向导流",
+        "与装修进场同日"
+      ],
+      "residualRisk": "即使借场函补齐，动线不合格仍须停办。",
+      "redLineGates": [
+        {
+          "id": "G5",
+          "checked": false
+        },
+        {
+          "id": "G7",
+          "checked": false
+        }
+      ],
+      "status": "todo",
+      "notes": [],
+      "updatedAt": "2026-09-19T01:20:00.000Z"
+    },
+    {
+      "id": "F-01",
+      "title": "竞品开学季分流",
+      "description": "周边商场开学季促销力度加大，LOOP 尚未锁定差异化内容，存在客流被截流风险。非红线，但会影响开业窗口判断。",
+      "category": "竞品客流",
+      "severity": "P2",
+      "light": "灰",
+      "ownerSeat": "风谣",
+      "triggers": [
+        "竞品连开主题市集",
+        "校园社群被竞品占坑",
+        "我方公域停投"
+      ],
+      "residualRisk": "用私域深耕可对冲，但不可用违禁口径换量。",
+      "redLineGates": [
+        {
+          "id": "G9",
+          "checked": true
+        }
+      ],
+      "status": "todo",
+      "notes": [],
+      "updatedAt": "2026-09-19T06:05:00.000Z"
+    },
+    {
+      "id": "I-01",
+      "title": "八将决策未闭环",
+      "description": "多条红线事项在群里讨论过，但无纪要、无责任席位、无下次检查时间，组织上容易「以为已经闸了」。",
+      "category": "组织协作",
+      "severity": "P1",
+      "light": "灰",
+      "ownerSeat": "正将",
+      "triggers": [
+        "无纪要",
+        "同一议题重复讨论",
+        "席位互相以为对方在盯"
+      ],
+      "residualRisk": "看板若不作为唯一闸口台账，决策会再次口头化。",
+      "redLineGates": [],
+      "status": "todo",
+      "notes": [],
+      "updatedAt": "2026-09-18T02:10:00.000Z"
+    },
+    {
+      "id": "A-01",
+      "title": "战略定位口径已锁定",
+      "description": "LOOP PARK 定位（校园生活 + 造场 + 体育奥莱零售，非专业赛场、非自营网咖）已形成对内一页纸，对外话术已换版。",
+      "category": "战略定位",
+      "severity": "P1",
+      "light": "绿",
+      "ownerSeat": "正将",
+      "triggers": [
+        "新同事沿用旧定位",
+        "合作方擅自加赛场头衔"
+      ],
+      "residualRisk": "合作方物料仍可能回潮，需季度抽检。",
+      "redLineGates": [
+        {
+          "id": "G4",
+          "checked": true
+        },
+        {
+          "id": "G5",
+          "checked": true
+        }
+      ],
+      "status": "closed",
+      "notes": [
+        {
+          "id": "n-a01-1",
+          "body": "定位卡 V1.2 已发八将。后续变更须正将签字。",
+          "authorSeat": "正将",
+          "createdAt": "2026-09-18T02:10:00.000Z"
+        }
+      ],
+      "updatedAt": "2026-09-18T02:10:00.000Z"
+    },
+    {
+      "id": "C-01",
+      "title": "海选招摊 / 口报死价已禁止",
+      "description": "已发文禁止海选招摊、现场发现金、口报死价。招商会议改用书面条件表。",
+      "category": "招商转化",
+      "severity": "P0",
+      "light": "绿",
+      "ownerSeat": "提将",
+      "triggers": [
+        "新销售未培训",
+        "市集摊位回潮海选"
+      ],
+      "residualRisk": "活动临时摊仍可能破例，需与 G5 一起巡检。",
+      "redLineGates": [
+        {
+          "id": "G1",
+          "checked": true
+        }
+      ],
+      "status": "closed",
+      "notes": [],
+      "updatedAt": "2026-09-18T08:40:00.000Z"
+    },
+    {
+      "id": "J-01",
+      "title": "市集/联赛共标题招商已拆",
+      "description": "原「LOOP 联赛招商季」主标题已拆成内容向造场标题 + 独立招商物料，避免共标题。",
+      "category": "活动造场与联赛",
+      "severity": "P1",
+      "light": "绿",
+      "ownerSeat": "除将",
+      "triggers": [
+        "设计稿再次合并标题",
+        "媒体通稿混写"
+      ],
+      "residualRisk": "外部媒体可能自行合并标题，需提供标准简称。",
+      "redLineGates": [
+        {
+          "id": "G5",
+          "checked": true
+        }
+      ],
+      "status": "closed",
+      "notes": [],
+      "updatedAt": "2026-09-19T01:20:00.000Z"
+    }
+  ]
+}
