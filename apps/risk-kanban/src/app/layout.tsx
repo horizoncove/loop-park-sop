@@ -5,7 +5,7 @@ import "./globals.css";
 
 const noto = Noto_Sans_SC({
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
+  weight: ["400", "500"],
   variable: "--font-noto",
   display: "swap",
 });
@@ -27,7 +27,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="zh-CN"
       className={`${noto.variable} ${jetbrains.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-ink text-paper font-sans">
+      <body className="flex min-h-full flex-col bg-bg font-sans text-ink">
         <AppShell>{children}</AppShell>
       </body>
     </html>

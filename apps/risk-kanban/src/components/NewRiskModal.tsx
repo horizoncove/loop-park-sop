@@ -14,7 +14,7 @@ export function NewRiskButton() {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="flex w-full items-center justify-center gap-1 rounded-xl border border-dashed border-line py-2 text-xs text-mute hover:border-gold/40 hover:text-gold"
+        className="flex w-full items-center justify-center gap-1 border border-line py-2 text-[12px] text-mute hover:border-ink hover:text-ink"
       >
         <Plus className="h-3.5 w-3.5" />
         新增风险
@@ -57,39 +57,39 @@ function NewRiskModal({ onClose }: { onClose: () => void }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" onClick={onClose}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink/30 p-4" onClick={onClose}>
       <form
         onClick={(e) => e.stopPropagation()}
         onSubmit={submit}
-        className="w-full max-w-md rounded-2xl border border-line bg-card p-5 shadow-2xl"
+        className="w-full max-w-md border border-line bg-surface p-5"
       >
-        <h3 className="text-base font-semibold">新增风险卡片</h3>
-        <p className="mt-1 text-xs text-mute">先记上，再补触发条件与红线闸。</p>
-        <label className="mt-4 block text-xs text-mute">
+        <h3 className="text-[16px] font-medium">新增风险卡片</h3>
+        <p className="mt-1 text-[12px] text-mute">先记上，再补触发条件与红线闸。</p>
+        <label className="mt-4 block text-[12px] text-mute">
           标题
           <input
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            className="mt-1 w-full rounded-xl border border-line bg-panel px-3 py-2 text-sm text-paper outline-none focus:border-gold/50"
+            className="mt-1 w-full border border-line bg-surface px-3 py-2 text-[14px] text-ink"
             required
           />
         </label>
-        <label className="mt-3 block text-xs text-mute">
+        <label className="mt-3 block text-[12px] text-mute">
           描述
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             rows={3}
-            className="mt-1 w-full rounded-xl border border-line bg-panel px-3 py-2 text-sm text-paper outline-none focus:border-gold/50"
+            className="mt-1 w-full border border-line bg-surface px-3 py-2 text-[14px] text-ink"
           />
         </label>
-        <div className="mt-3 grid grid-cols-3 gap-2 text-xs text-mute">
+        <div className="mt-3 grid grid-cols-3 gap-2 text-[12px] text-mute">
           <label>
             分类
             <select
               value={category}
               onChange={(e) => setCategory(e.target.value as Category)}
-              className="mt-1 w-full rounded-xl border border-line bg-panel px-2 py-2 text-sm text-paper"
+              className="mt-1 w-full border border-line bg-surface px-2 py-2 text-[13px] text-ink"
             >
               {CATEGORIES.map((c) => (
                 <option key={c}>{c}</option>
@@ -101,7 +101,7 @@ function NewRiskModal({ onClose }: { onClose: () => void }) {
             <select
               value={severity}
               onChange={(e) => setSeverity(e.target.value as Severity)}
-              className="mt-1 w-full rounded-xl border border-line bg-panel px-2 py-2 text-sm text-paper"
+              className="mt-1 w-full border border-line bg-surface px-2 py-2 text-[13px] text-ink"
             >
               <option>P0</option>
               <option>P1</option>
@@ -113,7 +113,7 @@ function NewRiskModal({ onClose }: { onClose: () => void }) {
             <select
               value={ownerSeat}
               onChange={(e) => setOwnerSeat(e.target.value as OwnerSeat)}
-              className="mt-1 w-full rounded-xl border border-line bg-panel px-2 py-2 text-sm text-paper"
+              className="mt-1 w-full border border-line bg-surface px-2 py-2 text-[13px] text-ink"
             >
               {OWNER_SEATS.map((c) => (
                 <option key={c}>{c}</option>
@@ -122,10 +122,10 @@ function NewRiskModal({ onClose }: { onClose: () => void }) {
           </label>
         </div>
         <div className="mt-5 flex justify-end gap-2">
-          <button type="button" onClick={onClose} className="rounded-xl px-3 py-2 text-sm text-mute">
+          <button type="button" onClick={onClose} className="px-3 py-2 text-[13px] text-mute hover:text-ink">
             取消
           </button>
-          <button type="submit" className="rounded-xl bg-gold px-4 py-2 text-sm font-medium text-ink">
+          <button type="submit" className="border border-ink bg-ink px-4 py-2 text-[13px] font-medium text-bg">
             加入待排查
           </button>
         </div>

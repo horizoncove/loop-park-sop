@@ -1,29 +1,23 @@
 @import "tailwindcss";
 
 :root {
-  --ink: #0b0f0d;
-  --panel: #121815;
-  --card: #181f1b;
-  --card-2: #1e2722;
-  --line: #2b362f;
-  --mute: #93a097;
-  --paper: #e8eee8;
-  --gold: #d7b162;
-  --red: #f05252;
-  --amber: #f0b429;
-  --green: #3dce8e;
-  --blue: #6ea8ff;
+  --bg: #f6f5f2;
+  --surface: #ffffff;
+  --ink: #1a1a1a;
+  --mute: #6b7280;
+  --line: #e5e2dc;
+  --red: #c23b3b;
+  --amber: #c4922a;
+  --green: #2f7d4a;
+  --blue: #4a6274;
 }
 
 @theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
   --color-ink: var(--ink);
-  --color-panel: var(--panel);
-  --color-card: var(--card);
-  --color-card-2: var(--card-2);
-  --color-line: var(--line);
   --color-mute: var(--mute);
-  --color-paper: var(--paper);
-  --color-gold: var(--gold);
+  --color-line: var(--line);
   --color-signal-red: var(--red);
   --color-signal-amber: var(--amber);
   --color-signal-green: var(--green);
@@ -32,25 +26,59 @@
   --font-mono: var(--font-jet), ui-monospace, monospace;
 }
 
+*,
+*::before,
+*::after {
+  border-radius: 0 !important;
+}
+
 * {
   scrollbar-width: thin;
-  scrollbar-color: #3a463e transparent;
+  scrollbar-color: #c9c4bb transparent;
 }
 
 html,
 body {
-  background: var(--ink);
-  color: var(--paper);
+  background: var(--bg);
+  color: var(--ink);
 }
 
 body {
   font-family: var(--font-sans);
-  line-height: 1.65;
+  font-weight: 400;
+  line-height: 1.55;
   min-height: 100%;
 }
 
 ::selection {
-  background: color-mix(in oklab, var(--gold) 40%, transparent);
+  background: color-mix(in oklab, var(--ink) 12%, transparent);
+}
+
+input,
+select,
+textarea,
+button {
+  font-family: inherit;
+}
+
+input,
+select,
+textarea {
+  background: var(--surface);
+  color: var(--ink);
+  border: 1px solid var(--line);
+}
+
+input:focus,
+select:focus,
+textarea:focus,
+button:focus-visible {
+  outline: 1px solid var(--ink);
+  outline-offset: -1px;
+}
+
+a:hover {
+  text-decoration-thickness: 1px;
 }
 
 .kanban-scroll {
@@ -58,12 +86,12 @@ body {
 }
 
 .card-enter {
-  animation: rise 180ms ease-out;
+  animation: rise 160ms ease-out;
 }
 
 @keyframes rise {
   from {
-    opacity: 0.4;
+    opacity: 0.45;
     transform: translateY(4px);
   }
   to {

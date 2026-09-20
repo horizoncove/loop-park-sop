@@ -15,26 +15,17 @@ import {
   type DragStartEvent,
 } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
-import { OWNER_SEATS, SEAT_COLUMN_ACCENT, SEAT_META } from "@/lib/constants";
+import { OWNER_SEATS } from "@/lib/constants";
 import { COLUMNS, COLUMN_META } from "@/lib/types";
 import type { ColumnId, OwnerSeat, Risk } from "@/lib/types";
 import { useRiskStore } from "@/lib/store";
 import { RiskCard, SortableRiskCard } from "./RiskCard";
 import { NewRiskButton } from "./NewRiskModal";
-
-const STATUS_ACCENT: Record<ColumnId, string> = {
-  todo: "from-stone-500/30",
-  investigating: "from-blue-400/30",
-  watch: "from-amber-400/40",
-  blocked: "from-red-500/40",
-  closed: "from-emerald-400/30",
-};
+import { cn } from "@/lib/utils";
 
 type BoardColumn = {
   id: string;
   label: string;
-  hint: string;
-  accent: string;
   items: Risk[];
   showAdd?: boolean;
 };
@@ -67,8 +58,6 @@ export function KanbanBoard() {
       return OWNER_SEATS.map((seat) => ({
         id: `seat:${seat}`,
         label: seat,
-        hint: SEAT_META[seat].duty,
-        accent: SEAT_COLUMN_ACCENT[seat],
         items: filtered.filter((risk) => risk.ownerSeat === seat),
         showAdd: seat === mySeat,
       }));
@@ -76,8 +65,6 @@ export function KanbanBoard() {
     return COLUMNS.map((id) => ({
       id,
       label: COLUMN_META[id].label,
-      hint: COLUMN_META[id].hint,
-      accent: STATUS_ACCENT[id],
       items: filtered.filter((risk) => risk.status === id),
       showAdd: id === "todo",
     }));
@@ -122,9 +109,9 @@ export function KanbanBoard() {
 
   if (!ready) {
     return (
-      <div className={`grid gap-3 ${boardView === "seat" ? "grid-cols-8" : "grid-cols-5"}`}>
+      <div className={`grid gap-0 border border-line ${boardView === "seat" ? "grid-cols-8" : "grid-cols-5"}`}>
         {Array.from({ length: boardView === "seat" ? 8 : 5 }).map((_, i) => (
-          <div key={i} className="h-[70vh] animate-pulse rounded-2xl bg-panel" />
+          <div key={i} className="h-[70vh] animate-pulse bg-surface" />
         ))}
       </div>
     );
@@ -138,9 +125,9 @@ export function KanbanBoard() {
       onDragEnd={handleDragEnd}
       onDragCancel={() => setActive(null)}
     >
-      <div className="kanban-scroll flex min-h-[calc(100vh-260px)] gap-3 overflow-x-auto pb-6">
-        {columns.map((column) => (
-          <Column key={column.id} column={column} />
+      <div className="kanban-scroll flex min-h-[calc(100vh-176px)] overflow-x-auto border border-line">
+        {columns.map((column, index) => (
+          <Column key={column.id} column={column} first={index === 0} />
         ))}
       </div>
       <DragOverlay dropAnimation={null}>
@@ -150,7 +137,7 @@ export function KanbanBoard() {
   );
 }
 
-function Column({ column }: { column: BoardColumn }) {
+function Column({ column, first }: { column: BoardColumn; first: boolean }) {
   const { boardView } = useRiskStore();
   const { setNodeRef, isOver } = useDroppable({
     id: column.id,
@@ -160,16 +147,15 @@ function Column({ column }: { column: BoardColumn }) {
   return (
     <section
       ref={setNodeRef}
-      className={`flex w-[196px] shrink-0 flex-col rounded-2xl border border-line bg-panel/80 xl:min-w-0 xl:flex-1 ${
-        isOver ? "ring-1 ring-gold/40" : ""
-      }`}
+      className={cn(
+        "flex w-[196px] shrink-0 flex-col bg-bg xl:min-w-0 xl:flex-1",
+        !first ? "border-l border-line" : "",
+        isOver ? "bg-surface" : "",
+      )}
     >
-      <header className={`rounded-t-2xl bg-gradient-to-r ${column.accent} to-transparent px-3 py-3`}>
-        <div className="flex items-baseline justify-between gap-2">
-          <h2 className="text-sm font-semibold">{column.label}</h2>
-          <span className="font-mono text-xs text-mute">{column.items.length}</span>
-        </div>
-        <p className="text-[11px] text-mute">{column.hint}</p>
+      <header className="flex items-baseline justify-between gap-2 border-b border-line px-3 py-2">
+        <h2 className="text-[13px] font-medium text-ink">{column.label}</h2>
+        <span className="font-mono text-[12px] text-mute">{column.items.length}</span>
       </header>
       <SortableContext items={column.items.map((item) => item.id)} strategy={verticalListSortingStrategy}>
         <div className="flex flex-1 flex-col gap-2 overflow-y-auto p-2">
@@ -177,14 +163,14 @@ function Column({ column }: { column: BoardColumn }) {
             <SortableRiskCard key={item.id} risk={item} hideOwner={boardView === "seat"} />
           ))}
           {column.items.length === 0 ? (
-            <div className="flex flex-1 items-center justify-center rounded-xl border border-dashed border-line px-3 py-10 text-center text-xs text-mute">
-              {boardView === "seat" ? "拖入改主责席" : "拖入卡片，或保持空列"}
+            <div className="flex flex-1 items-center justify-center px-2 py-10 text-center text-[12px] text-mute">
+              {boardView === "seat" ? "拖入改主责席" : "空列"}
             </div>
           ) : null}
         </div>
       </SortableContext>
       {column.showAdd ? (
-        <div className="p-2 pt-0">
+        <div className="border-t border-line p-2">
           <NewRiskButton />
         </div>
       ) : null}

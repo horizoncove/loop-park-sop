@@ -87,73 +87,39 @@ export const GLOBAL_GATES: GlobalGate[] = [
   },
 ];
 
-export const SEAT_META: Record<
-  OwnerSeat,
-  { role: string; duty: string; tone: string }
-> = {
-  正将: { role: "总闸 / 拍板", duty: "拍板；超货盘 · 价外 · 9# 闸", tone: "gold" },
-  提将: { role: "母表 / Brief", duty: "母表、Brief、挂周入库", tone: "blue" },
-  风将: {
-    role: "情报报知",
-    duty: "情报 / 客流竞品 / 舆情 / 高校日历报知",
-    tone: "sky",
-  },
-  谣将: {
-    role: "口径与发行",
-    duty: "口径、公域危机话术、禁语",
-    tone: "violet",
-  },
-  反将: { role: "人货养成", duty: "Scout → 邀约 → 养成 / A 池", tone: "rose" },
-  火将: {
-    role: "物业安全闸",
-    duty: "物业安全 / 消防通道 / 开业条件否决",
-    tone: "orange",
-  },
-  脱将: {
-    role: "商管变现",
-    duty: "租户经营 / 交铺商管 / 市集动线",
-    tone: "lime",
-  },
-  除将: { role: "钱合同闸", duty: "财务合同合规、保单押金、未批不上账", tone: "teal" },
+export const SEAT_META: Record<OwnerSeat, { role: string; duty: string }> = {
+  正将: { role: "总闸 / 拍板", duty: "拍板；超货盘 · 价外 · 9# 闸" },
+  提将: { role: "母表 / Brief", duty: "母表、Brief、挂周入库" },
+  风将: { role: "情报报知", duty: "情报 / 客流竞品 / 舆情 / 高校日历报知" },
+  谣将: { role: "口径与发行", duty: "口径、公域危机话术、禁语" },
+  反将: { role: "人货养成", duty: "Scout → 邀约 → 养成 / A 池" },
+  火将: { role: "物业安全闸", duty: "物业安全 / 消防通道 / 开业条件否决" },
+  脱将: { role: "商管变现", duty: "租户经营 / 交铺商管 / 市集动线" },
+  除将: { role: "钱合同闸", duty: "财务合同合规、保单押金、未批不上账" },
 };
 
 export const LIGHT_META: Record<
   "红" | "黄" | "绿" | "灰",
-  { label: string; className: string; dot: string; glow: string }
+  { label: string; className: string; dot: string }
 > = {
   红: {
     label: "红灯阻断",
-    className: "text-red-300 bg-red-500/15 border-red-500/30",
-    dot: "bg-red-500",
-    glow: "shadow-[0_0_12px_rgba(239,68,68,0.55)]",
+    className: "text-signal-red border-signal-red/30",
+    dot: "bg-signal-red",
   },
   黄: {
     label: "黄灯观察",
-    className: "text-amber-200 bg-amber-400/15 border-amber-400/30",
-    dot: "bg-amber-400",
-    glow: "shadow-[0_0_12px_rgba(251,191,36,0.45)]",
+    className: "text-signal-amber border-signal-amber/30",
+    dot: "bg-signal-amber",
   },
   绿: {
     label: "绿灯闭环",
-    className: "text-emerald-200 bg-emerald-400/15 border-emerald-400/30",
-    dot: "bg-emerald-400",
-    glow: "shadow-[0_0_12px_rgba(52,211,153,0.4)]",
+    className: "text-signal-green border-signal-green/30",
+    dot: "bg-signal-green",
   },
   灰: {
     label: "灰色待核",
-    className: "text-stone-300 bg-stone-400/10 border-stone-500/30",
-    dot: "bg-stone-400",
-    glow: "",
+    className: "text-mute border-line",
+    dot: "bg-mute",
   },
-};
-
-export const SEAT_COLUMN_ACCENT: Record<OwnerSeat, string> = {
-  正将: "from-amber-400/40",
-  提将: "from-blue-400/30",
-  风将: "from-sky-400/35",
-  谣将: "from-violet-400/35",
-  反将: "from-rose-400/35",
-  火将: "from-orange-500/40",
-  脱将: "from-lime-400/30",
-  除将: "from-teal-400/35",
 };

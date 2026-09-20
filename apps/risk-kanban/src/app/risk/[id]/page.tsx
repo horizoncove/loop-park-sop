@@ -18,14 +18,14 @@ export default function RiskDetailPage() {
   const risk = risks.find((item) => item.id === id);
 
   if (!ready) {
-    return <p className="px-6 py-16 text-sm text-mute">加载风险卡片…</p>;
+    return <p className="px-6 py-16 text-[13px] text-mute">加载风险卡片…</p>;
   }
   if (!risk) {
     return (
       <div className="mx-auto max-w-xl px-4 py-16 text-center">
-        <p className="text-lg font-semibold">未找到 {id}</p>
-        <p className="mt-2 text-sm text-mute">可能尚未种子化，或编号已被重置。</p>
-        <Link href="/" className="mt-6 inline-block text-gold hover:underline">
+        <p className="text-[16px] font-medium">未找到 {id}</p>
+        <p className="mt-2 text-[13px] text-mute">可能尚未种子化，或编号已被重置。</p>
+        <Link href="/" className="mt-6 inline-block text-[13px] hover:underline">
           返回看板
         </Link>
       </div>
@@ -102,12 +102,12 @@ function RiskEditor({
         <button
           type="button"
           onClick={() => router.push("/")}
-          className="inline-flex items-center gap-1 text-sm text-mute hover:text-paper"
+          className="inline-flex items-center gap-1 text-[13px] text-mute hover:text-ink"
         >
           <ArrowLeft className="h-4 w-4" />
           看板
         </button>
-        <span className="font-mono text-gold">{draft.id}</span>
+        <span className="font-mono text-[12px] text-mute">{draft.id}</span>
         <SeverityBadge severity={draft.severity} />
         <LightBadge light={draft.light} />
         <SeatBadge seat={draft.ownerSeat} />
@@ -115,12 +115,12 @@ function RiskEditor({
           <SeatBadge key={seat} seat={seat} collab />
         ))}
         <CategoryChip category={draft.category} />
-        {dirty ? <span className="text-xs text-amber-200">未保存</span> : null}
+        {dirty ? <span className="text-[12px] text-signal-amber">未保存</span> : null}
         <button
           type="button"
           onClick={() => void save()}
           disabled={saving}
-          className="ml-auto rounded-xl bg-gold px-4 py-2 text-sm font-medium text-ink disabled:opacity-60"
+          className="ml-auto border border-ink bg-ink px-4 py-2 text-[13px] font-medium text-bg disabled:opacity-60"
         >
           {saving ? "保存中…" : "保存"}
         </button>
@@ -128,39 +128,39 @@ function RiskEditor({
 
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_280px]">
         <div className="space-y-4">
-          <section className="rounded-2xl border border-line bg-panel p-5">
-            <label className="text-xs text-mute">标题</label>
+          <section className="border border-line bg-surface p-5">
+            <label className="text-[12px] text-mute">标题</label>
             <input
               value={draft.title}
               onChange={(e) => patch("title", e.target.value)}
-              className="mt-1 w-full rounded-xl border border-line bg-card px-3 py-2 text-lg font-semibold outline-none focus:border-gold/50"
+              className="mt-1 w-full border border-line bg-surface px-3 py-2 text-[16px] font-medium outline-none"
             />
-            <label className="mt-4 block text-xs text-mute">描述</label>
+            <label className="mt-4 block text-[12px] text-mute">描述</label>
             <textarea
               value={draft.description}
               onChange={(e) => patch("description", e.target.value)}
               rows={5}
-              className="mt-1 w-full rounded-xl border border-line bg-card px-3 py-2 text-sm outline-none focus:border-gold/50"
+              className="mt-1 w-full border border-line bg-surface px-3 py-2 text-[14px] outline-none"
             />
-            <label className="mt-4 block text-xs text-mute">残余风险</label>
+            <label className="mt-4 block text-[12px] text-mute">残余风险</label>
             <textarea
               value={draft.residualRisk}
               onChange={(e) => patch("residualRisk", e.target.value)}
               rows={3}
-              className="mt-1 w-full rounded-xl border border-line bg-card px-3 py-2 text-sm outline-none focus:border-gold/50"
+              className="mt-1 w-full border border-line bg-surface px-3 py-2 text-[14px] outline-none"
             />
           </section>
 
-          <section className="rounded-2xl border border-line bg-panel p-5">
-            <h2 className="text-sm font-semibold">触发条件</h2>
+          <section className="border border-line bg-surface p-5">
+            <h2 className="text-[13px] font-medium">触发条件</h2>
             <ul className="mt-3 space-y-2">
               {draft.triggers.map((t, i) => (
-                <li key={`${t}-${i}`} className="flex items-center gap-2 text-sm">
-                  <span className="h-1.5 w-1.5 rounded-full bg-gold" />
+                <li key={`${t}-${i}`} className="flex items-center gap-2 text-[14px]">
+                  <span className="h-1.5 w-1.5 bg-ink" />
                   <span className="flex-1">{t}</span>
                   <button
                     type="button"
-                    className="text-xs text-mute hover:text-signal-red"
+                    className="text-[12px] text-mute hover:text-signal-red"
                     onClick={() => patch("triggers", draft.triggers.filter((_, idx) => idx !== i))}
                   >
                     删除
@@ -171,25 +171,22 @@ function RiskEditor({
             <TriggerInput onAdd={addTrigger} />
           </section>
 
-          <section className="rounded-2xl border border-line bg-panel p-5">
+          <section className="border border-line bg-surface p-5">
             <div className="flex items-center justify-between">
-              <h2 className="text-sm font-semibold">红线闸（本卡相关）</h2>
-              <Link href="/gates" className="text-xs text-gold hover:underline">
+              <h2 className="text-[13px] font-medium">红线闸（本卡相关）</h2>
+              <Link href="/gates" className="text-[12px] text-mute hover:underline">
                 查看全局闸口
               </Link>
             </div>
-            <ul className="mt-3 space-y-2">
+            <ul className="mt-3 divide-y divide-line border border-line">
               {GLOBAL_GATES.map((gate) => {
                 const current = draft.redLineGates.find((g) => g.id === gate.id);
                 const attached = Boolean(current);
                 const checked = Boolean(current?.checked);
                 const seatMustCheck = gate.enforcingSeats.includes(draft.ownerSeat);
                 return (
-                  <li
-                    key={gate.id}
-                    className={`rounded-xl px-3 py-2 ${seatMustCheck ? "bg-gold/10 ring-1 ring-gold/20" : "bg-ink/40"}`}
-                  >
-                    <label className="flex items-start gap-3 text-sm">
+                  <li key={gate.id} className={`px-3 py-2 ${seatMustCheck ? "bg-bg" : "bg-surface"}`}>
+                    <label className="flex items-start gap-3 text-[14px]">
                       <input
                         type="checkbox"
                         checked={checked}
@@ -203,12 +200,12 @@ function RiskEditor({
                         className="mt-1"
                       />
                       <span>
-                        <span className="font-mono text-xs text-gold">{gate.id}</span> {gate.title}
+                        <span className="font-mono text-[12px] text-mute">{gate.id}</span> {gate.title}
                         {seatMustCheck ? (
-                          <span className="ml-2 text-[11px] text-gold">本席必核</span>
+                          <span className="ml-2 text-[12px] text-mute">本席必核</span>
                         ) : null}
-                        <span className="mt-1 block text-xs text-mute">{gate.detail}</span>
-                        <span className="mt-1 block text-[11px] text-mute">
+                        <span className="mt-1 block text-[12px] text-mute">{gate.detail}</span>
+                        <span className="mt-1 block text-[12px] text-mute">
                           执法席：{gate.enforcingSeats.join(" / ")}
                         </span>
                       </span>
@@ -216,7 +213,7 @@ function RiskEditor({
                     {attached ? (
                       <button
                         type="button"
-                        className="ml-7 mt-1 text-[11px] text-mute hover:text-paper"
+                        className="ml-7 mt-1 text-[12px] text-mute hover:text-ink"
                         onClick={() =>
                           patch(
                             "redLineGates",
@@ -229,7 +226,7 @@ function RiskEditor({
                     ) : (
                       <button
                         type="button"
-                        className="ml-7 mt-1 text-[11px] text-mute hover:text-gold"
+                        className="ml-7 mt-1 text-[12px] text-mute hover:text-ink"
                         onClick={() =>
                           patch("redLineGates", [...draft.redLineGates, { id: gate.id, checked: false }])
                         }
@@ -243,35 +240,35 @@ function RiskEditor({
             </ul>
           </section>
 
-          <section className="rounded-2xl border border-line bg-panel p-5">
-            <h2 className="text-sm font-semibold">备注</h2>
+          <section className="border border-line bg-surface p-5">
+            <h2 className="text-[13px] font-medium">备注</h2>
             <div className="mt-3 flex gap-2">
               <textarea
                 value={note}
                 onChange={(e) => setNote(e.target.value)}
                 rows={2}
                 placeholder="进展、证据、需要正将拍板的点…"
-                className="flex-1 rounded-xl border border-line bg-card px-3 py-2 text-sm outline-none focus:border-gold/50"
+                className="flex-1 border border-line bg-surface px-3 py-2 text-[14px] outline-none"
               />
               <button
                 type="button"
                 onClick={() => void addNote()}
-                className="self-stretch rounded-xl border border-line px-3 text-sm text-gold hover:bg-gold/10"
+                className="self-stretch border border-line px-3 text-mute hover:border-ink hover:text-ink"
               >
                 <Plus className="h-4 w-4" />
               </button>
             </div>
             <ul className="mt-4 space-y-3">
               {draft.notes.length === 0 ? (
-                <li className="text-xs text-mute">还没有备注。</li>
+                <li className="text-[12px] text-mute">还没有备注。</li>
               ) : (
                 draft.notes.map((item) => (
-                  <li key={item.id} className="rounded-xl bg-ink/40 px-3 py-2">
-                    <div className="flex items-center gap-2 text-[11px] text-mute">
+                  <li key={item.id} className="border border-line px-3 py-2">
+                    <div className="flex items-center gap-2 text-[12px] text-mute">
                       <span>{item.authorSeat}</span>
                       <span>{formatDateTime(item.createdAt)}</span>
                     </div>
-                    <p className="mt-1 text-sm whitespace-pre-wrap">{item.body}</p>
+                    <p className="mt-1 whitespace-pre-wrap text-[14px]">{item.body}</p>
                   </li>
                 ))
               )}
@@ -280,9 +277,9 @@ function RiskEditor({
         </div>
 
         <aside className="h-fit space-y-4 lg:sticky lg:top-20">
-          <section className="rounded-2xl border border-line bg-panel p-4">
-            <h2 className="text-sm font-semibold">状态移动</h2>
-            <div className="mt-3 grid gap-2">
+          <section className="border border-line bg-surface p-4">
+            <h2 className="text-[13px] font-medium">状态移动</h2>
+            <div className="mt-3 grid gap-0 border border-line">
               {COLUMNS.map((col) => (
                 <button
                   key={col}
@@ -294,10 +291,8 @@ function RiskEditor({
                     setDraft(next);
                     await onSave(next);
                   }}
-                  className={`rounded-xl border px-3 py-2 text-left text-sm ${
-                    draft.status === col
-                      ? "border-gold/50 bg-gold/15 text-gold"
-                      : "border-line text-mute hover:text-paper"
+                  className={`border-b border-line px-3 py-2 text-left text-[13px] last:border-b-0 ${
+                    draft.status === col ? "bg-ink text-bg" : "text-mute hover:text-ink"
                   }`}
                 >
                   {COLUMN_META[col].label}
@@ -306,12 +301,12 @@ function RiskEditor({
             </div>
           </section>
 
-          <section className="rounded-2xl border border-line bg-panel p-4 space-y-3">
+          <section className="space-y-3 border border-line bg-surface p-4">
             <Field label="分类">
               <select
                 value={draft.category}
                 onChange={(e) => patch("category", e.target.value as Category)}
-                className="w-full rounded-xl border border-line bg-card px-3 py-2 text-sm"
+                className="w-full border border-line bg-surface px-3 py-2 text-[13px]"
               >
                 {CATEGORIES.map((c) => (
                   <option key={c}>{c}</option>
@@ -322,7 +317,7 @@ function RiskEditor({
               <select
                 value={draft.severity}
                 onChange={(e) => patch("severity", e.target.value as Severity)}
-                className="w-full rounded-xl border border-line bg-card px-3 py-2 text-sm"
+                className="w-full border border-line bg-surface px-3 py-2 text-[13px]"
               >
                 {["P0", "P1", "P2"].map((c) => (
                   <option key={c}>{c}</option>
@@ -333,7 +328,7 @@ function RiskEditor({
               <select
                 value={draft.light}
                 onChange={(e) => patch("light", e.target.value as Light)}
-                className="w-full rounded-xl border border-line bg-card px-3 py-2 text-sm"
+                className="w-full border border-line bg-surface px-3 py-2 text-[13px]"
               >
                 {LIGHTS.map((c) => (
                   <option key={c} value={c}>
@@ -353,7 +348,7 @@ function RiskEditor({
                     collabSeats: uniqueSeats(prev.collabSeats ?? [], ownerSeat),
                   }));
                 }}
-                className="w-full rounded-xl border border-line bg-card px-3 py-2 text-sm"
+                className="w-full border border-line bg-surface px-3 py-2 text-[13px]"
               >
                 {OWNER_SEATS.map((c) => (
                   <option key={c} value={c}>
@@ -361,10 +356,10 @@ function RiskEditor({
                   </option>
                 ))}
               </select>
-              <p className="mt-1 text-[11px] text-mute">{SEAT_META[draft.ownerSeat].duty}</p>
+              <p className="mt-1 text-[12px] text-mute">{SEAT_META[draft.ownerSeat].duty}</p>
             </Field>
             <div>
-              <p className="text-xs text-mute">共主席位</p>
+              <p className="text-[12px] text-mute">共主席位</p>
               <div className="mt-2 flex flex-wrap gap-2">
                 {OWNER_SEATS.filter((seat) => seat !== draft.ownerSeat).map((seat) => {
                   const on = (draft.collabSeats ?? []).includes(seat);
@@ -379,8 +374,8 @@ function RiskEditor({
                           on ? current.filter((item) => item !== seat) : uniqueSeats([...current, seat], draft.ownerSeat),
                         );
                       }}
-                      className={`rounded-full border px-2 py-1 text-[11px] ${
-                        on ? "border-gold/40 bg-gold/15 text-gold" : "border-line text-mute"
+                      className={`border px-2 py-1 text-[12px] ${
+                        on ? "border-ink bg-ink text-bg" : "border-line text-mute"
                       }`}
                     >
                       {seat}
@@ -390,16 +385,16 @@ function RiskEditor({
               </div>
             </div>
             <div>
-              <p className="text-xs text-mute">本席必核红线</p>
-              <ul className="mt-2 space-y-1 text-[11px] text-mute">
+              <p className="text-[12px] text-mute">本席必核红线</p>
+              <ul className="mt-2 space-y-1 text-[12px] text-mute">
                 {gatesForSeat(draft.ownerSeat).map((gate) => (
                   <li key={gate.id}>
-                    <span className="font-mono text-gold">{gate.id}</span> {gate.title}
+                    <span className="font-mono">{gate.id}</span> {gate.title}
                   </li>
                 ))}
               </ul>
             </div>
-            <p className="text-[11px] text-mute">更新于 {formatDateTime(draft.updatedAt)}</p>
+            <p className="text-[12px] text-mute">更新于 {formatDateTime(draft.updatedAt)}</p>
           </section>
         </aside>
       </div>
@@ -409,7 +404,7 @@ function RiskEditor({
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <label className="block text-xs text-mute">
+    <label className="block text-[12px] text-mute">
       {label}
       <div className="mt-1">{children}</div>
     </label>
@@ -431,7 +426,7 @@ function TriggerInput({ onAdd }: { onAdd: (value: string) => void }) {
           }
         }}
         placeholder="添加触发条件，回车确认"
-        className="flex-1 rounded-xl border border-line bg-card px-3 py-2 text-sm outline-none focus:border-gold/50"
+        className="flex-1 border border-line bg-surface px-3 py-2 text-[13px] outline-none"
       />
       <button
         type="button"
@@ -439,7 +434,7 @@ function TriggerInput({ onAdd }: { onAdd: (value: string) => void }) {
           onAdd(value);
           setValue("");
         }}
-        className="rounded-xl border border-line px-3 text-sm text-mute hover:text-paper"
+        className="border border-line px-3 text-[13px] text-mute hover:text-ink"
       >
         添加
       </button>

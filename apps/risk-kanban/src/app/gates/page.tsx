@@ -36,59 +36,61 @@ export default function GatesPage() {
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-8 lg:px-6">
-      <h1 className="text-xl font-semibold">红线闸总览</h1>
-      <p className="mt-2 text-sm text-mute">
-        九条硬闸，按执法席标注。未勾选且未关闭的关联风险会把闸口打成红/黄。
-      </p>
-
-      <div className="mt-4 flex flex-wrap gap-2">
-        <SeatChip active={seat === ""} onClick={() => setSeat("")} label="全部席位" />
-        {OWNER_SEATS.map((item) => (
-          <SeatChip
-            key={item}
-            active={seat === item}
-            onClick={() => setSeat(item)}
-            label={`${item} · ${SEAT_META[item].role}`}
-          />
-        ))}
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <h1 className="text-[16px] font-medium">红线闸总览</h1>
+          <p className="mt-2 text-[13px] text-mute">九条硬闸。未勾选且未关闭的关联风险会把闸口打成红/黄。</p>
+        </div>
+        <select
+          value={seat}
+          onChange={(e) => setSeat(e.target.value as OwnerSeat | "")}
+          className="border border-line bg-surface px-2 py-1.5 text-[13px]"
+        >
+          <option value="">全部席位</option>
+          {OWNER_SEATS.map((item) => (
+            <option key={item} value={item}>
+              {item} · {SEAT_META[item].role}
+            </option>
+          ))}
+        </select>
       </div>
 
-      <div className="mt-5 grid grid-cols-3 gap-3">
+      <div className="mt-5 grid grid-cols-3 border border-line">
         <Score label="红闸" value={red} className="text-signal-red" />
-        <Score label="黄闸" value={yellow} className="text-signal-amber" />
-        <Score label="已过闸" value={green} className="text-signal-green" />
+        <Score label="黄闸" value={yellow} className="text-signal-amber border-l border-line" />
+        <Score label="已过闸" value={green} className="text-signal-green border-l border-line" />
       </div>
 
-      {!ready ? <p className="mt-8 text-sm text-mute">加载闸口状态…</p> : null}
+      {!ready ? <p className="mt-8 text-[13px] text-mute">加载闸口状态…</p> : null}
 
-      <ol className="mt-8 space-y-4">
+      <ol className="mt-6 divide-y divide-line border border-line bg-surface">
         {rows.map(({ gate, linked, violators, light }) => (
-          <li key={gate.id} className="rounded-2xl border border-line bg-panel p-5">
+          <li key={gate.id} className="p-4">
             <div className="flex flex-wrap items-start gap-3">
-              <span className="font-mono text-sm text-gold">G{gate.index}</span>
+              <span className="font-mono text-[13px] text-mute">G{gate.index}</span>
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-2">
-                  <h2 className="text-base font-semibold leading-snug">{gate.title}</h2>
+                  <h2 className="text-[16px] font-medium leading-snug">{gate.title}</h2>
                   <LightBadge light={light} />
                 </div>
-                <div className="mt-2 flex flex-wrap gap-1.5">
+                <div className="mt-2 flex flex-wrap items-center gap-1.5">
                   {gate.enforcingSeats.map((enforcer) => (
                     <SeatBadge key={enforcer} seat={enforcer} />
                   ))}
-                  <span className="self-center text-[11px] text-mute">主责执法席</span>
+                  <span className="text-[12px] text-mute">主责执法席</span>
                 </div>
-                <p className="mt-2 text-sm text-mute">{gate.detail}</p>
+                <p className="mt-2 text-[13px] text-mute">{gate.detail}</p>
               </div>
             </div>
 
             {violators.length > 0 ? (
-              <ul className="mt-4 space-y-2">
+              <ul className="mt-4 space-y-1">
                 {violators.map((risk) => (
                   <GateRiskRow key={risk.id} risk={risk} gateId={gate.id} />
                 ))}
               </ul>
             ) : (
-              <p className="mt-4 text-xs text-mute">
+              <p className="mt-4 text-[12px] text-mute">
                 {linked.length === 0
                   ? "暂无卡片挂接此闸。可在风险详情中勾选关联。"
                   : "关联卡片均已勾选或已关闭。"}
@@ -101,50 +103,27 @@ export default function GatesPage() {
   );
 }
 
-function SeatChip({
-  active,
-  onClick,
-  label,
-}: {
-  active: boolean;
-  onClick: () => void;
-  label: string;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={cn(
-        "rounded-full border px-3 py-1 text-xs",
-        active ? "border-gold/50 bg-gold/15 text-gold" : "border-line text-mute hover:text-paper",
-      )}
-    >
-      {label}
-    </button>
-  );
-}
-
 function Score({ label, value, className }: { label: string; value: number; className: string }) {
   return (
-    <div className="rounded-2xl border border-line bg-card px-4 py-3">
-      <p className="text-xs text-mute">{label}</p>
-      <p className={`mt-1 font-mono text-2xl ${className}`}>{value}</p>
+    <div className={cn("bg-surface px-4 py-3", className)}>
+      <p className="text-[12px] text-mute">{label}</p>
+      <p className="mt-1 font-mono text-[22px]">{value}</p>
     </div>
   );
 }
 
 function GateRiskRow({ risk, gateId }: { risk: Risk; gateId: GateId }) {
   return (
-    <li className="flex flex-wrap items-center gap-2 rounded-xl bg-ink/50 px-3 py-2 text-sm">
-      <Link href={`/risk/${encodeURIComponent(risk.id)}`} className="font-mono text-gold hover:underline">
+    <li className="flex flex-wrap items-center gap-2 py-1 text-[13px]">
+      <Link href={`/risk/${encodeURIComponent(risk.id)}`} className="font-mono text-[12px] text-mute hover:underline">
         {risk.id}
       </Link>
-      <Link href={`/risk/${encodeURIComponent(risk.id)}`} className="hover:text-gold">
+      <Link href={`/risk/${encodeURIComponent(risk.id)}`} className="hover:underline">
         {risk.title}
       </Link>
       <SeverityBadge severity={risk.severity} />
       <SeatBadge seat={risk.ownerSeat} />
-      <span className="text-xs text-mute">{gateId} 未勾选</span>
+      <span className="text-[12px] text-mute">{gateId} 未勾选</span>
     </li>
   );
 }

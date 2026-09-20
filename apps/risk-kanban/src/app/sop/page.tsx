@@ -111,30 +111,30 @@ export default function SopPage() {
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-8 lg:px-6">
-      <h1 className="text-xl font-semibold">SOP 节奏清单</h1>
-      <p className="mt-2 text-sm text-mute">
+      <h1 className="text-[16px] font-medium">SOP 节奏清单</h1>
+      <p className="mt-2 text-[13px] text-mute">
         静态周节奏与开业里程碑，勾选保存在本机。正文仍以仓库里的
-        <code className="mx-1 rounded bg-white/5 px-1">工作SOP/</code>
+        <code className="mx-1 border border-line bg-surface px-1 text-[12px]">工作SOP/</code>
         与
-        <code className="mx-1 rounded bg-white/5 px-1">舆情监测/</code>
+        <code className="mx-1 border border-line bg-surface px-1 text-[12px]">舆情监测/</code>
         为准。
       </p>
 
-      <div className="mt-8 space-y-6">
-        {SECTIONS.map((section) => {
+      <div className="mt-8 space-y-0 border border-line bg-surface">
+        {SECTIONS.map((section, index) => {
           const done = section.items.filter((_, i) => checks[itemKey(section.id, i)]).length;
           return (
-            <section key={section.id} className="rounded-2xl border border-line bg-panel p-5">
+            <section key={section.id} className={cn("p-5", index > 0 ? "border-t border-line" : "")}>
               <div className="flex items-baseline justify-between gap-3">
-                <h2 className="text-base font-semibold">{section.title}</h2>
-                <span className="font-mono text-xs text-mute">
+                <h2 className="text-[16px] font-medium">{section.title}</h2>
+                <span className="font-mono text-[12px] text-mute">
                   {done}/{section.items.length}
                 </span>
               </div>
-              <p className="mt-1 text-[11px] text-mute">来源：{section.source}</p>
-              <ul className="mt-4 space-y-2">
-                {section.items.map((item, index) => {
-                  const key = itemKey(section.id, index);
+              <p className="mt-1 text-[12px] text-mute">来源：{section.source}</p>
+              <ul className="mt-4 space-y-1">
+                {section.items.map((item, itemIndex) => {
+                  const key = itemKey(section.id, itemIndex);
                   const on = Boolean(checks[key]);
                   return (
                     <li key={key}>
@@ -142,19 +142,19 @@ export default function SopPage() {
                         type="button"
                         onClick={() => toggle(key)}
                         className={cn(
-                          "flex w-full items-start gap-3 rounded-xl px-3 py-2 text-left text-sm transition",
-                          on ? "bg-emerald-400/10 text-paper" : "hover:bg-white/5",
+                          "flex w-full items-start gap-3 px-0 py-2 text-left text-[14px]",
+                          on ? "text-mute" : "text-ink",
                         )}
                       >
                         <span
                           className={cn(
-                            "mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded border",
-                            on ? "border-emerald-400 bg-emerald-400 text-ink" : "border-line",
+                            "mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center border",
+                            on ? "border-signal-green bg-signal-green text-bg" : "border-line",
                           )}
                         >
                           {on ? <Check className="h-3 w-3" /> : null}
                         </span>
-                        <span className={on ? "text-mute line-through" : ""}>{item}</span>
+                        <span className={on ? "line-through" : ""}>{item}</span>
                       </button>
                     </li>
                   );

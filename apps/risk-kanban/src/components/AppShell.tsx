@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ShieldAlert } from "lucide-react";
 import { APP_NAME, APP_SUBTITLE } from "@/lib/constants";
 import { RiskProvider, useRiskStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
@@ -16,27 +15,21 @@ const NAV = [
 
 function Header() {
   const pathname = usePathname();
-  const { risks, persistError, resetSeed } = useRiskStore();
+  const { risks, persistError, resetSeed, boardView, setBoardView } = useRiskStore();
   const red = risks.filter((r) => r.light === "红").length;
   const blocked = risks.filter((r) => r.status === "blocked").length;
   const p0 = risks.filter((r) => r.severity === "P0" && r.status !== "closed").length;
+  const home = pathname === "/";
 
   return (
-    <header className="sticky top-0 z-30 border-b border-line/80 bg-ink/90 backdrop-blur-md">
-      <div className="mx-auto flex max-w-[1600px] items-center gap-6 px-4 py-3 lg:px-6">
-        <Link href="/" className="flex items-center gap-3 min-w-0">
-          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-red-500 via-amber-400 to-emerald-400 shadow-[0_0_20px_rgba(240,180,41,0.25)]">
-            <ShieldAlert className="h-5 w-5 text-ink" />
-          </span>
-          <span className="min-w-0">
-            <span className="block truncate text-sm font-semibold tracking-wide text-paper">
-              {APP_NAME}
-            </span>
-            <span className="block truncate text-[11px] text-mute">{APP_SUBTITLE}</span>
-          </span>
+    <header className="sticky top-0 z-30 border-b border-line bg-surface">
+      <div className="mx-auto flex h-14 max-w-[1600px] items-center gap-6 px-4 lg:px-6">
+        <Link href="/" className="min-w-0 shrink-0">
+          <span className="block truncate text-[16px] font-medium tracking-tight text-ink">{APP_NAME}</span>
+          <span className="block truncate text-[12px] text-mute">{APP_SUBTITLE}</span>
         </Link>
 
-        <nav className="flex items-center gap-1 rounded-full bg-white/5 p-1">
+        <nav className="flex h-14 items-center gap-4 text-[13px]">
           {NAV.map((item) => {
             const active = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
             return (
@@ -44,8 +37,8 @@ function Header() {
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "rounded-full px-3 py-1.5 text-sm transition",
-                  active ? "bg-gold/20 text-gold" : "text-mute hover:text-paper",
+                  "flex h-14 items-center border-b",
+                  active ? "border-ink text-ink" : "border-transparent text-mute hover:text-ink",
                 )}
               >
                 {item.label}
@@ -54,10 +47,41 @@ function Header() {
           })}
         </nav>
 
-        <div className="ml-auto hidden items-center gap-3 text-xs text-mute md:flex">
-          <Stat label="红灯" value={red} warn={red > 0} />
-          <Stat label="阻断" value={blocked} warn={blocked > 0} />
-          <Stat label="在办 P0" value={p0} warn={p0 > 0} />
+        {home ? (
+          <div className="hidden items-center gap-0 border border-line text-[13px] sm:flex">
+            <button
+              type="button"
+              onClick={() => setBoardView("status")}
+              className={cn(
+                "px-3 py-1.5",
+                boardView === "status" ? "bg-ink text-bg" : "bg-surface text-mute hover:text-ink",
+              )}
+            >
+              按状态
+            </button>
+            <button
+              type="button"
+              onClick={() => setBoardView("seat")}
+              className={cn(
+                "border-l border-line px-3 py-1.5",
+                boardView === "seat" ? "bg-ink text-bg" : "bg-surface text-mute hover:text-ink",
+              )}
+            >
+              按席位
+            </button>
+          </div>
+        ) : null}
+
+        <div className="ml-auto hidden items-center gap-4 text-[12px] text-mute md:flex">
+          <span>
+            红灯 <span className={cn("font-mono", red > 0 ? "text-signal-red" : "text-ink")}>{red}</span>
+          </span>
+          <span>
+            阻断 <span className={cn("font-mono", blocked > 0 ? "text-signal-red" : "text-ink")}>{blocked}</span>
+          </span>
+          <span>
+            在办 P0 <span className={cn("font-mono", p0 > 0 ? "text-signal-red" : "text-ink")}>{p0}</span>
+          </span>
           <button
             type="button"
             onClick={() => {
@@ -65,27 +89,18 @@ function Header() {
                 void resetSeed();
               }
             }}
-            className="rounded-full border border-line px-3 py-1.5 text-mute hover:border-gold/40 hover:text-gold"
+            className="border border-line px-2 py-1 text-mute hover:border-ink hover:text-ink"
           >
             重置种子
           </button>
         </div>
       </div>
       {persistError ? (
-        <div className="border-t border-amber-500/20 bg-amber-400/10 px-4 py-1.5 text-center text-xs text-amber-200">
+        <div className="border-t border-line bg-surface px-4 py-2 text-center text-[12px] text-signal-amber">
           {persistError}
         </div>
       ) : null}
     </header>
-  );
-}
-
-function Stat({ label, value, warn }: { label: string; value: number; warn?: boolean }) {
-  return (
-    <span className="inline-flex items-center gap-1.5 rounded-full border border-line bg-panel px-2.5 py-1">
-      <span>{label}</span>
-      <span className={cn("font-mono", warn ? "text-signal-red" : "text-paper")}>{value}</span>
-    </span>
   );
 }
 
