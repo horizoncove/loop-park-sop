@@ -1,0 +1,21 @@
+export const SCHEMA_SQL = `
+CREATE TABLE IF NOT EXISTS events (
+  id TEXT PRIMARY KEY,
+  title TEXT NOT NULL DEFAULT '',
+  description TEXT NOT NULL DEFAULT '',
+  category TEXT NOT NULL DEFAULT '',
+  severity TEXT NOT NULL DEFAULT 'P2',
+  light TEXT NOT NULL DEFAULT '灰',
+  status TEXT NOT NULL DEFAULT '待排查',
+  owner_seat TEXT NOT NULL DEFAULT '反将',
+  collab_seats JSONB NOT NULL DEFAULT '[]'::jsonb,
+  triggers TEXT NOT NULL DEFAULT '[]',
+  residual_risk TEXT NOT NULL DEFAULT '',
+  red_line_gates JSONB NOT NULL DEFAULT '[]'::jsonb,
+  notes TEXT NOT NULL DEFAULT '[]',
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+ALTER TABLE events ADD COLUMN IF NOT EXISTS sort_order INTEGER NOT NULL DEFAULT 0;
+`;

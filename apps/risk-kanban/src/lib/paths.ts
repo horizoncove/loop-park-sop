@@ -1,8 +1,35 @@
-/** Prefixed API URL. Next.js does not add `basePath` to `fetch()`. */
+/** Prefixed Next.js API URL. Next does not add `basePath` to `fetch()`. */
 export function apiUrl(path = "/api/risks") {
   const base = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
   const suffix = path.startsWith("/") ? path : `/${path}`;
   return `${base}${suffix}`;
+}
+
+/** Dedicated events API, e.g. `/loop-kanban/api` or `http://127.0.0.1:3010/api`. */
+export function eventsApiBase(): string | null {
+  const raw = (process.env.NEXT_PUBLIC_API_BASE ?? "").trim();
+  if (!raw) return null;
+  return raw.replace(/\/$/, "");
+}
+
+export function eventsListUrl(): string | null {
+  const dedicated = eventsApiBase();
+  if (dedicated) return `${dedicated}/events`;
+  if (isStaticExport()) return null;
+  return apiUrl("/api/risks");
+}
+
+export function eventsItemUrl(id: string): string {
+  const dedicated = eventsApiBase();
+  if (dedicated) return `${dedicated}/events/${encodeURIComponent(id)}`;
+  return apiUrl(`/api/risks/${encodeURIComponent(id)}`);
+}
+
+export function eventsResetUrl(): string | null {
+  const dedicated = eventsApiBase();
+  if (dedicated) return `${dedicated}/events/reset`;
+  if (isStaticExport()) return null;
+  return apiUrl("/api/risks");
 }
 
 export function riskHref(id: string) {

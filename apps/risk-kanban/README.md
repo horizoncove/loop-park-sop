@@ -26,7 +26,7 @@ npm start
 - `/seats` 八席仪表盘
 - `/gates` 九条红线，标注执法席
 - `/sop` 周节奏与开业里程碑
-- 无登录、无外部 DB
+- 无登录。生产数据在 Postgres（`/loop-kanban/api`）；本地默认 localStorage
 
 ## 八将职责
 
@@ -43,6 +43,6 @@ npm start
 
 ## 数据
 
-- 浏览器：`localStorage` 键 `loop-park-risk-kanban-v3`（静态部署时的唯一数据源）
-- 可选同步（`next start`）：`GET/PUT /api/risks`，种子文件 `data/risks.json`
-- 顶栏「重置种子」会清本地；有 API 时再请求服务端重置
+- 生产：Postgres `events`，经 `NEXT_PUBLIC_API_BASE=/loop-kanban/api`
+- 浏览器缓存：`localStorage` 键 `loop-park-risk-kanban-v3`
+- 本地无 API 时仅 localStorage；`next start` 仍可选同步 `GET/PUT /api/risks`

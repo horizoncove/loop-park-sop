@@ -16,6 +16,9 @@ const hidden = path.join(appRoot, ".api-hidden");
 process.chdir(appRoot);
 process.env.STATIC_EXPORT = "1";
 process.env.BASE_PATH = process.env.BASE_PATH || "/loop-kanban";
+if (process.env.NEXT_PUBLIC_API_BASE === undefined) {
+  process.env.NEXT_PUBLIC_API_BASE = "/loop-kanban/api";
+}
 
 function hideApi() {
   if (existsSync(hidden)) rmSync(hidden, { recursive: true, force: true });
