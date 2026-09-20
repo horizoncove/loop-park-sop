@@ -43,9 +43,11 @@ export type Light = (typeof LIGHTS)[number];
 export const OWNER_SEATS = [
   "正将",
   "提将",
-  "风谣",
+  "风将",
+  "谣将",
   "反将",
-  "火脱",
+  "火将",
+  "脱将",
   "除将",
 ] as const;
 export type OwnerSeat = (typeof OWNER_SEATS)[number];

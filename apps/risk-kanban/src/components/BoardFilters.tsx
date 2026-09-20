@@ -57,10 +57,7 @@ export function BoardFilters() {
             ))}
           </select>
         </label>
-        <p className="text-[11px] text-mute">
-          {SEAT_META[mySeat].duty}
-          {SEAT_META[mySeat].aliases ? `（${SEAT_META[mySeat].aliases}）` : ""}
-        </p>
+        <p className="text-[11px] text-mute">{SEAT_META[mySeat].duty}</p>
       </div>
 
       <div className="flex flex-col gap-3 lg:flex-row lg:items-end">

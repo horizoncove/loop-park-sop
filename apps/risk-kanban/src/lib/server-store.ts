@@ -3,7 +3,7 @@ import path from "node:path";
 import { STORE_VERSION } from "./constants";
 import { SEED_PAYLOAD } from "./seed";
 import type { Risk, StorePayload } from "./types";
-import { isCurrentStore, migrateRisk, nowIso } from "./utils";
+import { isReadableStore, migrateRisk, migrateStore, nowIso } from "./utils";
 
 function dataFile() {
   return path.join(process.cwd(), "data", "risks.json");
@@ -19,15 +19,15 @@ export async function readStore(): Promise<StorePayload> {
   try {
     const raw = await fs.readFile(dataFile(), "utf8");
     const parsed: unknown = JSON.parse(raw);
-    if (isPayload(parsed) && isCurrentStore(parsed)) {
-      return {
-        version: STORE_VERSION,
-        updatedAt: parsed.updatedAt,
-        risks: parsed.risks.map(migrateRisk),
-      };
+    if (isPayload(parsed) && isReadableStore(parsed)) {
+      const migrated = migrateStore(parsed);
+      if ((parsed.version ?? 0) < STORE_VERSION) {
+        await writeStore(migrated);
+      }
+      return migrated;
     }
   } catch {
-    // first boot or stale file
+    // first boot or empty file
   }
   await writeStore(SEED_PAYLOAD);
   return SEED_PAYLOAD;

@@ -16,7 +16,7 @@ export default function HomePage() {
           </h1>
           <p className="mt-1 max-w-3xl text-sm text-mute">
             {boardView === "seat"
-              ? "六席合席：正将 / 提将 / 风谣 / 反将 / 火脱 / 除将。拖动卡片改主责席；共主在卡片上标注。"
+              ? "八将分列：正将 / 提将 / 风将 / 谣将 / 反将 / 火将 / 脱将 / 除将。拖动卡片改主责席；共主在卡片上标注。"
               : "从待排查到红灯阻断，再到关闭/绿灯。也可切到「按席位」把风险分到八将。"}{" "}
             <Link href="/seats" className="text-gold hover:underline">
               席位仪表盘

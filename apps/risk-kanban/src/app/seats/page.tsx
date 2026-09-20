@@ -14,12 +14,12 @@ export default function SeatsPage() {
     <div className="mx-auto max-w-6xl px-4 py-8 lg:px-6">
       <h1 className="text-xl font-semibold">席位仪表盘</h1>
       <p className="mt-2 text-sm text-mute">
-        千门八将按现网合为六席。点席位可切到「按席位」看板并打开「只看我的席」。
+        千门八将分列八席：正将、提将、风将、谣将、反将、火将、脱将、除将。点席位可切到「按席位」看板并打开「只看我的席」。
       </p>
 
       {!ready ? <p className="mt-8 text-sm text-mute">加载席位…</p> : null}
 
-      <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+      <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         {OWNER_SEATS.map((seat) => (
           <SeatCard
             key={seat}
@@ -66,7 +66,6 @@ function SeatCard({
           <h2 className="text-base font-semibold">{seat}</h2>
           <p className="text-xs text-mute">{meta.role}</p>
           <p className="mt-1 text-sm text-paper/90">{meta.duty}</p>
-          {meta.aliases ? <p className="mt-1 text-[11px] text-mute">别名 {meta.aliases}</p> : null}
         </div>
         <Link
           href="/"

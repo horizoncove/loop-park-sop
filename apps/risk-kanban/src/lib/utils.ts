@@ -1,6 +1,6 @@
 import { clsx, type ClassValue } from "clsx";
-import type { CardGate, GateId, Light, OwnerSeat, Risk, StorePayload } from "./types";
-import { GLOBAL_GATES, OWNER_SEATS, SEAT_ALIASES, STORE_VERSION } from "./constants";
+import type { CardGate, Light, OwnerSeat, Risk, StorePayload } from "./types";
+import { GLOBAL_GATES, OWNER_SEATS, STORE_VERSION } from "./constants";
 
 export function cn(...inputs: ClassValue[]) {
   return clsx(inputs);
@@ -31,7 +31,7 @@ export function formatRelative(iso: string, now = new Date()) {
   return formatDateTime(iso);
 }
 
-export function gateTitle(id: GateId) {
+export function gateTitle(id: string) {
   return GLOBAL_GATES.find((g) => g.id === id)?.title ?? id;
 }
 
@@ -52,9 +52,59 @@ export function uid(prefix = "n") {
   return `${prefix}-${Math.random().toString(36).slice(2, 8)}`;
 }
 
-export function normalizeSeat(value: unknown): OwnerSeat | null {
+export function isOwnerSeat(value: unknown): value is OwnerSeat {
+  return typeof value === "string" && (OWNER_SEATS as readonly string[]).includes(value);
+}
+
+type SeatHint = Partial<Pick<Risk, "category" | "title" | "description" | "id">>;
+
+function blobOf(hint?: SeatHint) {
+  return `${hint?.id ?? ""} ${hint?.category ?? ""} ${hint?.title ?? ""} ${hint?.description ?? ""}`;
+}
+
+function splitFengYao(hint?: SeatHint): OwnerSeat {
+  const blob = blobOf(hint);
+  if (
+    hint?.category === "竞品客流" ||
+    /情报|竞品|高校|日历|客流|报知|舆情监测/.test(blob)
+  ) {
+    return "风将";
+  }
+  return "谣将";
+}
+
+function splitHuoTuo(hint?: SeatHint): OwnerSeat {
+  const blob = blobOf(hint);
+  if (
+    /动线|市集|租户|商管|借场|经营|交铺商管/.test(blob) ||
+    (hint?.category === "活动造场与联赛" && !/消防|开业条件|疏散/.test(blob))
+  ) {
+    return "脱将";
+  }
+  if (
+    hint?.category === "安全消防物业" ||
+    hint?.category === "建设工期开业" ||
+    /消防|开业条件|疏散|物业安全|排烟|否决|进场/.test(blob)
+  ) {
+    return "火将";
+  }
+  return "火将";
+}
+
+/** Map legacy 风谣/火脱 (and already-split names) onto the eight seats. */
+export function normalizeSeat(value: unknown, hint?: SeatHint): OwnerSeat | null {
   if (typeof value !== "string") return null;
-  return SEAT_ALIASES[value.trim()] ?? null;
+  const v = value.trim();
+  if (isOwnerSeat(v)) return v;
+  if (v === "风谣") return splitFengYao(hint);
+  if (v === "火脱") return splitHuoTuo(hint);
+  return null;
+}
+
+export function migratePickerSeat(value: unknown): OwnerSeat {
+  if (value === "风谣") return "谣将";
+  if (value === "火脱") return "火将";
+  return normalizeSeat(value) ?? "反将";
 }
 
 export function belongsToSeat(risk: Pick<Risk, "ownerSeat" | "collabSeats">, seat: OwnerSeat) {
@@ -71,18 +121,39 @@ export function gatesForSeat(seat: OwnerSeat) {
 }
 
 export function migrateRisk(raw: Risk): Risk {
-  const ownerSeat = normalizeSeat(raw.ownerSeat) ?? "正将";
+  const hint: SeatHint = {
+    id: raw.id,
+    category: raw.category,
+    title: raw.title,
+    description: raw.description,
+  };
+  const ownerSeat = normalizeSeat(raw.ownerSeat, hint) ?? "正将";
   const collabSeats = uniqueSeats(
     (raw.collabSeats ?? [])
-      .map((seat) => normalizeSeat(seat))
+      .map((seat) => normalizeSeat(seat, hint))
       .filter((seat): seat is OwnerSeat => Boolean(seat)),
     ownerSeat,
   );
-  return { ...raw, ownerSeat, collabSeats };
+  const notes = (raw.notes ?? []).map((item) => ({
+    ...item,
+    authorSeat:
+      item.authorSeat === "系统" ? "系统" : (normalizeSeat(item.authorSeat, hint) ?? ownerSeat),
+  }));
+  return { ...raw, ownerSeat, collabSeats, notes };
+}
+
+export function migrateStore(payload: StorePayload): StorePayload {
+  return {
+    version: STORE_VERSION,
+    updatedAt: payload.updatedAt,
+    risks: payload.risks.map(migrateRisk),
+  };
+}
+
+export function isReadableStore(payload: StorePayload | null): payload is StorePayload {
+  return Boolean(payload && Array.isArray(payload.risks) && payload.risks.length > 0);
 }
 
 export function isCurrentStore(payload: StorePayload | null): payload is StorePayload {
-  return Boolean(
-    payload && payload.version >= STORE_VERSION && Array.isArray(payload.risks) && payload.risks.length > 0,
-  );
+  return Boolean(isReadableStore(payload) && payload.version >= STORE_VERSION);
 }

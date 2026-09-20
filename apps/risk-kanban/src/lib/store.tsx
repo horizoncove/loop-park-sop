@@ -10,6 +10,7 @@ import {
 } from "react";
 import {
   BOARD_VIEW_KEY,
+  LEGACY_STORAGE_KEYS,
   MINE_ONLY_KEY,
   MY_SEAT_KEY,
   STORAGE_KEY,
@@ -17,7 +18,15 @@ import {
 } from "./constants";
 import { SEED_PAYLOAD } from "./seed";
 import type { BoardView, ColumnId, OwnerSeat, Risk, StorePayload } from "./types";
-import { belongsToSeat, isCurrentStore, migrateRisk, nowIso, suggestLight } from "./utils";
+import {
+  belongsToSeat,
+  isReadableStore,
+  migratePickerSeat,
+  migrateRisk,
+  migrateStore,
+  nowIso,
+  suggestLight,
+} from "./utils";
 import { usePersistedJson } from "./usePersistedJson";
 
 type Filters = {
@@ -60,11 +69,14 @@ const StoreContext = createContext<StoreContextValue | null>(null);
 
 function readLocal(): StorePayload | null {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return null;
-    const parsed = JSON.parse(raw) as StorePayload;
-    if (!isCurrentStore(parsed)) return null;
-    return { ...parsed, risks: parsed.risks.map(migrateRisk) };
+    for (const key of [STORAGE_KEY, ...LEGACY_STORAGE_KEYS]) {
+      const raw = localStorage.getItem(key);
+      if (!raw) continue;
+      const parsed = JSON.parse(raw) as StorePayload;
+      if (!isReadableStore(parsed)) continue;
+      return migrateStore(parsed);
+    }
+    return null;
   } catch {
     return null;
   }
@@ -82,8 +94,8 @@ async function fetchRemote(): Promise<StorePayload | null> {
     const res = await fetch("/api/risks", { cache: "no-store" });
     if (!res.ok) return null;
     const data = (await res.json()) as StorePayload;
-    if (!isCurrentStore(data)) return null;
-    return { ...data, risks: data.risks.map(migrateRisk) };
+    if (!isReadableStore(data)) return null;
+    return migrateStore(data);
   } catch {
     return null;
   }
@@ -107,7 +119,9 @@ export function RiskProvider({ children }: { children: React.ReactNode }) {
   const [persistError, setPersistError] = useState<string | null>(null);
   const [filters, setFiltersState] = useState<Filters>(EMPTY_FILTERS);
   const [boardView, setBoardView] = usePersistedJson<BoardView>(BOARD_VIEW_KEY, "status");
-  const [mySeat, setMySeat] = usePersistedJson<OwnerSeat>(MY_SEAT_KEY, "反将");
+  const [rawSeat, setRawSeat] = usePersistedJson<string>(MY_SEAT_KEY, "反将");
+  const mySeat = migratePickerSeat(rawSeat);
+  const setMySeat = useCallback((seat: OwnerSeat) => setRawSeat(seat), [setRawSeat]);
   const [mineOnly, setMineOnly] = usePersistedJson<boolean>(MINE_ONLY_KEY, false);
 
   const persist = useCallback(async (nextRisks: Risk[]) => {
@@ -228,6 +242,7 @@ export function RiskProvider({ children }: { children: React.ReactNode }) {
 
   const resetSeed = useCallback(async () => {
     localStorage.removeItem(STORAGE_KEY);
+    for (const key of LEGACY_STORAGE_KEYS) localStorage.removeItem(key);
     try {
       const res = await fetch("/api/risks", {
         method: "POST",

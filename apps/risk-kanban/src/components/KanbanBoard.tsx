@@ -122,8 +122,8 @@ export function KanbanBoard() {
 
   if (!ready) {
     return (
-      <div className="grid grid-cols-6 gap-3">
-        {Array.from({ length: boardView === "seat" ? 6 : 5 }).map((_, i) => (
+      <div className={`grid gap-3 ${boardView === "seat" ? "grid-cols-8" : "grid-cols-5"}`}>
+        {Array.from({ length: boardView === "seat" ? 8 : 5 }).map((_, i) => (
           <div key={i} className="h-[70vh] animate-pulse rounded-2xl bg-panel" />
         ))}
       </div>
@@ -160,7 +160,7 @@ function Column({ column }: { column: BoardColumn }) {
   return (
     <section
       ref={setNodeRef}
-      className={`flex w-[260px] shrink-0 flex-col rounded-2xl border border-line bg-panel/80 lg:min-w-0 lg:flex-1 ${
+      className={`flex w-[196px] shrink-0 flex-col rounded-2xl border border-line bg-panel/80 xl:min-w-0 xl:flex-1 ${
         isOver ? "ring-1 ring-gold/40" : ""
       }`}
     >

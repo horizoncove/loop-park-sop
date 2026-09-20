@@ -49,9 +49,11 @@ export function SeatBadge({ seat, collab = false }: { seat: OwnerSeat; collab?: 
   const tone: Record<string, string> = {
     gold: "bg-amber-300/10 text-gold border-amber-300/25",
     blue: "bg-blue-400/10 text-blue-200 border-blue-400/25",
+    sky: "bg-sky-400/10 text-sky-200 border-sky-400/25",
     violet: "bg-violet-400/10 text-violet-200 border-violet-400/25",
     rose: "bg-rose-400/10 text-rose-200 border-rose-400/25",
     orange: "bg-orange-400/10 text-orange-200 border-orange-400/25",
+    lime: "bg-lime-400/10 text-lime-200 border-lime-400/25",
     teal: "bg-teal-400/10 text-teal-200 border-teal-400/25",
   };
   const meta = SEAT_META[seat];
