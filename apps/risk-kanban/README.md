@@ -9,7 +9,9 @@ npm i
 npm run dev
 ```
 
-打开 [http://localhost:3000](http://localhost:3000)。
+打开 [http://localhost:3000](http://localhost:3000)。不要设置 `BASE_PATH`。
+
+子路径构建（zhidaoflow.cn `/loop-kanban/`）见 [DEPLOY-zhidaoflow.md](./DEPLOY-zhidaoflow.md)。
 
 ```bash
 npm run build
@@ -41,7 +43,6 @@ npm start
 
 ## 数据
 
-- 种子与运行时：`data/risks.json`（version 3，含 `collabSeats`）
-- API：`GET/PUT /api/risks`，`GET/PATCH /api/risks/[id]`
-- 浏览器备份：`localStorage` 键 `loop-park-risk-kanban-v3`
-- 顶栏「重置种子」会同时清本地与 JSON
+- 浏览器：`localStorage` 键 `loop-park-risk-kanban-v3`（静态部署时的唯一数据源）
+- 可选同步（`next start`）：`GET/PUT /api/risks`，种子文件 `data/risks.json`
+- 顶栏「重置种子」会清本地；有 API 时再请求服务端重置

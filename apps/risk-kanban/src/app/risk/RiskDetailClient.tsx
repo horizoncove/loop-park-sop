@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowLeft, Plus } from "lucide-react";
 import { CategoryChip, LightBadge, SeatBadge, SeverityBadge } from "@/components/Badges";
 import { CATEGORIES, GLOBAL_GATES, LIGHTS, OWNER_SEATS, SEAT_META } from "@/lib/constants";
@@ -11,9 +11,9 @@ import type { CardGate, Category, GateId, Light, OwnerSeat, Risk, Severity } fro
 import { useRiskStore } from "@/lib/store";
 import { formatDateTime, gatesForSeat, nowIso, uid, uniqueSeats } from "@/lib/utils";
 
-export default function RiskDetailPage() {
-  const params = useParams<{ id: string }>();
-  const id = decodeURIComponent(params.id);
+export function RiskDetailClient() {
+  const search = useSearchParams();
+  const id = (search.get("id") ?? "").trim();
   const { risks, ready, upsert } = useRiskStore();
   const risk = risks.find((item) => item.id === id);
 
@@ -23,8 +23,10 @@ export default function RiskDetailPage() {
   if (!risk) {
     return (
       <div className="mx-auto max-w-xl px-4 py-16 text-center">
-        <p className="text-[16px] font-medium">未找到 {id}</p>
-        <p className="mt-2 text-[13px] text-mute">可能尚未种子化，或编号已被重置。</p>
+        <p className="text-[16px] font-medium">未找到{id ? ` ${id}` : "该事件"}</p>
+        <p className="mt-2 text-[13px] text-mute">
+          {id ? "可能尚未种子化，或编号已被重置。" : "链接缺少事件编号（?id=）。"}
+        </p>
         <Link href="/" className="mt-6 inline-block text-[13px] hover:underline">
           返回看板
         </Link>

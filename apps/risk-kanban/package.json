@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "build:zhidao": "STATIC_EXPORT=1 BASE_PATH=/loop-kanban node ./scripts/static-export.mjs",
     "start": "next start",
     "lint": "eslint"
   },

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { APP_NAME, APP_SUBTITLE } from "@/lib/constants";
+import { normalizePathname } from "@/lib/paths";
 import { RiskProvider, useRiskStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
 import { BoardViewToggle } from "./BoardFilters";
@@ -15,7 +16,7 @@ const NAV = [
 ];
 
 function Header() {
-  const pathname = usePathname();
+  const pathname = normalizePathname(usePathname());
   const { risks, persistError, resetSeed } = useRiskStore();
   const red = risks.filter((r) => r.light === "红").length;
   const yellow = risks.filter((r) => r.light === "黄").length;

@@ -7,6 +7,7 @@ import { useRiskStore } from "@/lib/store";
 import type { GateId, Light, OwnerSeat, Risk } from "@/lib/types";
 import { LightBadge, SeatBadge, SeverityBadge } from "@/components/Badges";
 import { cn } from "@/lib/utils";
+import { riskHref } from "@/lib/paths";
 
 function gateLight(linked: Risk[]): Light {
   const open = linked.filter((r) => r.status !== "closed").filter((r) =>
@@ -115,10 +116,10 @@ function Score({ label, value, className }: { label: string; value: number; clas
 function GateRiskRow({ risk, gateId }: { risk: Risk; gateId: GateId }) {
   return (
     <li className="flex flex-wrap items-center gap-2 py-1 text-[13px]">
-      <Link href={`/risk/${encodeURIComponent(risk.id)}`} className="font-mono text-[12px] text-mute hover:underline">
+      <Link href={riskHref(risk.id)} className="font-mono text-[12px] text-mute hover:underline">
         {risk.id}
       </Link>
-      <Link href={`/risk/${encodeURIComponent(risk.id)}`} className="hover:underline">
+      <Link href={riskHref(risk.id)} className="hover:underline">
         {risk.title}
       </Link>
       <SeverityBadge severity={risk.severity} />

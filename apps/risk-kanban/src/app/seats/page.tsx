@@ -6,6 +6,7 @@ import { useRiskStore } from "@/lib/store";
 import type { OwnerSeat, Risk } from "@/lib/types";
 import { LightBadge, SeatBadge, SeatSwatch, SeverityBadge } from "@/components/Badges";
 import { belongsToSeat, cn } from "@/lib/utils";
+import { riskHref } from "@/lib/paths";
 
 export default function SeatsPage() {
   const { risks, ready, setBoardView, setMySeat, setMineOnly } = useRiskStore();
@@ -101,7 +102,7 @@ function SeatCard({
           {topP0.map((risk) => (
             <li key={risk.id}>
               <Link
-                href={`/risk/${encodeURIComponent(risk.id)}`}
+                href={riskHref(risk.id)}
                 className="flex flex-wrap items-center gap-2 border border-transparent px-0 py-1 text-[13px] hover:underline"
               >
                 <span className="font-mono text-[12px] text-mute">{risk.id}</span>

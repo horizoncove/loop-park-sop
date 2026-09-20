@@ -5,6 +5,7 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import type { Risk } from "@/lib/types";
 import { SEAT_SWATCH } from "@/lib/constants";
+import { riskHref } from "@/lib/paths";
 import { LightBadge, SeatBadge } from "./Badges";
 
 export function RiskCard({
@@ -28,7 +29,7 @@ export function RiskCard({
         <LightBadge light={risk.light} />
       </div>
       <Link
-        href={`/risk/${encodeURIComponent(risk.id)}`}
+        href={riskHref(risk.id)}
         className="mt-2 block"
         draggable={false}
         onClick={(event) => {

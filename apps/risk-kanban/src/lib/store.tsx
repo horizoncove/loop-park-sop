@@ -6,6 +6,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 import {
@@ -27,6 +28,7 @@ import {
   nowIso,
   suggestLight,
 } from "./utils";
+import { apiUrl, isStaticExport } from "./paths";
 import { usePersistedJson } from "./usePersistedJson";
 
 type Filters = {
@@ -91,8 +93,9 @@ function writeLocal(payload: StorePayload) {
 }
 
 async function fetchRemote(): Promise<StorePayload | null> {
+  if (isStaticExport()) return null;
   try {
-    const res = await fetch("/api/risks", { cache: "no-store" });
+    const res = await fetch(apiUrl("/api/risks"), { cache: "no-store" });
     if (!res.ok) return null;
     const data = (await res.json()) as StorePayload;
     if (!isReadableStore(data)) return null;
@@ -118,6 +121,7 @@ export function RiskProvider({ children }: { children: React.ReactNode }) {
   const [risks, setRisks] = useState<Risk[]>(SEED_PAYLOAD.risks);
   const [ready, setReady] = useState(false);
   const [persistError, setPersistError] = useState<string | null>(null);
+  const apiAvailableRef = useRef(false);
   const [filters, setFiltersState] = useState<Filters>(EMPTY_FILTERS);
   const [boardView, setBoardView] = usePersistedJson<BoardView>(BOARD_VIEW_KEY, "light");
   const [rawSeat, setRawSeat] = usePersistedJson<string>(MY_SEAT_KEY, "反将");
@@ -125,7 +129,7 @@ export function RiskProvider({ children }: { children: React.ReactNode }) {
   const setMySeat = useCallback((seat: OwnerSeat) => setRawSeat(seat), [setRawSeat]);
   const [mineOnly, setMineOnly] = usePersistedJson<boolean>(MINE_ONLY_KEY, false);
 
-  const persist = useCallback(async (nextRisks: Risk[]) => {
+  const persist = useCallback(async (nextRisks: Risk[], syncRemote = apiAvailableRef.current) => {
     const payload: StorePayload = {
       version: STORE_VERSION,
       updatedAt: nowIso(),
@@ -133,8 +137,12 @@ export function RiskProvider({ children }: { children: React.ReactNode }) {
     };
     setRisks(payload.risks);
     writeLocal(payload);
+    if (!syncRemote || isStaticExport()) {
+      setPersistError(null);
+      return;
+    }
     try {
-      const res = await fetch("/api/risks", {
+      const res = await fetch(apiUrl("/api/risks"), {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -142,7 +150,7 @@ export function RiskProvider({ children }: { children: React.ReactNode }) {
       if (!res.ok) throw new Error("保存失败");
       setPersistError(null);
     } catch {
-      setPersistError("服务端文件写入失败，已保存在本机 localStorage。");
+      setPersistError("可选同步失败，看板已保存在本机 localStorage。");
     }
   }, []);
 
@@ -152,15 +160,22 @@ export function RiskProvider({ children }: { children: React.ReactNode }) {
       const local = readLocal();
       const remote = await fetchRemote();
       if (cancelled) return;
+      const hasApi = remote !== null;
+      apiAvailableRef.current = hasApi;
       if (!local && !remote) {
         writeLocal(SEED_PAYLOAD);
-        await persist(SEED_PAYLOAD.risks);
+        setRisks(SEED_PAYLOAD.risks.map(migrateRisk));
       } else {
         const chosen = newer(local, remote);
         setRisks(chosen.risks.map(migrateRisk));
         writeLocal(chosen);
-        if (local && remote && new Date(local.updatedAt).getTime() > new Date(remote.updatedAt).getTime()) {
-          await persist(local.risks);
+        if (
+          hasApi &&
+          local &&
+          remote &&
+          new Date(local.updatedAt).getTime() > new Date(remote.updatedAt).getTime()
+        ) {
+          await persist(local.risks, true);
         }
       }
       setReady(true);
@@ -258,19 +273,25 @@ export function RiskProvider({ children }: { children: React.ReactNode }) {
   const resetSeed = useCallback(async () => {
     localStorage.removeItem(STORAGE_KEY);
     for (const key of LEGACY_STORAGE_KEYS) localStorage.removeItem(key);
+    writeLocal(SEED_PAYLOAD);
+    setRisks(SEED_PAYLOAD.risks.map(migrateRisk));
+    setPersistError(null);
+    if (!apiAvailableRef.current || isStaticExport()) return;
     try {
-      const res = await fetch("/api/risks", {
+      const res = await fetch(apiUrl("/api/risks"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "reset" }),
       });
+      if (!res.ok) throw new Error("reset failed");
       const data = (await res.json()) as StorePayload;
-      writeLocal(data);
-      setRisks(data.risks.map(migrateRisk));
-      setPersistError(null);
+      if (isReadableStore(data)) {
+        const migrated = migrateStore(data);
+        writeLocal(migrated);
+        setRisks(migrated.risks.map(migrateRisk));
+      }
     } catch {
-      writeLocal(SEED_PAYLOAD);
-      setRisks(SEED_PAYLOAD.risks);
+      setPersistError("可选同步失败，种子已恢复到本机 localStorage。");
     }
   }, []);
 
