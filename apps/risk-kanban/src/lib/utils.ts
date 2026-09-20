@@ -1,5 +1,5 @@
 import { clsx, type ClassValue } from "clsx";
-import type { CardGate, Light, OwnerSeat, Risk, StorePayload } from "./types";
+import type { CardGate, Light, OwnerSeat, Risk, RiskNote, StorePayload } from "./types";
 import { GLOBAL_GATES, OWNER_SEATS, STORE_VERSION } from "./constants";
 
 export function cn(...inputs: ClassValue[]) {
@@ -134,11 +134,11 @@ export function migrateRisk(raw: Risk): Risk {
       .filter((seat): seat is OwnerSeat => Boolean(seat)),
     ownerSeat,
   );
-  const notes = (raw.notes ?? []).map((item) => ({
-    ...item,
-    authorSeat:
-      item.authorSeat === "系统" ? "系统" : (normalizeSeat(item.authorSeat, hint) ?? ownerSeat),
-  }));
+  const notes = (raw.notes ?? []).map((item) => {
+    const authorSeat: RiskNote["authorSeat"] =
+      item.authorSeat === "系统" ? "系统" : (normalizeSeat(item.authorSeat, hint) ?? ownerSeat);
+    return { ...item, authorSeat };
+  });
   return { ...raw, ownerSeat, collabSeats, notes };
 }
 
