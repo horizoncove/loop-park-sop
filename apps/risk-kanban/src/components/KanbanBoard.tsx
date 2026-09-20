@@ -6,9 +6,11 @@ import {
   DragOverlay,
   PointerSensor,
   closestCorners,
+  pointerWithin,
   useDroppable,
   useSensor,
   useSensors,
+  type CollisionDetection,
   type DragEndEvent,
   type DragStartEvent,
 } from "@dnd-kit/core";
@@ -27,11 +29,27 @@ const COLUMN_ACCENT: Record<ColumnId, string> = {
   closed: "from-emerald-400/30",
 };
 
+const collisionDetection: CollisionDetection = (args) => {
+  const pointerHits = pointerWithin(args);
+  const containerById = (id: string | number) =>
+    args.droppableContainers.find((container) => container.id === id);
+  const typed = (type: string) =>
+    pointerHits.find((hit) => containerById(hit.id)?.data.current?.type === type);
+  const cardHit = typed("card");
+  if (cardHit) return [cardHit];
+  const columnHit = typed("column");
+  if (columnHit) return [columnHit];
+  if (pointerHits.length > 0) return pointerHits;
+  return closestCorners(args);
+};
+
 export function KanbanBoard() {
   const { filtered, ready, moveRisk } = useRiskStore();
   const [active, setActive] = useState<Risk | null>(null);
   const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(PointerSensor, {
+      activationConstraint: { distance: 6 },
+    }),
   );
 
   const grouped = useMemo(() => {
@@ -66,7 +84,9 @@ export function KanbanBoard() {
     } else if (COLUMNS.includes(overId as ColumnId)) {
       nextColumn = overId as ColumnId;
     }
-    if (!nextColumn) return;
+    const dragged = filtered.find((item) => item.id === String(drag.id));
+    if (!nextColumn || !dragged) return;
+    if (nextColumn === dragged.status && !beforeId) return;
     void moveRisk(String(drag.id), nextColumn, beforeId);
   };
 
@@ -83,7 +103,7 @@ export function KanbanBoard() {
   return (
     <DndContext
       sensors={sensors}
-      collisionDetection={closestCorners}
+      collisionDetection={collisionDetection}
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
       onDragCancel={() => setActive(null)}
@@ -108,7 +128,12 @@ function Column({ id, items }: { id: ColumnId; items: Risk[] }) {
   const meta = COLUMN_META[id];
 
   return (
-    <section className="flex w-[280px] shrink-0 flex-col rounded-2xl border border-line bg-panel/80 lg:min-w-0 lg:flex-1">
+    <section
+      ref={setNodeRef}
+      className={`flex w-[280px] shrink-0 flex-col rounded-2xl border border-line bg-panel/80 lg:min-w-0 lg:flex-1 ${
+        isOver ? "ring-1 ring-gold/40" : ""
+      }`}
+    >
       <header className={`rounded-t-2xl bg-gradient-to-r ${COLUMN_ACCENT[id]} to-transparent px-3 py-3`}>
         <div className="flex items-baseline justify-between gap-2">
           <h2 className="text-sm font-semibold">{meta.label}</h2>
@@ -117,10 +142,7 @@ function Column({ id, items }: { id: ColumnId; items: Risk[] }) {
         <p className="text-[11px] text-mute">{meta.hint}</p>
       </header>
       <SortableContext items={items.map((item) => item.id)} strategy={verticalListSortingStrategy}>
-        <div
-          ref={setNodeRef}
-          className={`flex flex-1 flex-col gap-2 overflow-y-auto p-2 ${isOver ? "bg-gold/5" : ""}`}
-        >
+        <div className="flex flex-1 flex-col gap-2 overflow-y-auto p-2">
           {items.map((item) => (
             <SortableRiskCard key={item.id} risk={item} />
           ))}

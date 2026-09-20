@@ -266,7 +266,7 @@ function RiskEditor({
           </section>
         </div>
 
-        <aside className="space-y-4">
+        <aside className="h-fit space-y-4 lg:sticky lg:top-20">
           <section className="rounded-2xl border border-line bg-panel p-4">
             <h2 className="text-sm font-semibold">状态移动</h2>
             <div className="mt-3 grid gap-2">
