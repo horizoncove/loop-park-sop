@@ -39,6 +39,20 @@ export function eventsSuggestUrl(): string | null {
   return `${dedicated}/suggest`;
 }
 
+/** TypeSafe SOP advice: cadence, gates, sentiment. */
+export function eventsSopAdviseUrl(): string | null {
+  const dedicated = eventsApiBase();
+  if (!dedicated) return null;
+  return `${dedicated}/sop/advise`;
+}
+
+/** TypeSafe SOP board reconcile against open events. */
+export function eventsSopReconcileUrl(): string | null {
+  const dedicated = eventsApiBase();
+  if (!dedicated) return null;
+  return `${dedicated}/sop/reconcile`;
+}
+
 export function riskHref(id: string) {
   return `/risk?id=${encodeURIComponent(id)}`;
 }

@@ -52,6 +52,8 @@ Nginx：`/loop-kanban/api/` → `127.0.0.1:3010/api/`。
 | POST | `/api/auth/login` | `{ "seat":"反将" }` → `{ token, seat, admin, expiresIn }` |
 | GET | `/api/me` | 当前身份 |
 | POST | `/api/suggest` | TypeSafe 建议：`{ title, description? }` → 分类/等级/席位/灯性 + confidence |
+| POST | `/api/sop/advise` | TypeSafe SOP：节奏段、红线闸 G1–G9、舆情蓝黄橙红、上报时限、是否八将议事 |
+| POST | `/api/sop/reconcile` | TypeSafe 看板对账：`{ events:[{id,title,…}] }` → 本周焦点节奏 + 各段覆盖/积压/优先事件 |
 | GET | `/api/events` | 列表 `{ events, updatedAt }`（也带 `risks` 兼容） |
 | GET | `/api/events/:id` | 单条 |
 | PUT | `/api/events` | 整表 upsert，body `{ "events": [ … ] }`，数组顺序即看板顺序 |
@@ -106,6 +108,22 @@ curl -sS -X POST http://127.0.0.1:3010/api/suggest \
   -H "Authorization: Bearer $KEY" \
   -H "Content-Type: application/json" \
   -d '{"title":"公域短视频仍讲稳赚ROI","description":"投放素材未过谣将闸"}'
+
+# SOP：节奏 + 红线闸 + 舆情分级
+curl -sS -X POST http://127.0.0.1:3010/api/sop/advise \
+  -H "Authorization: Bearer $KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"title":"公域短视频仍讲稳赚ROI","description":"投放素材未过谣将闸","category":"口径舆情"}'
+
+# SOP 节奏页：用开放红/黄事件对账
+curl -sS -X POST http://127.0.0.1:3010/api/sop/reconcile \
+  -H "Authorization: Bearer $KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"events":[{"id":"D-01","title":"公域短视频仍讲稳赚ROI","category":"口径舆情","light":"红","ownerSeat":"谣将","status":"todo"}]}'
 ```
 
-一次请求里并行问四个 Choice（分类、等级、主责席、灯性）加一个 Noul（是否先人工核对）。`apply` 为 true 时看板会预填该字段；低 confidence 或需核对时只展示建议，不自动改表单。
+`/api/suggest`：一次请求里并行问四个 Choice（分类、等级、主责席、灯性）加一个 Noul（是否先人工核对）。`apply` 为 true 时看板会预填该字段；低 confidence 或需核对时只展示建议，不自动改表单。
+
+`/api/sop/advise`：Choice（SOP 节奏 / 舆情级 / 上报时限）+ Noul（九条红线闸、是否八将议事）。不改动仓库 Markdown SOP，只把事件挂回看板清单与闸口。
+
+`/api/sop/reconcile`：把开放事件压成周焦点与各段覆盖/积压，并点名优先事件编号。

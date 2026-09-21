@@ -3,13 +3,37 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { ArrowLeft, Plus } from "lucide-react";
+import { ArrowLeft, Plus, Sparkles } from "lucide-react";
 import { CategoryChip, LightBadge, SeatBadge, SeverityBadge } from "@/components/Badges";
 import { CATEGORIES, GLOBAL_GATES, LIGHTS, OWNER_SEATS, SEAT_META } from "@/lib/constants";
 import { COLUMNS, COLUMN_META } from "@/lib/types";
 import type { CardGate, Category, GateId, Light, OwnerSeat, Risk, Severity } from "@/lib/types";
+import { eventsSopAdviseUrl } from "@/lib/paths";
+import { authHeaders, parseAuthResponse } from "@/lib/session";
+import { SOP_CADENCE_LABEL, type SopCadence } from "@/lib/sop";
 import { useRiskStore } from "@/lib/store";
 import { formatDateTime, gatesForSeat, nowIso, uid, uniqueSeats } from "@/lib/utils";
+
+type SuggestField<T extends string> = {
+  value: T;
+  confidence: number;
+  apply: boolean;
+};
+
+type SopAdvisePayload = {
+  enabled: boolean;
+  cadence: SuggestField<SopCadence>;
+  gates: Array<{ id: GateId; title: string; probability: number; apply: boolean }>;
+  sentiment: SuggestField<"蓝" | "黄" | "橙" | "红" | "不适用">;
+  reportSla: SuggestField<"立即" | "1小时" | "4小时" | "24小时" | "无需上报">;
+  escalateBajiang: { probability: number; apply: boolean };
+  needsHumanReview: boolean;
+  reviewProbability: number;
+};
+
+function pct(n: number) {
+  return `${Math.round(n * 100)}%`;
+}
 
 export function RiskDetailClient() {
   const search = useSearchParams();
@@ -50,6 +74,10 @@ function RiskEditor({
   const [draft, setDraft] = useState<Risk>(risk);
   const [note, setNote] = useState("");
   const [saving, setSaving] = useState(false);
+  const [advising, setAdvising] = useState(false);
+  const [adviseError, setAdviseError] = useState<string | null>(null);
+  const [sopAdvice, setSopAdvice] = useState<SopAdvisePayload | null>(null);
+  const canAdvise = Boolean(eventsSopAdviseUrl());
 
   const dirty = useMemo(() => JSON.stringify(draft) !== JSON.stringify(risk), [draft, risk]);
 
@@ -65,6 +93,53 @@ function RiskEditor({
         : [...prev.redLineGates, { id, checked: true }];
       return { ...prev, redLineGates };
     });
+  };
+
+  const applySopGates = (data: SopAdvisePayload, force = false) => {
+    const pick = data.gates.filter((g) => (force ? g.probability >= 0.45 : g.apply));
+    if (!pick.length) return;
+    setDraft((prev) => {
+      const map = new Map(prev.redLineGates.map((g) => [g.id, g]));
+      for (const g of pick) {
+        if (!map.has(g.id)) map.set(g.id, { id: g.id, checked: false });
+      }
+      return { ...prev, redLineGates: [...map.values()] };
+    });
+  };
+
+  const runSopAdvise = async () => {
+    const url = eventsSopAdviseUrl();
+    if (!url) return;
+    setAdvising(true);
+    setAdviseError(null);
+    try {
+      const res = await parseAuthResponse(
+        await fetch(url, {
+          method: "POST",
+          headers: authHeaders(),
+          body: JSON.stringify({
+            title: draft.title,
+            description: draft.description,
+            category: draft.category,
+            light: draft.light,
+            ownerSeat: draft.ownerSeat,
+            severity: draft.severity,
+          }),
+        }),
+      );
+      const body = (await res.json().catch(() => null)) as SopAdvisePayload | { error?: string } | null;
+      if (!res.ok) {
+        setAdviseError((body && "error" in body && body.error) || "SOP 建议失败");
+        return;
+      }
+      const data = body as SopAdvisePayload;
+      setSopAdvice(data);
+      applySopGates(data);
+    } catch {
+      setAdviseError("网络异常，SOP 建议暂不可用");
+    } finally {
+      setAdvising(false);
+    }
   };
 
   const addTrigger = (value: string) => {
@@ -176,12 +251,57 @@ function RiskEditor({
           </section>
 
           <section className="border border-line bg-surface p-5">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-wrap items-center justify-between gap-2">
               <h2 className="text-[13px] font-medium">红线闸（本卡相关）</h2>
-              <Link href="/gates" className="text-[12px] text-mute hover:underline">
-                查看全局闸口
-              </Link>
+              <div className="flex items-center gap-3">
+                {canAdvise ? (
+                  <button
+                    type="button"
+                    disabled={advising || !draft.title.trim()}
+                    onClick={() => void runSopAdvise()}
+                    className="inline-flex items-center gap-1 text-[12px] text-ink hover:underline disabled:opacity-40"
+                  >
+                    <Sparkles className="h-3.5 w-3.5" />
+                    {advising ? "SOP 建议中…" : "SOP / 闸口建议"}
+                  </button>
+                ) : null}
+                <Link href="/gates" className="text-[12px] text-mute hover:underline">
+                  查看全局闸口
+                </Link>
+              </div>
             </div>
+            {adviseError ? <p className="mt-2 text-[12px] text-signal-red">{adviseError}</p> : null}
+            {sopAdvice ? (
+              <div className="mt-3 border border-line bg-bg px-3 py-2 text-[12px] text-mute">
+                <p>
+                  节奏：{SOP_CADENCE_LABEL[sopAdvice.cadence.value]}（{pct(sopAdvice.cadence.confidence)}）
+                  {sopAdvice.sentiment.value !== "不适用"
+                    ? ` · 舆情${sopAdvice.sentiment.value} · 上报${sopAdvice.reportSla.value}`
+                    : ""}
+                  {sopAdvice.escalateBajiang.apply
+                    ? ` · 建议八将议事（${pct(sopAdvice.escalateBajiang.probability)}）`
+                    : ""}
+                  {sopAdvice.needsHumanReview ? " · 建议人工核对挂闸" : ""}
+                </p>
+                <p className="mt-1">
+                  闸口概率：{" "}
+                  {sopAdvice.gates
+                    .filter((g) => g.probability >= 0.35)
+                    .map((g) => `${g.id} ${pct(g.probability)}`)
+                    .join(" · ") || "无明显相关闸"}
+                </p>
+                <button
+                  type="button"
+                  className="mt-2 text-ink hover:underline"
+                  onClick={() => applySopGates(sopAdvice, true)}
+                >
+                  采用建议挂闸（≥45%）
+                </button>
+                <Link href="/sop" className="ml-3 text-ink hover:underline">
+                  打开 SOP 节奏
+                </Link>
+              </div>
+            ) : null}
             <ul className="mt-3 divide-y divide-line border border-line">
               {GLOBAL_GATES.map((gate) => {
                 const current = draft.redLineGates.find((g) => g.id === gate.id);

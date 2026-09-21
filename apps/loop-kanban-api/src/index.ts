@@ -26,7 +26,12 @@ import {
   replaceEvents,
 } from "./db.js";
 import { eventFromBody, eventsFromBody, patchEvent } from "./map.js";
-import { suggestEventFields, typesafeConfigured } from "./typesafe.js";
+import {
+  adviseEventSop,
+  reconcileSopBoard,
+  suggestEventFields,
+  typesafeConfigured,
+} from "./typesafe.js";
 
 /** Load local .env without committing secrets. Docker/compose env still wins. */
 function loadDotEnv() {
@@ -109,6 +114,8 @@ async function requireAuth(c: Context<Env>, next: () => Promise<void>) {
 app.use("/api/events", requireAuth);
 app.use("/api/events/*", requireAuth);
 app.use("/api/suggest", requireAuth);
+app.use("/api/sop", requireAuth);
+app.use("/api/sop/*", requireAuth);
 
 app.get("/api/health", async (c) => {
   try {
@@ -173,6 +180,69 @@ app.post("/api/suggest", async (c) => {
   } catch (error) {
     console.error("typesafe suggest failed", error);
     return c.json({ error: "智能建议暂时不可用", detail: String(error) }, 502);
+  }
+});
+
+app.post("/api/sop/advise", async (c) => {
+  if (!typesafeConfigured()) {
+    return c.json({ error: "未配置 TYPESAFE_API_KEY", enabled: false }, 503);
+  }
+  const body = (await c.req.json().catch(() => null)) as {
+    title?: unknown;
+    description?: unknown;
+    category?: unknown;
+    light?: unknown;
+    ownerSeat?: unknown;
+    severity?: unknown;
+  } | null;
+  const title = typeof body?.title === "string" ? body.title.trim() : "";
+  if (!title) return c.json({ error: "请先填写标题" }, 400);
+  try {
+    const advice = await adviseEventSop({
+      title,
+      description: typeof body?.description === "string" ? body.description : "",
+      category: typeof body?.category === "string" ? body.category : undefined,
+      light: typeof body?.light === "string" ? body.light : undefined,
+      ownerSeat: typeof body?.ownerSeat === "string" ? body.ownerSeat : undefined,
+      severity: typeof body?.severity === "string" ? body.severity : undefined,
+    });
+    return c.json(advice);
+  } catch (error) {
+    console.error("typesafe sop advise failed", error);
+    return c.json({ error: "SOP 建议暂时不可用", detail: String(error) }, 502);
+  }
+});
+
+app.post("/api/sop/reconcile", async (c) => {
+  if (!typesafeConfigured()) {
+    return c.json({ error: "未配置 TYPESAFE_API_KEY", enabled: false }, 503);
+  }
+  const body = (await c.req.json().catch(() => null)) as {
+    events?: unknown;
+  } | null;
+  const raw = Array.isArray(body?.events) ? body.events : [];
+  const events = raw
+    .map((item) => {
+      if (!item || typeof item !== "object") return null;
+      const o = item as Record<string, unknown>;
+      if (typeof o.id !== "string" || typeof o.title !== "string") return null;
+      return {
+        id: o.id,
+        title: o.title,
+        category: typeof o.category === "string" ? o.category : undefined,
+        light: typeof o.light === "string" ? o.light : undefined,
+        severity: typeof o.severity === "string" ? o.severity : undefined,
+        ownerSeat: typeof o.ownerSeat === "string" ? o.ownerSeat : undefined,
+        status: typeof o.status === "string" ? o.status : undefined,
+      };
+    })
+    .filter((item): item is NonNullable<typeof item> => Boolean(item));
+  try {
+    const result = await reconcileSopBoard({ events });
+    return c.json(result);
+  } catch (error) {
+    console.error("typesafe sop reconcile failed", error);
+    return c.json({ error: "SOP 对账暂时不可用", detail: String(error) }, 502);
   }
 });
 

@@ -3,10 +3,11 @@
 import { useState } from "react";
 import { Plus, Sparkles } from "lucide-react";
 import { CATEGORIES, OWNER_SEATS } from "@/lib/constants";
-import { eventsSuggestUrl } from "@/lib/paths";
+import { eventsSopAdviseUrl, eventsSuggestUrl } from "@/lib/paths";
 import { authHeaders, parseAuthResponse } from "@/lib/session";
+import { SOP_CADENCE_LABEL, type SopCadence } from "@/lib/sop";
 import { useRiskStore } from "@/lib/store";
-import type { Category, Light, OwnerSeat, Risk, Severity } from "@/lib/types";
+import type { CardGate, Category, GateId, Light, OwnerSeat, Risk, Severity } from "@/lib/types";
 import { nowIso, uid } from "@/lib/utils";
 
 type SuggestField<T extends string> = {
@@ -23,7 +24,17 @@ type SuggestPayload = {
   light: SuggestField<Light>;
   needsHumanReview: boolean;
   reviewProbability: number;
-  error?: string;
+};
+
+type SopAdvisePayload = {
+  enabled: boolean;
+  cadence: SuggestField<SopCadence>;
+  gates: Array<{ id: GateId; title: string; probability: number; apply: boolean }>;
+  sentiment: SuggestField<"蓝" | "黄" | "橙" | "红" | "不适用">;
+  reportSla: SuggestField<"立即" | "1小时" | "4小时" | "24小时" | "无需上报">;
+  escalateBajiang: { probability: number; apply: boolean };
+  needsHumanReview: boolean;
+  reviewProbability: number;
 };
 
 function confidenceLabel(n: number) {
@@ -55,10 +66,12 @@ function NewRiskModal({ onClose, defaultLight }: { onClose: () => void; defaultL
   const [severity, setSeverity] = useState<Severity>("P1");
   const [ownerSeat, setOwnerSeat] = useState<OwnerSeat>(mySeat);
   const [light, setLight] = useState<Light>(defaultLight);
+  const [gates, setGates] = useState<CardGate[]>([]);
   const [suggesting, setSuggesting] = useState(false);
   const [suggestError, setSuggestError] = useState<string | null>(null);
   const [suggestion, setSuggestion] = useState<SuggestPayload | null>(null);
-  const canSuggest = Boolean(eventsSuggestUrl());
+  const [sopAdvice, setSopAdvice] = useState<SopAdvisePayload | null>(null);
+  const canSuggest = Boolean(eventsSuggestUrl() || eventsSopAdviseUrl());
 
   const applySuggestion = (data: SuggestPayload) => {
     if (data.category.apply) setCategory(data.category.value);
@@ -67,35 +80,75 @@ function NewRiskModal({ onClose, defaultLight }: { onClose: () => void; defaultL
     if (data.light.apply) setLight(data.light.value);
   };
 
+  const applySop = (data: SopAdvisePayload) => {
+    const next = data.gates
+      .filter((g) => g.apply)
+      .map((g) => ({ id: g.id, checked: false }));
+    if (next.length) setGates(next);
+  };
+
   const adoptAll = () => {
-    if (!suggestion) return;
-    setCategory(suggestion.category.value);
-    setSeverity(suggestion.severity.value);
-    setOwnerSeat(suggestion.ownerSeat.value);
-    setLight(suggestion.light.value);
+    if (suggestion) {
+      setCategory(suggestion.category.value);
+      setSeverity(suggestion.severity.value);
+      setOwnerSeat(suggestion.ownerSeat.value);
+      setLight(suggestion.light.value);
+    }
+    if (sopAdvice) {
+      setGates(sopAdvice.gates.filter((g) => g.probability >= 0.45).map((g) => ({ id: g.id, checked: false })));
+    }
   };
 
   const runSuggest = async () => {
-    const url = eventsSuggestUrl();
-    if (!url || !title.trim()) return;
+    const suggestUrl = eventsSuggestUrl();
+    const adviseUrl = eventsSopAdviseUrl();
+    if ((!suggestUrl && !adviseUrl) || !title.trim()) return;
     setSuggesting(true);
     setSuggestError(null);
     try {
-      const res = await parseAuthResponse(
-        await fetch(url, {
-          method: "POST",
-          headers: authHeaders(),
-          body: JSON.stringify({ title: title.trim(), description: description.trim() }),
-        }),
-      );
-      const body = (await res.json().catch(() => null)) as SuggestPayload | { error?: string } | null;
-      if (!res.ok) {
-        setSuggestError((body && "error" in body && body.error) || "智能建议失败");
-        return;
+      const payload = { title: title.trim(), description: description.trim() };
+      const [suggestRes, adviseRes] = await Promise.all([
+        suggestUrl
+          ? parseAuthResponse(
+              await fetch(suggestUrl, {
+                method: "POST",
+                headers: authHeaders(),
+                body: JSON.stringify(payload),
+              }),
+            )
+          : null,
+        adviseUrl
+          ? parseAuthResponse(
+              await fetch(adviseUrl, {
+                method: "POST",
+                headers: authHeaders(),
+                body: JSON.stringify(payload),
+              }),
+            )
+          : null,
+      ]);
+
+      if (suggestRes) {
+        const body = (await suggestRes.json().catch(() => null)) as SuggestPayload | { error?: string } | null;
+        if (!suggestRes.ok) {
+          setSuggestError((body && "error" in body && body.error) || "智能建议失败");
+        } else {
+          const data = body as SuggestPayload;
+          setSuggestion(data);
+          applySuggestion(data);
+        }
       }
-      const data = body as SuggestPayload;
-      setSuggestion(data);
-      applySuggestion(data);
+
+      if (adviseRes) {
+        const body = (await adviseRes.json().catch(() => null)) as SopAdvisePayload | { error?: string } | null;
+        if (!adviseRes.ok) {
+          setSuggestError((prev) => prev || (body && "error" in body && body.error) || "SOP 建议失败");
+        } else {
+          const data = body as SopAdvisePayload;
+          setSopAdvice(data);
+          applySop(data);
+        }
+      }
     } catch {
       setSuggestError("网络异常，智能建议暂不可用");
     } finally {
@@ -107,6 +160,14 @@ function NewRiskModal({ onClose, defaultLight }: { onClose: () => void; defaultL
     e.preventDefault();
     if (!title.trim()) return;
     const seq = risks.length + 1;
+    const noteBits: string[] = [];
+    if (sopAdvice) {
+      noteBits.push(`SOP节奏：${SOP_CADENCE_LABEL[sopAdvice.cadence.value]}`);
+      if (sopAdvice.sentiment.value !== "不适用") {
+        noteBits.push(`舆情级：${sopAdvice.sentiment.value}（上报：${sopAdvice.reportSla.value}）`);
+      }
+      if (sopAdvice.escalateBajiang.apply) noteBits.push("建议八将议事/统一口径");
+    }
     const risk: Risk = {
       id: `N-${String(seq).padStart(2, "0")}-${uid("x").slice(-4)}`,
       title: title.trim(),
@@ -118,9 +179,18 @@ function NewRiskModal({ onClose, defaultLight }: { onClose: () => void; defaultL
       collabSeats: [],
       triggers: [],
       residualRisk: "待评估。",
-      redLineGates: [],
+      redLineGates: gates,
       status: "todo",
-      notes: [],
+      notes: noteBits.length
+        ? [
+            {
+              id: uid("note"),
+              body: `Jev SOP 建议：${noteBits.join("；")}`,
+              authorSeat: "系统",
+              createdAt: nowIso(),
+            },
+          ]
+        : [],
       updatedAt: nowIso(),
     };
     await upsert(risk);
@@ -132,10 +202,10 @@ function NewRiskModal({ onClose, defaultLight }: { onClose: () => void; defaultL
       <form
         onClick={(e) => e.stopPropagation()}
         onSubmit={submit}
-        className="w-full max-w-md border border-line bg-surface p-5"
+        className="max-h-[90vh] w-full max-w-md overflow-y-auto border border-line bg-surface p-5"
       >
         <h3 className="text-[16px] font-medium">新建事件</h3>
-        <p className="mt-1 text-[12px] text-mute">先记上灯性与席位，再补触发条件与红线闸。</p>
+        <p className="mt-1 text-[12px] text-mute">智能建议会预填字段，并挂接相关红线闸与 SOP 节奏。</p>
         <label className="mt-4 block text-[12px] text-mute">
           标题
           <input
@@ -165,7 +235,7 @@ function NewRiskModal({ onClose, defaultLight }: { onClose: () => void; defaultL
               <Sparkles className="h-3.5 w-3.5" />
               {suggesting ? "建议中…" : "智能建议"}
             </button>
-            {suggestion ? (
+            {suggestion || sopAdvice ? (
               <button
                 type="button"
                 onClick={adoptAll}
@@ -179,13 +249,20 @@ function NewRiskModal({ onClose, defaultLight }: { onClose: () => void; defaultL
         ) : null}
         {suggestion ? (
           <p className="mt-2 text-[11px] leading-relaxed text-mute">
-            TypeSafe：分类 {suggestion.category.value}（{confidenceLabel(suggestion.category.confidence)}）· 等级{" "}
-            {suggestion.severity.value}（{confidenceLabel(suggestion.severity.confidence)}）· 席位{" "}
-            {suggestion.ownerSeat.value}（{confidenceLabel(suggestion.ownerSeat.confidence)}）· 灯性{" "}
-            {suggestion.light.value}（{confidenceLabel(suggestion.light.confidence)}）
-            {suggestion.needsHumanReview
-              ? ` · 建议人工核对（${confidenceLabel(suggestion.reviewProbability)}）`
+            字段：{suggestion.category.value} · {suggestion.severity.value} · {suggestion.ownerSeat.value} ·{" "}
+            {suggestion.light.value}灯
+            {suggestion.needsHumanReview ? " · 建议人工核对字段" : ""}
+          </p>
+        ) : null}
+        {sopAdvice ? (
+          <p className="mt-1 text-[11px] leading-relaxed text-mute">
+            SOP：{SOP_CADENCE_LABEL[sopAdvice.cadence.value]}（{confidenceLabel(sopAdvice.cadence.confidence)}）
+            {sopAdvice.sentiment.value !== "不适用"
+              ? ` · 舆情${sopAdvice.sentiment.value}/${sopAdvice.reportSla.value}`
               : ""}
+            {sopAdvice.escalateBajiang.apply ? " · 建议八将议事" : ""}
+            {gates.length ? ` · 挂闸 ${gates.map((g) => g.id).join(" ")}` : ""}
+            {sopAdvice.needsHumanReview ? " · 闸口建议人工核对" : ""}
           </p>
         ) : null}
         <div className="mt-3 grid grid-cols-2 gap-2 text-[12px] text-mute sm:grid-cols-4">
