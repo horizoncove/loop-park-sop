@@ -4,4 +4,4 @@
 
 **真相源：** Postgres `events` ← `apps/loop-kanban-api` ← `/loop-kanban/api`。
 
-浏览器看板用席位口令换 Bearer 会话；其它系统用 `API_KEY`。`localStorage` 只是缓存。
+浏览器看板点选席位换 Bearer 会话（无口令）；其它系统用 `API_KEY`。`localStorage` 只是缓存。

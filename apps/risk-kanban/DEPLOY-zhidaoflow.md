@@ -1,8 +1,6 @@
 # 部署到 zhidaoflow.cn `/loop-kanban/`
 
-静态页 + Postgres API + **八将席位登录**。**不要动**现有 `/app` SaaS。云端不 ssh。
-
-这是 MVP：**席位 + 口令**，不是完整用户账号。口令放在 API 环境变量，仓库里只有占位符。
+静态页 + Postgres API + **八将点选进入（无口令）**。**不要动**现有 `/app` SaaS。云端不 ssh。
 
 - 看板：https://zhidaoflow.cn/loop-kanban/
 - 静态目录：`/www/wwwroot/zhidaoflow.cn/loop-kanban/`
@@ -12,11 +10,13 @@
 
 ## 数据流
 
-1. 浏览器登录 → `POST /loop-kanban/api/auth/login` → 会话放进 `sessionStorage`
+1. 浏览器点选席位 → `POST /loop-kanban/api/auth/login` `{ "seat" }` → 会话放进 `sessionStorage`
 2. 看板读写 → `GET/PUT /loop-kanban/api/events*` + `Authorization: Bearer <会话>`
 3. API → Postgres `events`（真相源）
 4. `localStorage` 仅缓存；API 可用时以库为准
 5. 其它系统用 `API_KEY`（`Authorization: Bearer` 或 `X-API-Key`）调同一套接口
+
+席位选择只用来分角色显示，**没有密码**。
 
 ## 1. 静态页
 
@@ -30,11 +30,9 @@ rsync -av --delete apps/risk-kanban/out/ user@host:/www/wwwroot/zhidaoflow.cn/lo
 本地：
 
 ```bash
-npm run dev                 # 无 API：不过登录门，localStorage
+npm run dev                 # 无 API：不过选席门，localStorage
 NEXT_PUBLIC_API_BASE=http://127.0.0.1:3010/api npm run dev
 ```
-
-连本地 API 时必须先给 API 配 `SEAT_PASSWORDS_JSON`，否则登录门过不去。
 
 ## 2. API + Postgres
 
@@ -49,8 +47,8 @@ rsync -av --delete --exclude node_modules --exclude dist apps/loop-kanban-api/ u
 ```bash
 cd /opt/loop-kanban
 cp -n .env.example .env
-# 必改：DATABASE_URL、API_KEY、SESSION_SECRET、SEAT_PASSWORDS_JSON 八将口令
-# REQUIRE_AUTH=1 时读接口也要令牌（生产）
+# 必改：DATABASE_URL、API_KEY、SESSION_SECRET
+# REQUIRE_AUTH=1 时读接口也要令牌（看板选席后会带会话）
 # CORS_ORIGINS=https://zhidaoflow.cn
 
 export LOOP_KANBAN_API_CONTEXT=./api
@@ -63,7 +61,7 @@ docker compose up -d --build
 curl -sS http://127.0.0.1:3010/api/health
 curl -sS -X POST http://127.0.0.1:3010/api/auth/login \
   -H 'Content-Type: application/json' \
-  -d '{"seat":"反将","password":"<口令>"}'
+  -d '{"seat":"反将"}'
 ```
 
 ## 3. Nginx
@@ -89,18 +87,16 @@ location ^~ /loop-kanban/ {
 
 ## 4. 验收
 
-- 打开 `/loop-kanban/` 先选席位 + 口令，再进四列灯性看板
+- 打开 `/loop-kanban/` 点选席位即可进四列灯性看板，无口令框
 - 顶栏显示当前席 + 退出；本席卡片浅色块提示
-- 未带令牌 `PUT /api/events` → 401
 - `GET /loop-kanban/api/health` 无需登录
-- 其它系统：见 API.md curl
+- 其它系统：见 API.md curl（用 `API_KEY`）
 
 ## 5. 环境变量摘要
 
 | 变量 | 作用 |
 |------|------|
 | `DATABASE_URL` | Postgres |
-| `SEAT_PASSWORDS_JSON` | `{"正将":"…","提将":"…",…}` |
 | `API_KEY` | 机器读写 |
 | `SESSION_SECRET` | 席位会话 HMAC |
 | `REQUIRE_AUTH` | `1` = 读也要令牌 |

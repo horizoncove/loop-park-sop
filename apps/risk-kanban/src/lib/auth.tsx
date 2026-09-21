@@ -23,7 +23,7 @@ type AuthContextValue = {
   ready: boolean;
   loginRequired: boolean;
   session: AuthSession | null;
-  login: (seat: OwnerSeat, password: string) => Promise<string | null>;
+  login: (seat: OwnerSeat) => Promise<string | null>;
   logout: () => void;
 };
 
@@ -93,20 +93,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
-  const login = useCallback(async (seat: OwnerSeat, password: string) => {
+  const login = useCallback(async (seat: OwnerSeat) => {
     const base = eventsApiBase();
     if (!base) return "当前没有配置事件 API";
     try {
       const res = await fetch(`${base}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ seat, password }),
+        body: JSON.stringify({ seat }),
       });
       const body = (await res.json().catch(() => null)) as
         | { token?: string; seat?: string; admin?: boolean; error?: string }
         | null;
       if (!res.ok || !body?.token || !body.seat) {
-        return body?.error || "席位或口令不对";
+        return body?.error || "无法进入该席位";
       }
       writeStoredToken(body.token);
       setSession({ token: body.token, seat: body.seat, admin: Boolean(body.admin) });

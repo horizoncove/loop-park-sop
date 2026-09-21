@@ -27,29 +27,6 @@ function safeEqual(a: string, b: string) {
   return timingSafeEqual(left, right);
 }
 
-export function parseSeatPasswords(): Partial<Record<SeatName, string>> {
-  let raw = env("SEAT_PASSWORDS_JSON");
-  if (
-    (raw.startsWith("'") && raw.endsWith("'")) ||
-    (raw.startsWith('"') && raw.endsWith('"'))
-  ) {
-    raw = raw.slice(1, -1);
-  }
-  if (!raw) return {};
-  try {
-    const parsed = JSON.parse(raw) as Record<string, unknown>;
-    const out: Partial<Record<SeatName, string>> = {};
-    for (const seat of SEATS) {
-      const value = parsed[seat];
-      if (typeof value === "string" && value.length > 0) out[seat] = value;
-    }
-    return out;
-  } catch {
-    console.error("SEAT_PASSWORDS_JSON 不是合法 JSON");
-    return {};
-  }
-}
-
 export function apiKey() {
   return env("API_KEY");
 }
@@ -72,12 +49,8 @@ export function corsOrigins() {
     .filter(Boolean);
 }
 
-export function seatPasswordsConfigured() {
-  return Object.keys(parseSeatPasswords()).length > 0;
-}
-
 export function writesNeedAuth() {
-  return env("REQUIRE_AUTH") === "1" || Boolean(apiKey()) || seatPasswordsConfigured();
+  return env("REQUIRE_AUTH") === "1" || Boolean(apiKey());
 }
 
 export function readsNeedAuth() {
@@ -135,16 +108,9 @@ export function readIdentity(c: Context): Identity | null {
   return { kind: "seat", seat: session.seat, admin: session.admin };
 }
 
-export function verifySeatPassword(seat: string, password: string): SeatName | null {
-  if (!isSeat(seat) || !password) return null;
-  const expected = parseSeatPasswords()[seat];
-  if (!expected) return null;
-  return safeEqual(password, expected) ? seat : null;
-}
-
 export function authConfig() {
   return {
-    loginRequired: seatPasswordsConfigured(),
+    loginRequired: true,
     requireAuth: readsNeedAuth(),
     writesNeedAuth: writesNeedAuth(),
     seats: [...SEATS],

@@ -4,11 +4,11 @@ import { cors } from "hono/cors";
 import {
   authConfig,
   corsOrigins,
+  isSeat,
   readIdentity,
   readsNeedAuth,
   sessionTtlSeconds,
   signSession,
-  verifySeatPassword,
   writesNeedAuth,
   type Identity,
 } from "./auth.js";
@@ -88,18 +88,16 @@ app.get("/api/health", async (c) => {
 app.get("/api/auth/config", (c) => c.json(authConfig()));
 
 app.post("/api/auth/login", async (c) => {
-  const body = (await c.req.json().catch(() => null)) as { seat?: unknown; password?: unknown } | null;
+  const body = (await c.req.json().catch(() => null)) as { seat?: unknown } | null;
   const seat = typeof body?.seat === "string" ? body.seat.trim() : "";
-  const password = typeof body?.password === "string" ? body.password : "";
-  const matched = verifySeatPassword(seat, password);
-  if (!matched) return c.json({ error: "席位或口令不对" }, 401);
-  const token = signSession(matched);
+  if (!isSeat(seat)) return c.json({ error: "请选择八将席位" }, 400);
+  const token = signSession(seat);
   const ttl = sessionTtlSeconds();
   return c.json({
     token,
     tokenType: "Bearer",
-    seat: matched,
-    admin: matched === "正将",
+    seat,
+    admin: seat === "正将",
     expiresIn: ttl,
   });
 });
@@ -173,7 +171,7 @@ async function boot() {
       if (seeded > 0) console.log(`seeded ${seeded} events`);
       const cfg = authConfig();
       if (!cfg.writesNeedAuth) {
-        console.warn("auth disabled: set SEAT_PASSWORDS_JSON / API_KEY / REQUIRE_AUTH=1 for production");
+        console.warn("auth disabled: set API_KEY / REQUIRE_AUTH=1 for production");
       }
       return;
     } catch (error) {
