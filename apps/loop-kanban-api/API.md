@@ -37,6 +37,7 @@ Nginx：`/loop-kanban/api/` → `127.0.0.1:3010/api/`。
 - `SESSION_SECRET` 签发席位会话 HMAC
 - `REQUIRE_AUTH=1` 读接口也要令牌（生产打开；看板选席后会带会话）
 - `CORS_ORIGINS` 逗号分隔；看板与 API 同域时浏览器 CORS 不生效，此项给跨域的第三方页
+- `TYPESAFE_API_KEY` TypeSafe System One（Jev）密钥，仅服务端；用于新建事件字段建议。勿写入前端 `NEXT_PUBLIC_*`
 
 未配置 `API_KEY` 且 `REQUIRE_AUTH` 不为 `1` 时，接口保持开放（仅本地开发）。
 
@@ -46,10 +47,11 @@ Nginx：`/loop-kanban/api/` → `127.0.0.1:3010/api/`。
 
 | 方法 | 路径 | 说明 |
 |------|------|------|
-| GET | `/api/health` | 探活，无需令牌 |
-| GET | `/api/auth/config` | 席位列表 |
+| GET | `/api/health` | 探活，无需令牌；含 `typesafe` 是否已配置 |
+| GET | `/api/auth/config` | 席位列表；含 `typesafeSuggest` |
 | POST | `/api/auth/login` | `{ "seat":"反将" }` → `{ token, seat, admin, expiresIn }` |
 | GET | `/api/me` | 当前身份 |
+| POST | `/api/suggest` | TypeSafe 建议：`{ title, description? }` → 分类/等级/席位/灯性 + confidence |
 | GET | `/api/events` | 列表 `{ events, updatedAt }`（也带 `risks` 兼容） |
 | GET | `/api/events/:id` | 单条 |
 | PUT | `/api/events` | 整表 upsert，body `{ "events": [ … ] }`，数组顺序即看板顺序 |
@@ -96,3 +98,14 @@ curl -sS -X POST http://127.0.0.1:3010/api/auth/login \
   -H "Content-Type: application/json" \
   -d '{"seat":"反将"}'
 ```
+
+智能建议（需配置 `TYPESAFE_API_KEY`；密钥只留在 API 进程）：
+
+```bash
+curl -sS -X POST http://127.0.0.1:3010/api/suggest \
+  -H "Authorization: Bearer $KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"title":"公域短视频仍讲稳赚ROI","description":"投放素材未过谣将闸"}'
+```
+
+一次请求里并行问四个 Choice（分类、等级、主责席、灯性）加一个 Noul（是否先人工核对）。`apply` 为 true 时看板会预填该字段；低 confidence 或需核对时只展示建议，不自动改表单。

@@ -48,6 +48,7 @@ services:
       SESSION_SECRET: ${SESSION_SECRET:-}
       REQUIRE_AUTH: ${REQUIRE_AUTH:-1}
       CORS_ORIGINS: ${CORS_ORIGINS:-https://zhidaoflow.cn}
+      TYPESAFE_API_KEY: ${TYPESAFE_API_KEY:-}
     ports:
       - "127.0.0.1:3010:3010"
     healthcheck:

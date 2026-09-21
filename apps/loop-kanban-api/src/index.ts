@@ -1,3 +1,6 @@
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { serve } from "@hono/node-server";
 import { Hono, type Context } from "hono";
 import { cors } from "hono/cors";
@@ -23,6 +26,36 @@ import {
   replaceEvents,
 } from "./db.js";
 import { eventFromBody, eventsFromBody, patchEvent } from "./map.js";
+import { suggestEventFields, typesafeConfigured } from "./typesafe.js";
+
+/** Load local .env without committing secrets. Docker/compose env still wins. */
+function loadDotEnv() {
+  try {
+    const dir = dirname(fileURLToPath(import.meta.url));
+    const text = readFileSync(join(dir, "../.env"), "utf8");
+    for (const line of text.split("\n")) {
+      const trimmed = line.trim();
+      if (!trimmed || trimmed.startsWith("#")) continue;
+      const eq = trimmed.indexOf("=");
+      if (eq <= 0) continue;
+      const key = trimmed.slice(0, eq).trim();
+      let value = trimmed.slice(eq + 1).trim();
+      if (
+        (value.startsWith('"') && value.endsWith('"')) ||
+        (value.startsWith("'") && value.endsWith("'"))
+      ) {
+        value = value.slice(1, -1);
+      }
+      if (process.env[key] === undefined || process.env[key] === "") {
+        process.env[key] = value;
+      }
+    }
+  } catch {
+    // optional
+  }
+}
+
+loadDotEnv();
 
 type Env = { Variables: { identity: Identity | null } };
 
@@ -75,17 +108,28 @@ async function requireAuth(c: Context<Env>, next: () => Promise<void>) {
 
 app.use("/api/events", requireAuth);
 app.use("/api/events/*", requireAuth);
+app.use("/api/suggest", requireAuth);
 
 app.get("/api/health", async (c) => {
   try {
     await pool.query("SELECT 1");
-    return c.json({ ok: true, db: true, auth: writesNeedAuth() });
+    return c.json({
+      ok: true,
+      db: true,
+      auth: writesNeedAuth(),
+      typesafe: typesafeConfigured(),
+    });
   } catch (error) {
     return c.json({ ok: false, db: false, error: String(error) }, 503);
   }
 });
 
-app.get("/api/auth/config", (c) => c.json(authConfig()));
+app.get("/api/auth/config", (c) =>
+  c.json({
+    ...authConfig(),
+    typesafeSuggest: typesafeConfigured(),
+  }),
+);
 
 app.post("/api/auth/login", async (c) => {
   const body = (await c.req.json().catch(() => null)) as { seat?: unknown } | null;
@@ -110,6 +154,26 @@ app.get("/api/me", (c) => {
     kind: identity.kind,
     admin: identity.admin,
   });
+});
+
+app.post("/api/suggest", async (c) => {
+  if (!typesafeConfigured()) {
+    return c.json({ error: "未配置 TYPESAFE_API_KEY", enabled: false }, 503);
+  }
+  const body = (await c.req.json().catch(() => null)) as {
+    title?: unknown;
+    description?: unknown;
+  } | null;
+  const title = typeof body?.title === "string" ? body.title.trim() : "";
+  const description = typeof body?.description === "string" ? body.description : "";
+  if (!title) return c.json({ error: "请先填写标题" }, 400);
+  try {
+    const suggestion = await suggestEventFields({ title, description });
+    return c.json(suggestion);
+  } catch (error) {
+    console.error("typesafe suggest failed", error);
+    return c.json({ error: "智能建议暂时不可用", detail: String(error) }, 502);
+  }
 });
 
 app.get("/api/events", async (c) => {

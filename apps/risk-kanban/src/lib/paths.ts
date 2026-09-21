@@ -32,6 +32,13 @@ export function eventsResetUrl(): string | null {
   return apiUrl("/api/risks");
 }
 
+/** TypeSafe field suggestions for new events (dedicated API only). */
+export function eventsSuggestUrl(): string | null {
+  const dedicated = eventsApiBase();
+  if (!dedicated) return null;
+  return `${dedicated}/suggest`;
+}
+
 export function riskHref(id: string) {
   return `/risk?id=${encodeURIComponent(id)}`;
 }
