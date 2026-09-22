@@ -7,7 +7,16 @@
 #      实测 131005 not found，已失效 → 置空，必须重填后才允许运行
 #   3) 身份已定为 bot-only（先生拍板）→ --as user 全部改 --as bot
 # ---------------------------------------------------------------------------
-# ⚠️ 天玑现有根节点（供选父节点，填到下面两个变量）：
+# 2026-09-22 19:40 追加（先生提议「新建一个知识库」后实测）：
+#   ⛔ 新建整个 wiki space 走不通：+space-create 帮助明确写
+#      "Only --as user is supported; the create API does not accept a tenant/bot token"
+#      而当前 user_identity = missing。故 bot-only 下只能【在天玑内新建专属节点区】。
+#   ✅ 已建专属容器（天玑 → SOP-DESK 同步区 → 工作SOP / 舆情监测），不占用任何业务节点：
+#      SOP-DESK 同步区（自动写入） JJ3EwMrqjiKOAykWKxWc1ocAnMc
+#      └ 工作SOP                   MgbJwkEwSi3x9AkhKJmcDuttnQf
+#      └ 舆情监测                  TBH2wJ7RwiHtLbkaqzWcreLunlf
+# ---------------------------------------------------------------------------
+# ⚠️ 天玑现有根节点（如需改挂业务节点，从这里选）：
 #   01-项目总览      QIekw3gOhizDVckjeeacyGp7nCf
 #   02-造星计划      IOghwxuIriVLUZky1gWckilanRh
 #   03-三大联赛      BlcUwWgDmiGjQIkUNa2cJ0CRnPf
@@ -22,9 +31,9 @@
 
 $spaceId = "7618137437004385239"
 
-# ↓↓↓ 必填：把 SOP 挂到天玑的哪个父节点下（留空则脚本拒绝运行，绝不默认挂靠）
-$sopParentNode    = ""
-$yuqingParentNode = ""
+# ↓↓↓ 已填：专属同步区（留空则脚本拒绝运行，绝不默认挂业务节点）
+$sopParentNode    = "MgbJwkEwSi3x9AkhKJmcDuttnQf"   # SOP-DESK 同步区 / 工作SOP
+$yuqingParentNode = "TBH2wJ7RwiHtLbkaqzWcreLunlf"   # SOP-DESK 同步区 / 舆情监测
 
 $workDir   = "C:\Users\Administrator\Desktop\LOOP-PARK-SOP\工作SOP"
 $yuqingDir = "C:\Users\Administrator\Desktop\LOOP-PARK-SOP\舆情监测"
