@@ -24,9 +24,20 @@ YQ_PARENT="EaJewX7PAisUTXkxHSdc5gA9nyd"
 IDENTITY="user"
 LOG="$REPO/sync-log.txt"
 MAP="$REPO/.sync-map.tsv"   # 幂等键：文件名 -> obj_token（不依赖飞书侧标题）
+DISPUTED_FILE="$REPO/.sync-disputed.tsv"  # 争议清单：命中仍同步，但必须告警
 
-ok=0; failed=0; created=0; reused=0
+ok=0; failed=0; created=0; reused=0; disputed=0
 FAILLIST=()
+DISPUTEDLIST=()
+
+# 加载争议清单（B8 缝合点：脚本不看 CANON，故用独立清单让争议内容发布时出声）
+declare -A DISPUTED_MAP
+if [ -f "$DISPUTED_FILE" ]; then
+  while IFS=$'\t' read -r dpath dnote; do
+    case "$dpath" in \#*|"") continue;; esac
+    DISPUTED_MAP["$dpath"]="$dnote"
+  done < "$DISPUTED_FILE"
+fi
 
 # --content @file 只接受「当前目录内的相对路径」，故必须 cd 到仓库根
 cd "$REPO" || { echo "❌ 仓库目录不存在"; exit 1; }
@@ -59,6 +70,13 @@ sync_one() {
   base="$(basename "$file")"
   rel="${file#$REPO/}"
   title="${base%.md}"
+
+  # ⚠️ 争议检查：命中 .sync-disputed.tsv 仍会同步，但必须告警，禁止静默发布
+  if [ -n "${DISPUTED_MAP[$rel]:-}" ]; then
+    disputed=$((disputed+1))
+    DISPUTEDLIST+=("$rel")
+    log "[$category] ⚠️ 争议内容: $title —— ${DISPUTED_MAP[$rel]}"
+  fi
 
   # 🔴 幂等键：优先用本地映射表 .sync-map.tsv（文件名 -> obj_token）
 #    为什么不用标题匹配：飞书 wiki 节点的 title 会被文档 H1/Fronmatter title
@@ -120,4 +138,8 @@ log "========== 完成：成功 $ok / 失败 $failed（新建 $created，复用 
 if [ ${#FAILLIST[@]} -gt 0 ]; then
   log "失败明细："
   for x in "${FAILLIST[@]}"; do log "  - $x"; done
+fi
+if [ ${#DISPUTEDLIST[@]} -gt 0 ]; then
+  log "⚠️ 争议内容已发布 ${#DISPUTEDLIST[@]} 篇（仍会同步，但状态未裁决，勿当现行唯一版本引用）："
+  for x in "${DISPUTEDLIST[@]}"; do log "  - $x"; done
 fi
