@@ -4,14 +4,14 @@ title: CANON 指针（非权威）
 status: pointer
 mirror: true
 canon: E:\Obsidian-Vaults\Xloop-KB\Loop-OS\CANON.md
-canon_version: V2.15
+canon_version: V2.16
 as_of: 2026-09-22
 ---
 
 # CANON 指针 —— 本文件不是权威
 
 **权威唯一位置：**
-`E:\Obsidian-Vaults\Xloop-KB\Loop-OS\CANON.md`（id `LP-KB-CANON-0001` · **V2.15** · 2026-09-22）
+`E:\Obsidian-Vaults\Xloop-KB\Loop-OS\CANON.md`（id `LP-KB-CANON-0001` · **V2.16** · 2026-09-22）
 **属主：workbuddy**（备用 **doubao**）
 
 > ⚠️ **本文件曾长期停留在 V2.0 且写着旧拍板**（「SOP 定稿升格进 Xloop-KB」），
@@ -26,7 +26,7 @@ as_of: 2026-09-22
 **不升格进 Xloop-KB**。写作细则见 `工作SOP\00-CANON写作公约.md`。
 但完稿当天**必须在权威 REGISTRY 的 SOP-DESK 区回流一条指针**（规矩 8）。
 
-## V2.15 起必须知道的四条
+## V2.16 起必须知道的四条
 
 1. **双 SoT（先生 2026-09-22 裁决）**：内容 / 战略定稿 → Xloop-KB；运营 SOP 定稿 → 本桌面仓 + 回流 REGISTRY 指针。
 2. **规矩 9**：改完权威文件**立刻 `git commit`**（并发覆盖已实证两次，换属主拦不住，只有 git 能兜底）。
