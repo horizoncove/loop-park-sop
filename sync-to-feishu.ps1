@@ -1,15 +1,42 @@
 # LOOP PARK SOP 飞书知识库批量同步脚本
-# 工作SOP父节点: KEB1wZcRIixC9KkEqa9cc2XVnMe
-# 舆情监测父节点: EaJewX7PAisUTXkxHSdc5gA9nyd
+# ---------------------------------------------------------------------------
+# 2026-09-22 19:35 修正（依据 CANON V2.12，来源 lark-cli 实测，非推测）：
+#   1) spaceId 原为 7687220978920737762 → 实测 131006 无权限；
+#      天玑真身 = 7618137437004385239（wiki +space-list 只返回这 1 个空间）
+#   2) 原父节点 token（KEB1wZcRIixC9KkEqa9cc2XVnMe / EaJewX7PAisUTXkxHSdc5gA9nyd）
+#      实测 131005 not found，已失效 → 置空，必须重填后才允许运行
+#   3) 身份已定为 bot-only（先生拍板）→ --as user 全部改 --as bot
+# ---------------------------------------------------------------------------
+# ⚠️ 天玑现有根节点（供选父节点，填到下面两个变量）：
+#   01-项目总览      QIekw3gOhizDVckjeeacyGp7nCf
+#   02-造星计划      IOghwxuIriVLUZky1gWckilanRh
+#   03-三大联赛      BlcUwWgDmiGjQIkUNa2cJ0CRnPf
+#   04-五大主线活动  PCraw9sMRie1HgkRLR1cHj0vnUc
+#   05-自营业态      CUYgwbYXmix8RKkNQg9cFBqXnWc
+#   06-组织与人才    HAeNwRdGLi28rAkF51DcS4rnngc
+#   07-招商与商户    QB6nw4ebkioCYKkuLXocp4AfnKf
+#   08-财务与投资    IK7PwhlWviLvp0kq2a3cksCMnfb
+#   09-市场与推广    Hgxvw4zFPi5aOckd6k7cPAbPnAf
+#   10-知识库管理    WZF4wHH1qihPH1k0O5zcX3W4nre
+# ---------------------------------------------------------------------------
 
-$spaceId = "7687220978920737762"
-$sopParentNode = "KEB1wZcRIixC9KkEqa9cc2XVnMe"
-$yuqingParentNode = "EaJewX7PAisUTXkxHSdc5gA9nyd"
+$spaceId = "7618137437004385239"
 
-$workDir = "C:\Users\Administrator\Desktop\LOOP-PARK-SOP\工作SOP"
+# ↓↓↓ 必填：把 SOP 挂到天玑的哪个父节点下（留空则脚本拒绝运行，绝不默认挂靠）
+$sopParentNode    = ""
+$yuqingParentNode = ""
+
+$workDir   = "C:\Users\Administrator\Desktop\LOOP-PARK-SOP\工作SOP"
 $yuqingDir = "C:\Users\Administrator\Desktop\LOOP-PARK-SOP\舆情监测"
+$logFile   = "C:\Users\Administrator\Desktop\LOOP-PARK-SOP\sync-log.txt"
 
-$logFile = "C:\Users\Administrator\Desktop\LOOP-PARK-SOP\sync-log.txt"
+# ---- 防误挂保险：父节点未填直接退出 ----
+if ([string]::IsNullOrWhiteSpace($sopParentNode) -or [string]::IsNullOrWhiteSpace($yuqingParentNode)) {
+    Write-Host "❌ 拒绝运行：父节点 token 未填写。" -ForegroundColor Red
+    Write-Host "   请先从脚本顶部「天玑现有根节点」中选一个，填进 `$sopParentNode / `$yuqingParentNode。" -ForegroundColor Yellow
+    Write-Host "   原因：原父节点实测 131005 not found；脚本不会擅自挂到任何业务节点下。" -ForegroundColor Yellow
+    exit 1
+}
 
 function Write-Log {
     param($msg)
@@ -31,7 +58,7 @@ function Sync-Document {
 
     # Step 1: 创建节点
     try {
-        $createResult = lark-cli wiki +node-create --space-id $spaceId --parent-node-token $parentNodeToken --title $title --obj-type docx --as user --format json 2>&1 | Out-String
+        $createResult = lark-cli wiki +node-create --space-id $spaceId --parent-node-token $parentNodeToken --title $title --obj-type docx --as bot --format json 2>&1 | Out-String
         $createJson = $createResult | ConvertFrom-Json
 
         if (-not $createJson.ok) {
@@ -40,7 +67,6 @@ function Sync-Document {
         }
 
         $objToken = $createJson.data.obj_token
-        $nodeToken = $createJson.data.node_token
         Write-Log "[$category] 节点创建成功: $title, obj_token: $objToken"
     }
     catch {
@@ -53,9 +79,7 @@ function Sync-Document {
     # Step 2: 填充内容
     try {
         $content = Get-Content $filePath -Raw -Encoding UTF8
-
-        # 写入飞书
-        $updateResult = lark-cli docs +update --doc $objToken --command overwrite --doc-format markdown --content $content --as user --format json 2>&1 | Out-String
+        $updateResult = lark-cli docs +update --doc $objToken --command overwrite --doc-format markdown --content $content --as bot --format json 2>&1 | Out-String
         $updateJson = $updateResult | ConvertFrom-Json
 
         if ($updateJson.ok) {
@@ -72,9 +96,8 @@ function Sync-Document {
 }
 
 # 主流程
-Write-Log "========== 开始批量同步 =========="
+Write-Log "========== 开始批量同步（space=天玑 7618137437004385239, identity=bot） =========="
 
-# 同步工作SOP
 Write-Log "开始同步工作SOP..."
 $sopFiles = Get-ChildItem $workDir -Filter "*.md" | Sort-Object Name
 foreach ($file in $sopFiles) {
@@ -82,7 +105,6 @@ foreach ($file in $sopFiles) {
 }
 Write-Log "工作SOP同步完成，共 $($sopFiles.Count) 篇"
 
-# 同步舆情监测
 Write-Log "开始同步舆情监测..."
 $yuqingFiles = Get-ChildItem $yuqingDir -Filter "*.md" | Sort-Object Name
 foreach ($file in $yuqingFiles) {
