@@ -3,15 +3,15 @@ id: LP-OPS-CANON-WRITE-0001
 title: 新 SOP 写作公约
 status: active
 canon: E:\Obsidian-Vaults\Xloop-KB\Loop-OS\CANON.md
-canon_version: V2.7
+canon_version: V2.9
 as_of: 2026-09-22
 ---
 
 # 新 SOP 写作公约
 
 > ⚠️ **2026-09-22 17:20 修正**：本文件原写「定稿 SoT 是 Xloop-KB」「升格进 Xloop-KB」，
-> 那是**上午旧拍板，已被先生 16:41 裁决推翻**。按 CANON V2.7：**运营 SOP 定稿就在本桌面仓，不升格。**
-> 权威规则以 `E:\Obsidian-Vaults\Xloop-KB\Loop-OS\CANON.md`（**当前 V2.7**）为准，本文件只是本仓的写作细则。
+> 那是**上午旧拍板，已被先生 16:41 裁决推翻**。按 CANON V2.9：**运营 SOP 定稿就在本桌面仓，不升格。**
+> 权威规则以 `E:\Obsidian-Vaults\Xloop-KB\Loop-OS\CANON.md`（**当前 V2.9**）为准，本文件只是本仓的写作细则。
 
 ## 一、正文写哪（双 SoT，先生已裁决）
 
