@@ -1,0 +1,67 @@
+# loop-kanban on the zhidaoflow host
+#
+# Default: api only, talks to existing Postgres at 127.0.0.1:5433
+#   docker compose -f deploy/loop-kanban/docker-compose.yml up -d --build
+#
+# Greenfield (also start db):
+#   docker compose -f deploy/loop-kanban/docker-compose.yml --profile full up -d --build
+#
+# Copy to /opt/loop-kanban:
+#   rsync -av deploy/loop-kanban/ user@host:/opt/loop-kanban/
+#   rsync -av --delete apps/loop-kanban-api/ user@host:/opt/loop-kanban/api/
+#   cd /opt/loop-kanban && LOOP_KANBAN_API_CONTEXT=./api docker compose up -d --build
+
+services:
+  db:
+    profiles: ["full"]
+    image: postgres:16-alpine
+    container_name: loop-kanban-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: loop_kanban
+      POSTGRES_USER: loop_kanban
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change-me}
+    ports:
+      - "127.0.0.1:5433:5432"
+    volumes:
+      - loop-kanban-pgdata:/var/lib/postgresql/data
+      - ./schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+      - ./seed.sql:/docker-entrypoint-initdb.d/02-seed.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U loop_kanban -d loop_kanban"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build:
+      context: ${LOOP_KANBAN_API_CONTEXT:-../../apps/loop-kanban-api}
+      dockerfile: Dockerfile
+    container_name: loop-kanban-api
+    restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    environment:
+      PORT: "3010"
+      DATABASE_URL: ${DATABASE_URL:?set DATABASE_URL in .env}
+      API_KEY: ${API_KEY:-}
+      SESSION_SECRET: ${SESSION_SECRET:-}
+      REQUIRE_AUTH: ${REQUIRE_AUTH:-1}
+      CORS_ORIGINS: ${CORS_ORIGINS:-https://zhidaoflow.cn}
+      TYPESAFE_API_KEY: ${TYPESAFE_API_KEY:-}
+    ports:
+      - "127.0.0.1:3010:3010"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3010/api/health').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+
+volumes:
+  loop-kanban-pgdata:
