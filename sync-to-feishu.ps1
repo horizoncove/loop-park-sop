@@ -1,39 +1,41 @@
 # LOOP PARK SOP 飞书知识库批量同步脚本
 # ---------------------------------------------------------------------------
-# 2026-09-22 19:35 修正（依据 CANON V2.12，来源 lark-cli 实测，非推测）：
-#   1) spaceId 原为 7687220978920737762 → 实测 131006 无权限；
-#      天玑真身 = 7618137437004385239（wiki +space-list 只返回这 1 个空间）
-#   2) 原父节点 token（KEB1wZcRIixC9KkEqa9cc2XVnMe / EaJewX7PAisUTXkxHSdc5gA9nyd）
-#      实测 131005 not found，已失效 → 置空，必须重填后才允许运行
-#   3) 身份已定为 bot-only（先生拍板）→ --as user 全部改 --as bot
+# 🔴 2026-09-22 19:55 重大修正 —— 此前 19:35 的「修复」是误判，已回滚
+#
+#    误判经过：用 bot 身份访问 7687220978920737762 得到 131006「无权限」、
+#    访问 KEB1wZ…/EaJewX… 得到 131005「not found」，我据此判定
+#    「spaceId 错了、父节点失效」，并把它们改掉、另建同步区。
+#
+#    真相（登录 user 身份后才看得到）：
+#      · 7687220978920737762 = 知识库「Loop Park」，**本来就是正确目标**
+#      · KEB1wZcRIixC9KkEqa9cc2XVnMe = 「工作SOP」   —— **有效，且已同步过 35-IP内容创作SOP**
+#      · EaJewX7PAisUTXkxHSdc5gA9nyd = 「舆情监测体系」—— **有效**
+#      · 报错的真正原因是 **bot 未被授权访问该空间**，不是 ID 错误。
+#
+#    教训（已写入 CANON 易错点表）：
+#      「权限报错」≠「ID 失效」。判定 ID 失效前，必须换有权限的身份复验，
+#      否则会把一条原本正确的配置改成错的。
+#
+#    本版改动：
+#      1) spaceId 回滚为 7687220978920737762（Loop Park）
+#      2) 父节点回滚为 KEB1wZ… / EaJewX…
+#      3) 身份 bot → **user**（该空间为 public wiki space，bot 加不进成员、
+#         且 tenant 缺 read 权限，实测 131006；user 端到端实测通过）
+#      4) 天玑库内误建的「SOP-DESK 同步区」已删除
 # ---------------------------------------------------------------------------
-# 2026-09-22 19:40 追加（先生提议「新建一个知识库」后实测）：
-#   ⛔ 新建整个 wiki space 走不通：+space-create 帮助明确写
-#      "Only --as user is supported; the create API does not accept a tenant/bot token"
-#      而当前 user_identity = missing。故 bot-only 下只能【在天玑内新建专属节点区】。
-#   ✅ 已建专属容器（天玑 → SOP-DESK 同步区 → 工作SOP / 舆情监测），不占用任何业务节点：
-#      SOP-DESK 同步区（自动写入） JJ3EwMrqjiKOAykWKxWc1ocAnMc
-#      └ 工作SOP                   MgbJwkEwSi3x9AkhKJmcDuttnQf
-#      └ 舆情监测                  TBH2wJ7RwiHtLbkaqzWcreLunlf
-# ---------------------------------------------------------------------------
-# ⚠️ 天玑现有根节点（如需改挂业务节点，从这里选）：
-#   01-项目总览      QIekw3gOhizDVckjeeacyGp7nCf
-#   02-造星计划      IOghwxuIriVLUZky1gWckilanRh
-#   03-三大联赛      BlcUwWgDmiGjQIkUNa2cJ0CRnPf
-#   04-五大主线活动  PCraw9sMRie1HgkRLR1cHj0vnUc
-#   05-自营业态      CUYgwbYXmix8RKkNQg9cFBqXnWc
-#   06-组织与人才    HAeNwRdGLi28rAkF51DcS4rnngc
-#   07-招商与商户    QB6nw4ebkioCYKkuLXocp4AfnKf
-#   08-财务与投资    IK7PwhlWviLvp0kq2a3cksCMnfb
-#   09-市场与推广    Hgxvw4zFPi5aOckd6k7cPAbPnAf
-#   10-知识库管理    WZF4wHH1qihPH1k0O5zcX3W4nre
+# ⚠️ 飞书现有知识库一览（user 身份可见 4 个，**两个同名「天玑」，勿混**）：
+#   7618137437004385239  天玑        ← 10 个根节点(01-项目总览…10-知识库管理)
+#   7618139086410271683  天玑        ← 长安与唐人街品牌方案专用（同名！易混）
+#   7687220978920737762  Loop Park   ← ★本脚本目标：工作SOP / 舆情监测体系
+#   7478942466440331265  示例知识库 / Wiki samples
 # ---------------------------------------------------------------------------
 
-$spaceId = "7618137437004385239"
+$spaceId = "7687220978920737762"   # 知识库「Loop Park」
 
-# ↓↓↓ 已填：专属同步区（留空则脚本拒绝运行，绝不默认挂业务节点）
-$sopParentNode    = "MgbJwkEwSi3x9AkhKJmcDuttnQf"   # SOP-DESK 同步区 / 工作SOP
-$yuqingParentNode = "TBH2wJ7RwiHtLbkaqzWcreLunlf"   # SOP-DESK 同步区 / 舆情监测
+$sopParentNode    = "KEB1wZcRIixC9KkEqa9cc2XVnMe"   # Loop Park / 工作SOP
+$yuqingParentNode = "EaJewX7PAisUTXkxHSdc5gA9nyd"   # Loop Park / 舆情监测体系
+
+$identity = "user"   # 该空间 bot 无权（131006），必须用 user
 
 $workDir   = "C:\Users\Administrator\Desktop\LOOP-PARK-SOP\工作SOP"
 $yuqingDir = "C:\Users\Administrator\Desktop\LOOP-PARK-SOP\舆情监测"
@@ -42,8 +44,14 @@ $logFile   = "C:\Users\Administrator\Desktop\LOOP-PARK-SOP\sync-log.txt"
 # ---- 防误挂保险：父节点未填直接退出 ----
 if ([string]::IsNullOrWhiteSpace($sopParentNode) -or [string]::IsNullOrWhiteSpace($yuqingParentNode)) {
     Write-Host "❌ 拒绝运行：父节点 token 未填写。" -ForegroundColor Red
-    Write-Host "   请先从脚本顶部「天玑现有根节点」中选一个，填进 `$sopParentNode / `$yuqingParentNode。" -ForegroundColor Yellow
-    Write-Host "   原因：原父节点实测 131005 not found；脚本不会擅自挂到任何业务节点下。" -ForegroundColor Yellow
+    exit 1
+}
+
+# ---- 身份自检：user token 是否仍有效（2 小时过期，7 天内可 refresh）----
+$authStatus = lark-cli auth status --format json 2>&1 | Out-String | ConvertFrom-Json
+if ($authStatus.identities.user.status -ne "ready") {
+    Write-Host "❌ 拒绝运行：user 身份未就绪（token 可能已过期）。" -ForegroundColor Red
+    Write-Host "   请先执行： lark-cli auth login --domain wiki --domain docs" -ForegroundColor Yellow
     exit 1
 }
 
@@ -65,30 +73,41 @@ function Sync-Document {
     $title = [System.IO.Path]::GetFileNameWithoutExtension($fileName)
     Write-Log "[$category] 开始同步: $title"
 
-    # Step 1: 创建节点
-    try {
-        $createResult = lark-cli wiki +node-create --space-id $spaceId --parent-node-token $parentNodeToken --title $title --obj-type docx --as bot --format json 2>&1 | Out-String
-        $createJson = $createResult | ConvertFrom-Json
+    # Step 0: 幂等检查 —— 同名节点已存在则跳过新建，直接复用其 obj_token
+    $existing = lark-cli wiki +node-list --space-id $spaceId --parent-node-token $parentNodeToken --as $identity --format json 2>&1 | Out-String | ConvertFrom-Json
+    $match = $null
+    if ($existing.ok -and $existing.data) {
+        $match = $existing.data.items | Where-Object { $_.title -eq $title } | Select-Object -First 1
+    }
 
-        if (-not $createJson.ok) {
-            Write-Log "[$category] 创建节点失败: $title - $($createJson.error.message)"
+    if ($match) {
+        Write-Log "[$category] 已存在同名节点，复用: $title"
+        $objToken = $match.obj_token
+    } else {
+        # Step 1: 创建节点
+        try {
+            $createResult = lark-cli wiki +node-create --space-id $spaceId --parent-node-token $parentNodeToken --title $title --obj-type docx --as $identity --format json 2>&1 | Out-String
+            $createJson = $createResult | ConvertFrom-Json
+
+            if (-not $createJson.ok) {
+                Write-Log "[$category] 创建节点失败: $title - $($createJson.error.message)"
+                return
+            }
+
+            $objToken = $createJson.data.obj_token
+            Write-Log "[$category] 节点创建成功: $title, obj_token: $objToken"
+        }
+        catch {
+            Write-Log "[$category] 创建节点异常: $title - $_"
             return
         }
-
-        $objToken = $createJson.data.obj_token
-        Write-Log "[$category] 节点创建成功: $title, obj_token: $objToken"
-    }
-    catch {
-        Write-Log "[$category] 创建节点异常: $title - $_"
-        return
+        Start-Sleep -Seconds 2
     }
 
-    Start-Sleep -Seconds 2
-
-    # Step 2: 填充内容
+    # Step 2: 填充内容（overwrite = 幂等重跑不会产生重复）
     try {
         $content = Get-Content $filePath -Raw -Encoding UTF8
-        $updateResult = lark-cli docs +update --doc $objToken --command overwrite --doc-format markdown --content $content --as bot --format json 2>&1 | Out-String
+        $updateResult = lark-cli docs +update --doc $objToken --command overwrite --doc-format markdown --content $content --as $identity --format json 2>&1 | Out-String
         $updateJson = $updateResult | ConvertFrom-Json
 
         if ($updateJson.ok) {
@@ -105,7 +124,7 @@ function Sync-Document {
 }
 
 # 主流程
-Write-Log "========== 开始批量同步（space=天玑 7618137437004385239, identity=bot） =========="
+Write-Log "========== 开始批量同步（space=Loop Park $spaceId, identity=$identity） =========="
 
 Write-Log "开始同步工作SOP..."
 $sopFiles = Get-ChildItem $workDir -Filter "*.md" | Sort-Object Name
