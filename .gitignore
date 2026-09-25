@@ -1,10 +1,28 @@
+# Node.js
 node_modules
 .next
 out
-.DS_Store
-*.log
+*.tsbuildinfo
+next-env.d.ts
+
+# Env
 .env*
 !.env.example
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+sync-log.txt
+sync-run-out.txt
+
+# Temp / test
+.ps-test.txt
+.login-url.txt
+*.tmp
+*.bak
+
+# Deploy
 .vercel
-next-env.d.ts
-*.tsbuildinfo
