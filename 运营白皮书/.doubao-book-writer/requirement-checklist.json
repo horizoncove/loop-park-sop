@@ -1,0 +1,22 @@
+{
+  "title": "LOOP PARK 青年商业街区运营白皮书",
+  "version": "V1.0",
+  "target_audience": ["项目团队内部", "政府合作方", "入驻商户", "投资人"],
+  "core_goal": "系统梳理LOOP PARK项目的运营逻辑、执行SOP、财务模型，形成可落地、可复制的运营手册",
+  "target_word_count": 50000,
+  "source_materials": [
+    "looppark-ecosystem skill",
+    "looppark-strategy skill",
+    "looppark-eight-generals skill",
+    "looppark-activities skill",
+    "looppark-self-operated skill",
+    "56篇SOP文档",
+    "舆情监测体系文档"
+  ],
+  "writing_principles": [
+    "具体可执行，不说空话",
+    "数据可追溯，每个结论有依据",
+    "面向执行者，拿到就能用"
+  ],
+  "created_date": "2026-09-25"
+}
