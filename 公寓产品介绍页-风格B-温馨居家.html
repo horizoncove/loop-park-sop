@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LOOP PARK 学生公寓 | 像家一样的宿舍</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: #faf8f5;
+            color: #444;
+            line-height: 1.8;
+        }
+        .container { max-width: 1000px; margin: 0 auto; padding: 0 24px; }
+
+        /* 风格B：温馨居家风 - 暖色调、柔和圆角、留白多 */
+        .hero {
+            background: linear-gradient(180deg, #f8f0e8 0%, #faf8f5 100%);
+            padding: 100px 0 80px;
+            text-align: center;
+        }
+        .hero-tag {
+            display: inline-block;
+            background: #FF6B35;
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 14px;
+            margin-bottom: 32px;
+        }
+        .hero h1 {
+            font-size: 42px;
+            font-weight: 600;
+            color: #2E5D4E;
+            margin-bottom: 20px;
+            line-height: 1.3;
+        }
+        .hero .subtitle {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 48px;
+        }
+        .price-card {
+            background: white;
+            border-radius: 24px;
+            padding: 40px;
+            max-width: 380px;
+            margin: 0 auto;
+            box-shadow: 0 8px 32px rgba(46, 93, 78, 0.1);
+        }
+        .price-label { font-size: 14px; color: #999; margin-bottom: 8px; }
+        .price-number { font-size: 56px; font-weight: 600; color: #FF6B35; }
+        .price-unit { font-size: 18px; color: #999; }
+        .price-note { font-size: 14px; color: #888; margin-top: 12px; }
+        .cta-button {
+            display: inline-block;
+            background: #FF6B35;
+            color: white;
+            padding: 16px 48px;
+            border-radius: 24px;
+            font-size: 17px;
+            font-weight: 500;
+            text-decoration: none;
+            margin-top: 36px;
+            box-shadow: 0 4px 16px rgba(255, 107, 53, 0.3);
+        }
+
+        section { padding: 80px 0; }
+        .section-title {
+            font-size: 28px;
+            font-weight: 600;
+            color: #2E5D4E;
+            text-align: center;
+            margin-bottom: 48px;
+        }
+        .section-subtitle {
+            text-align: center;
+            color: #888;
+            margin-bottom: 48px;
+            font-size: 15px;
+        }
+
+        .compare-wrap {
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        .compare-row {
+            display: flex;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+        .compare-card {
+            flex: 1;
+            background: white;
+            border-radius: 20px;
+            padding: 32px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        }
+        .compare-card.ours {
+            background: #2E5D4E;
+            color: white;
+        }
+        .compare-card h3 {
+            font-size: 18px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .compare-item {
+            padding: 10px 0;
+            font-size: 15px;
+            opacity: 0.9;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
+        }
+        .feature-card {
+            background: white;
+            border-radius: 20px;
+            padding: 36px 28px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        }
+        .feature-icon { font-size: 40px; margin-bottom: 16px; }
+        .feature-card h3 {
+            font-size: 18px;
+            color: #2E5D4E;
+            margin-bottom: 12px;
+        }
+        .feature-card p { font-size: 14px; color: #666; }
+
+        .pricing-section {
+            background: linear-gradient(135deg, #2E5D4E 0%, #3a7a66 100%);
+            border-radius: 32px;
+            padding: 60px 40px;
+            color: white;
+        }
+        .pricing-section .section-title { color: white; }
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+        }
+        .pricing-card {
+            background: rgba(255,255,255,0.15);
+            border-radius: 20px;
+            padding: 32px 24px;
+            text-align: center;
+        }
+        .pricing-card.highlight {
+            background: #FF6B35;
+        }
+
+        .footer-cta {
+            text-align: center;
+            padding: 80px 0;
+        }
+        .footer-cta h2 {
+            font-size: 28px;
+            color: #2E5D4E;
+            margin-bottom: 16px;
+        }
+        .footer-cta p {
+            color: #888;
+            margin-bottom: 32px;
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 32px; }
+            .compare-row { flex-direction: column; }
+            .features-grid, .pricing-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="hero">
+        <div class="container">
+            <div class="hero-tag">✨ 像家一样的宿舍</div>
+            <h1>LOOP PARK 学生公寓</h1>
+            <p class="subtitle">不用再挤4人间了，给自己一个舒服的小窝</p>
+            <div class="price-card">
+                <div class="price-label">双人间 · 包水电网</div>
+                <div>
+                    <span class="price-number">1500</span>
+                    <span class="price-unit">元/月</span>
+                </div>
+                <div class="price-note">每人每月100度电 + 3吨水额度，正常用根本花不完</div>
+            </div>
+            <a href="#contact" class="cta-button">预约来看房</a>
+        </div>
+    </div>
+
+    <section>
+        <div class="container">
+            <h2 class="section-title">换个住法，大学生活完全不一样</h2>
+            <p class="section-subtitle">不用再挤4人间，不用再排队洗澡，不用再晚上停电热醒</p>
+            <div class="compare-wrap">
+                <div class="compare-row">
+                    <div class="compare-card">
+                        <h3>学校宿舍</h3>
+                        <div class="compare-item">🙅 4个人挤一间</div>
+                        <div class="compare-item">🙅 晚上停电，空调没用</div>
+                        <div class="compare-item">🙅 公共卫浴要排队</div>
+                        <div class="compare-item">🙅 查寝、查卫生</div>
+                    </div>
+                    <div class="compare-card ours">
+                        <h3>LOOP PARK 公寓</h3>
+                        <div class="compare-item">✨ 2人间，私密又舒服</div>
+                        <div class="compare-item">✨ 24小时空调随便开</div>
+                        <div class="compare-item">✨ 独立卫浴，不用等</div>
+                        <div class="compare-item">✨ 自由出入，没人管</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section style="background: white;">
+        <div class="container">
+            <h2 class="section-title">在这里住，生活有多方便</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🍜</div>
+                    <h3>下楼就是美食街</h3>
+                    <p>不用纠结吃什么，下楼就是夜市，十几块吃到饱</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📚</div>
+                    <h3>考研自习室</h3>
+                    <p>步行5分钟到自习室，不用早起抢图书馆位置</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🧹</div>
+                    <h3>保洁服务</h3>
+                    <p>不想打扫？叫个保洁阿姨上门，30块钱搞定</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">💻</div>
+                    <h3>电脑租赁</h3>
+                    <p>笔记本不够用？100块/月租一台，不用买新的</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <div class="container">
+            <div class="pricing-section">
+                <h2 class="section-title">灵活的价格方案</h2>
+                <div class="pricing-grid">
+                    <div class="pricing-card">
+                        <h3>开业尝鲜价</h3>
+                        <div style="font-size: 32px; font-weight: 600; margin-bottom: 8px;">1200元/月</div>
+                        <div style="font-size: 13px; opacity: 0.8;">前3个月限时</div>
+                    </div>
+                    <div class="pricing-card highlight">
+                        <h3>标准月卡</h3>
+                        <div style="font-size: 32px; font-weight: 600; margin-bottom: 8px;">1500元/月</div>
+                        <div style="font-size: 13px; opacity: 0.9;">包水电网，最划算</div>
+                    </div>
+                    <div class="pricing-card">
+                        <h3>寒暑假保管</h3>
+                        <div style="font-size: 32px; font-weight: 600; margin-bottom: 8px;">800元/月</div>
+                        <div style="font-size: 13px; opacity: 0.8;">房间保留，含保洁</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="footer-cta" id="contact">
+        <div class="container">
+            <h2>想来看看你的新小窝？</h2>
+            <p>加个微信，随时可以约看房</p>
+            <a href="#" class="cta-button">预约看房</a>
+        </div>
+    </div>
+</body>
+</html>
