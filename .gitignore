@@ -30,3 +30,6 @@ sync-run-out.txt
 # 舆情检索工具的浏览器登录态（含 Cookies / Login Data / History）—— 严禁入库（远端为 PUBLIC 仓）
 舆情监测/.browser-data/
 **/.browser-data/
+
+# 学生消费/调研 PDF 体积大且含敏感调研数据，仅留本地不入 PUBLIC 仓
+客群调研/*.pdf

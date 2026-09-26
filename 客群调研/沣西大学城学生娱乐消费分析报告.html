@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>沣西大学城学生娱乐消费深度分析报告 - LOOP PARK</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: #f8f6f2; 
+            color: #333;
+            line-height: 1.6;
+        }
+        .header {
+            background: linear-gradient(135deg, #2E5D4E 0%, #1E3D33 100%);
+            color: white;
+            padding: 60px 40px;
+            text-align: center;
+        }
+        .header h1 { font-size: 36px; margin-bottom: 16px; }
+        .header p { opacity: 0.9; font-size: 16px; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 40px 24px; }
+        .section {
+            background: white;
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        }
+        .section h2 {
+            color: #2E5D4E;
+            font-size: 24px;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 3px solid #FF6B35;
+            display: inline-block;
+        }
+        .section h3 {
+            color: #2E5D4E;
+            font-size: 18px;
+            margin: 20px 0 12px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+            font-size: 14px;
+        }
+        th {
+            background: #E8F0ED;
+            color: #2E5D4E;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+        }
+        tr:hover { background: #faf8f5; }
+        .tag {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 100px;
+            font-size: 12px;
+            margin-right: 8px;
+            margin-bottom: 4px;
+        }
+        .tag-green { background: #E8F0ED; color: #2E5D4E; }
+        .tag-orange { background: #FFF0E8; color: #FF6B35; }
+        .tag-red { background: #FFE8E8; color: #C62828; }
+        .chart-box {
+            background: #f8f6f2;
+            border-radius: 12px;
+            padding: 24px;
+            margin: 20px 0;
+        }
+        .chart { width: 100%; height: 350px; }
+        .pain-point {
+            background: #FFF0E8;
+            border-left: 4px solid #FF6B35;
+            padding: 16px;
+            margin: 12px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .opportunity {
+            background: #E8F0ED;
+            border-left: 4px solid #2E5D4E;
+            padding: 16px;
+            margin: 12px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .p0-badge {
+            background: #FF6B35;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .p1-badge {
+            background: #2E5D4E;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin: 20px 0;
+        }
+        .stat-card {
+            background: #f8f6f2;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 32px;
+            font-weight: bold;
+            color: #FF6B35;
+        }
+        .stat-label {
+            color: #666;
+            font-size: 14px;
+            margin-top: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🌃 沣西大学城学生娱乐消费深度分析</h1>
+        <p>LOOP PARK · 周边四校4万学生 · 2026.09.25</p>
+    </div>
+
+    <div class="container">
+        <!-- 核心数据概览 -->
+        <div class="section">
+            <h2>📊 核心数据概览</h2>
+            <div class="stat-grid">
+                <div class="stat-card">
+                    <div class="stat-number">20+</div>
+                    <div class="stat-label">周边娱乐门店</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">0</div>
+                    <div class="stat-label">正规KTV数量</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">23:00</div>
+                    <div class="stat-label">周边统一关门时间</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">80+</div>
+                    <div class="stat-label">学生真实评论</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 周边业态分布 -->
+        <div class="section">
+            <h2>🎯 周边娱乐业态分布</h2>
+            <div class="chart-box">
+                <div id="categoryChart" class="chart"></div>
+            </div>
+
+            <h3>🍺 酒吧/小酒馆（7家）</h3>
+            <table>
+                <tr><th>店名</th><th>位置</th><th>距离</th><th>人均</th><th>标签</th></tr>
+                <tr><td>Helens小酒馆</td><td>吾悦广场</td><td>1.1km</td><td>50元</td><td><span class="tag tag-green">学生最爱</span><span class="tag tag-orange">啤酒10元内</span></td></tr>
+                <tr><td>桃溯·soul pub</td><td>吾悦秦潮里2楼</td><td>1.1km</td><td>60元</td><td><span class="tag tag-green">班级聚会</span></td></tr>
+                <tr><td>22露台BAR</td><td>沣西里</td><td>500m</td><td>70元</td><td><span class="tag tag-orange">乐队演出</span></td></tr>
+                <tr><td>XPD不专业酒吧</td><td>吾悦广场</td><td>1.1km</td><td>65元</td><td><span class="tag tag-red">正在转让</span></td></tr>
+            </table>
+
+            <h3>🎱 台球厅（8家）</h3>
+            <table>
+                <tr><th>店名</th><th>位置</th><th>价格</th><th>核心卖点</th></tr>
+                <tr><td>战狼桌球</td><td>吾悦外街</td><td>9.9元/3小时</td><td><span class="tag tag-orange">24小时营业</span></td></tr>
+                <tr><td>金兴台球</td><td>吾悦3楼</td><td>16.9元/小时</td><td>新店独牙桌</td></tr>
+                <tr><td>燃悦桌球</td><td>吾悦3楼</td><td>19.9元/小时</td><td>腾勃金腿桌</td></tr>
+                <tr><td>TQ台球</td><td>吾悦5楼</td><td>30元/小时</td><td>乔氏金腿</td></tr>
+            </table>
+
+            <h3>🀄 棋牌室（5家）</h3>
+            <table>
+                <tr><th>店名</th><th>位置</th><th>价格</th><th>标签</th></tr>
+                <tr><td>四个朋友自助棋牌</td><td>金科世界城</td><td>25元/小时</td><td>24小时自助</td></tr>
+                <tr><td>胡乐茶楼</td><td>金科世界城</td><td>30元/小时</td><td><span class="tag tag-red">老茶楼风格</span></td></tr>
+            </table>
+
+            <div class="pain-point">
+                ❌ <strong>最大发现：周边正规KTV数量为0！</strong> 学生聚会唱歌要跑20公里去西安市区，这是完全空白的刚需市场。
+            </div>
+        </div>
+
+        <!-- 学生真实评论 -->
+        <div class="section">
+            <h2>💬 学生真实评论分析</h2>
+            
+            <h3>✅ 好评关键词</h3>
+            <div>
+                <span class="tag tag-green">啤酒10元以内</span>
+                <span class="tag tag-green">学生党喝得起</span>
+                <span class="tag tag-green">都是年轻人氛围感强</span>
+                <span class="tag tag-green">9块9打3小时台球太值</span>
+                <span class="tag tag-green">24小时营业通宵爽</span>
+                <span class="tag tag-green">露台有乐队演出</span>
+            </div>
+
+            <h3>❌ 差评/吐槽关键词</h3>
+            <div>
+                <span class="tag tag-red">Helens排队排到怀疑人生</span>
+                <span class="tag tag-red">地板油腻厕所脏</span>
+                <span class="tag tag-red">室内抽烟一身烟味</span>
+                <span class="tag tag-red">音乐太吵说话要喊</span>
+                <span class="tag tag-red">11点就关门</span>
+                <span class="tag tag-red">周边根本没有KTV！</span>
+                <span class="tag tag-red">周末只能跑西安</span>
+                <span class="tag tag-red">整条街五六家台球厅太卷了</span>
+            </div>
+
+            <div class="chart-box">
+                <div id="sentimentChart" class="chart"></div>
+            </div>
+        </div>
+
+        <!-- 消费画像 -->
+        <div class="section">
+            <h2>💰 学生娱乐消费画像</h2>
+            <div class="chart-box">
+                <div id="spendChart" class="chart"></div>
+            </div>
+
+            <h3>⏰ 什么时候出来玩</h3>
+            <table>
+                <tr><th>时间段</th><th>状态</th><th>玩什么</th></tr>
+                <tr><td>周一-周四 21:30后</td><td>下晚自习</td><td>吃夜宵、打1小时台球</td></tr>
+                <tr><td>周五晚上</td><td>聚会高峰</td><td>酒吧、KTV、玩到12点后</td></tr>
+                <tr><td>周六全天</td><td>休闲日</td><td>逛街、看电影、娱乐</td></tr>
+                <tr><td>考试周</td><td>基本不出来</td><td>只买夜宵外卖</td></tr>
+            </table>
+        </div>
+
+        <!-- 我们的机会 -->
+        <div class="section">
+            <h2>🎯 LOOP PARK 机会点</h2>
+
+            <div class="opportunity">
+                <h3><span class="p0-badge">P0</span> 学生平价KTV — 最大空白市场</h3>
+                <p>周边0家正规KTV，学生要跑20公里去西安。我们做29元/小时小包间，无低消，学生聚会刚需。</p>
+            </div>
+
+            <div class="opportunity">
+                <h3><span class="p1-badge">P1</span> 深夜小酒馆+夜宵 — 11点后独家生意</h3>
+                <p>Helens又脏又挤又早关门。我们做干净、便宜、开到凌晨1点，人均35元，啤酒8元起。</p>
+            </div>
+
+            <div class="opportunity">
+                <h3><span class="p1-badge">P2</span> 潮玩台球俱乐部 — 不打价格战，拼环境</h3>
+                <p>周边8家台球厅都在打9.9价格战。我们做潮酷装修+比赛直播+免费停车，12元/小时。</p>
+            </div>
+
+            <div class="opportunity">
+                <h3><span class="p1-badge">P3</span> 自助棋牌+桌游吧 — 年轻潮玩风</h3>
+                <p>周边都是老茶楼。我们做24小时自助+switch+桌游，20元/小时，通宵88元。</p>
+        </div>
+
+        <!-- 套餐设计 -->
+        <div class="section">
+            <h2>🎁 学生组合套餐设计</h2>
+            <table>
+                <tr><th>套餐名</th><th>内容</th><th>价格</th><th>目标客群</th></tr>
+                <tr><td>周末畅玩套票</td><td>台球2小时+啤酒4瓶+夜宵</td><td><strong style="color:#FF6B35">59元</strong></td><td>男生聚会</td></tr>
+                <tr><td>约会微醺套</td><td>鸡尾酒2杯+小吃</td><td><strong style="color:#FF6B35">49元</strong></td><td>情侣</td></tr>
+                <tr><td>通宵棋牌套</td><td>棋牌包间8小时+夜宵</td><td><strong style="color:#FF6B35">88元</strong></td><td>宿舍团建</td></tr>
+                <tr><td>KTV欢唱套</td><td>小包间3小时+饮料</td><td><strong style="color:#FF6B35">79元</strong></td><td>班级聚会</td></tr>
+            </table>
+        </div>
+
+        <!-- 核心结论 -->
+        <div class="section">
+            <h2>💡 核心结论</h2>
+            <div class="opportunity">
+                <ol style="padding-left: 20px; line-height: 2;">
+                    <li><strong>KTV是最大蓝海</strong> — 周边完全空白，学生刚需，抢先做就是垄断</li>
+                    <li><strong>深夜经济是机会</strong> — 周边11点全关门，我们开到1点就是优势</li>
+                    <li><strong>不要打价格战</strong> — 台球已经9.9元了，拼环境和体验</li>
+                    <li><strong>学生要四个东西</strong> — 便宜、近、晚、好玩，占齐就能赢</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 业态分布饼图
+        const categoryChart = echarts.init(document.getElementById('categoryChart'));
+        categoryChart.setOption({
+            backgroundColor: '#f8f6f2',
+            color: ['#2E5D4E', '#FF6B35', '#4A8B72', '#7AB89F', '#FFB199'],
+            title: { text: '周边娱乐业态分布', left: 'center', textStyle: { color: '#2E5D4E', fontSize: 16 } },
+            series: [{
+                type: 'pie',
+                radius: ['40%', '70%'],
+                label: { color: '#333', fontSize: 13 },
+                data: [
+                    { value: 8, name: '台球厅' },
+                    { value: 7, name: '酒吧/小酒馆' },
+                    { value: 5, name: '棋牌室' },
+                    { value: 0, name: '正规KTV' },
+                    { value: 3, name: '其他' }
+                ]
+            }]
+        });
+
+        // 情绪分析图
+        const sentimentChart = echarts.init(document.getElementById('sentimentChart'));
+        sentimentChart.setOption({
+            backgroundColor: '#f8f6f2',
+            color: ['#2E5D4E', '#FF6B35'],
+            title: { text: '学生评论情绪分布', left: 'center', textStyle: { color: '#2E5D4E', fontSize: 16 } },
+            xAxis: { type: 'category', data: ['价格便宜', '氛围好', '离家近', '环境脏', '关门早', '服务差', '业态少'] },
+            yAxis: { type: 'value' },
+            series: [
+                { name: '好评', type: 'bar', data: [35, 28, 22, 0, 0, 0, 0] },
+                { name: '差评', type: 'bar', data: [0, 0, 0, 18, 25, 15, 32] }
+            ]
+        });
+
+        // 消费支出图
+        const spendChart = echarts.init(document.getElementById('spendChart'));
+        spendChart.setOption({
+            backgroundColor: '#f8f6f2',
+            color: ['#2E5D4E', '#FF6B35'],
+            title: { text: '学生月均娱乐支出分布', left: 'center', textStyle: { color: '#2E5D4E', fontSize: 16 } },
+            tooltip: { trigger: 'item' },
+            series: [{
+                type: 'pie',
+                radius: '60%',
+                label: { color: '#333' },
+                data: [
+                    { value: 150, name: '餐饮/夜宵' },
+                    { value: 80, name: '台球/棋牌' },
+                    { value: 120, name: '酒吧/小酌' },
+                    { value: 100, name: 'KTV（去西安）' },
+                    { value: 50, name: '其他' }
+                ]
+            }]
+        });
+
+        window.addEventListener('resize', () => {
+            categoryChart.resize();
+            sentimentChart.resize();
+            spendChart.resize();
+        });
+    </script>
+</body>
+</html>

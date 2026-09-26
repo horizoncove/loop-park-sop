@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LOOP PARK 舆情检索工具</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: #f8f6f2; 
+            color: #333;
+            padding: 24px;
+        }
+        .container { max-width: 1000px; margin: 0 auto; }
+        .header {
+            background: #2E5D4E;
+            color: white;
+            padding: 32px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+        }
+        .header h1 { font-size: 28px; margin-bottom: 8px; }
+        .header p { opacity: 0.9; font-size: 14px; }
+        .search-box {
+            background: white;
+            padding: 32px;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            margin-bottom: 24px;
+        }
+        .search-row {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        input[type="text"] {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid #e0ddd8;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #2E5D4E;
+        }
+        button {
+            padding: 12px 32px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        .btn-primary {
+            background: #FF6B35;
+            color: white;
+        }
+        .btn-secondary {
+            background: #2E5D4E;
+            color: white;
+        }
+        .options {
+            display: flex;
+            gap: 24px;
+            margin-bottom: 16px;
+            font-size: 14px;
+        }
+        .options label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+        }
+        .status {
+            background: #E8F0ED;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            display: none;
+        }
+        .status.show { display: block; }
+        .result {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+        }
+        .result h3 { color: #2E5D4E; margin-bottom: 16px; }
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        .spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid #eee;
+            border-top-color: #2E5D4E;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 16px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .login-tip {
+            background: #FFF0E8;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>🔍 LOOP PARK 舆情检索工具</h1>
+        <p>输入关键词，自动检索抖音+小红书学生评价，登录态自动保持</p>
+    </div>
+
+    <div class="login-tip">
+        💡 <strong>使用说明：</strong>首次使用会自动打开浏览器，扫码登录抖音和小红书即可。登录状态会保存在本地，下次打开不用重新登录。
+    </div>
+
+    <div class="search-box">
+        <div class="search-row">
+            <input type="text" id="keyword" placeholder="输入关键词，比如：陕服宿舍 / 咸职食堂 / 商贸避雷" />
+            <button class="btn-primary" onclick="search()">开始检索</button>
+        </div>
+        <div class="options">
+            <label><input type="checkbox" id="douyin" checked> 抖音</label>
+            <label><input type="checkbox" id="xiaohongshu" checked> 小红书</label>
+            <label>时间范围：
+                <select id="timeRange" style="padding:4px 8px;border-radius:4px;">
+                    <option value="week">近一周</option>
+                    <option value="month" selected>近一月</option>
+                    <option value="halfyear">近半年</option>
+                </select>
+            </label>
+        </div>
+    </div>
+
+    <div id="status" class="status"></div>
+
+    <div id="result" class="result" style="display:none;">
+        <h3>📊 检索结果</h3>
+        <div id="resultContent"></div>
+    </div>
+</div>
+
+<script>
+function setStatus(msg, isLoading=false) {
+    const statusEl = document.getElementById('status');
+    statusEl.classList.add('show');
+    if (isLoading) {
+        statusEl.innerHTML = '<div class="spinner"></div><br>' + msg;
+    } else {
+        statusEl.innerHTML = msg;
+    }
+}
+
+async function search() {
+    const keyword = document.getElementById('keyword').value.trim();
+    if (!keyword) {
+        alert('请输入关键词');
+        return;
+    }
+
+    const useDouyin = document.getElementById('douyin').checked;
+    const useXhs = document.getElementById('xiaohongshu').checked;
+    const timeRange = document.getElementById('timeRange').value;
+
+    setStatus('正在启动浏览器，检索中... 首次需要扫码登录', true);
+
+    try {
+        const response = await fetch('http://localhost:5000/api/search', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ keyword, useDouyin, useXhs, timeRange })
+        });
+        const data = await response.json();
+        
+        setStatus('✅ 检索完成！');
+        document.getElementById('result').style.display = 'block';
+        document.getElementById('resultContent').innerHTML = data.html;
+    } catch (e) {
+        setStatus('❌ 出错了：' + e.message + '<br><br>请先运行后端服务：python server.py');
+    }
+}
+</script>
+</body>
+</html>

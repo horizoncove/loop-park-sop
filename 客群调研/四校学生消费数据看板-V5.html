@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LOOP PARK 四校学生消费深度看板 V5</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: #f8f6f2; 
+            color: #333;
+            padding: 24px;
+        }
+        .header {
+            background: #2E5D4E;
+            color: white;
+            padding: 32px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+        }
+        .header h1 { font-size: 28px; margin-bottom: 8px; }
+        .header p { opacity: 0.9; font-size: 14px; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+        .card {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+        }
+        .card h3 { font-size: 14px; color: #666; margin-bottom: 8px; font-weight: normal; }
+        .card .num { font-size: 32px; font-weight: 700; color: #2E5D4E; }
+        .card .sub { font-size: 12px; color: #999; margin-top: 4px; }
+        .section {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+        }
+        .section h2 { font-size: 20px; margin-bottom: 16px; color: #2E5D4E; }
+        .charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px; }
+        .chart-box {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+        }
+        .chart-box h3 { font-size: 16px; margin-bottom: 12px; color: #2E5D4E; }
+        .chart { width: 100%; height: 300px; }
+        table { width: 100%; border-collapse: collapse; font-size: 14px; }
+        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #eee; }
+        th { background: #fafafa; color: #666; font-weight: normal; }
+        .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+        .three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+        .review {
+            background: #fafafa;
+            border-left: 3px solid #FF6B35;
+            padding: 12px 16px;
+            margin-bottom: 12px;
+            border-radius: 0 8px 8px 0;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .review .source { font-size: 12px; color: #999; margin-top: 8px; }
+        .insight {
+            background: linear-gradient(135deg, #2E5D4E 0%, #4A8B72 100%);
+            color: white;
+            padding: 32px;
+            border-radius: 12px;
+        }
+        .insight h2 { margin-bottom: 16px; }
+        .insight ul { padding-left: 20px; line-height: 2; }
+        .tag {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 100px;
+            font-size: 12px;
+        }
+        .tag-green { background: #E8F0ED; color: #2E5D4E; }
+        .tag-orange { background: #FFF0E8; color: #FF6B35; }
+        .tag-red { background: #ffebee; color: #C62828; }
+        .area-header {
+            background: #E8F0ED;
+            color: #2E5D4E;
+            text-align: center;
+            font-weight: bold;
+        }
+        .need-card {
+            background: #fafafa;
+            padding: 20px;
+            border-radius: 12px;
+            border-top: 4px solid #FF6B35;
+        }
+        .need-card h3 { color: #2E5D4E; margin-bottom: 12px; font-size: 16px; }
+        .need-card ul { padding-left: 20px; line-height: 2; font-size: 14px; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>LOOP PARK 四校学生消费深度数据看板 V5</h1>
+        <p>数据来源：高德地图 · 抖音 · 小红书 · 黑猫投诉 · 采集时间：2026-09-25 · 55家商户+80+条评论+30+KOL/KOC达人</p>
+    </div>
+
+    <!-- 核心数据卡片 -->
+    <div class="cards">
+        <div class="card">
+            <h3>核心圈学生总数</h3>
+            <div class="num">4万+</div>
+            <div class="sub">四校合计</div>
+        </div>
+        <div class="card">
+            <h3>1.5km内餐饮商户</h3>
+            <div class="num">55家</div>
+            <div class="sub">高德地图实测</div>
+        </div>
+        <div class="card">
+            <h3>学生日均餐饮预算</h3>
+            <div class="num">25-40元</div>
+            <div class="sub">午15 + 晚20</div>
+        </div>
+        <div class="card">
+            <h3>夜市客单价</h3>
+            <div class="num">15-25元</div>
+            <div class="sub">小吃+饮品组合</div>
+        </div>
+    </div>
+
+    <!-- 两个图表 -->
+    <div class="charts-row">
+        <div class="chart-box">
+            <h3>周边餐饮品类分布（55家）</h3>
+            <div id="pieChart" class="chart"></div>
+        </div>
+        <div class="chart-box">
+            <h3>人均价格带分布（55家）</h3>
+            <div id="barChart" class="chart"></div>
+        </div>
+    </div>
+
+    <!-- 四校对比 -->
+    <div class="section">
+        <h2>四校基本面对比</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>学校</th>
+                    <th>学生数</th>
+                    <th>特点</th>
+                    <th>食堂情况</th>
+                    <th>学生评价关键词</th>
+                    <th>距LOOP PARK</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>陕西国际商贸学院</strong></td>
+                    <td>1.4万人</td>
+                    <td>规模最大，刚翻新</td>
+                    <td>2个食堂45个档口</td>
+                    <td>"锐评食堂哪家强"、"北区有台球厅"</td>
+                    <td><strong>500米</strong></td>
+                </tr>
+                <tr>
+                    <td><strong>陕西服装工程学院</strong></td>
+                    <td>1万人</td>
+                    <td>女生多</td>
+                    <td>10个档口，尚街餐厅</td>
+                    <td>"鸡公煲绝了"、"楼梯会踩空"</td>
+                    <td>800米</td>
+                </tr>
+                <tr>
+                    <td><strong>陕科大镐京学院</strong></td>
+                    <td>8000人</td>
+                    <td>食堂评价最好</td>
+                    <td>独栋餐厅上千菜品</td>
+                    <td>"宽敞明亮"、"价格亲民"</td>
+                    <td>1.2公里</td>
+                </tr>
+                <tr>
+                    <td><strong>咸阳职业技术学院</strong></td>
+                    <td>8000人</td>
+                    <td>性价比最高</td>
+                    <td>3层食堂平价大碗</td>
+                    <td>"大专干饭天花板"、"十几块吃饱"</td>
+                    <td>1.5公里</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 商户完整清单 55家 -->
+    <div class="section">
+        <h2>周边500米-1.5km餐饮商户完整清单（55家）</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>序号</th>
+                    <th>商户名称</th>
+                    <th>位置</th>
+                    <th>距离</th>
+                    <th>人均</th>
+                    <th>品类</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td colspan="6" class="area-header">商圈1：康定路/同德路/沣西里（500m-1km，共20家）</td></tr>
+                <tr><td>1</td><td>信天游食府</td><td>同德路先河瞰都B座2层</td><td>657米</td><td>402元</td><td>高端中餐</td></tr>
+                <tr><td>2</td><td>承平永盛水盆羊肉</td><td>商贸学院同德商厦1楼</td><td>769米</td><td>39元</td><td>中餐</td></tr>
+                <tr><td>3</td><td>吴老大拉条子拌面</td><td>同德路同德佳苑7号</td><td>806米</td><td>15元</td><td>面馆</td></tr>
+                <tr><td>4</td><td>兰湘子·湘菜小炒</td><td>沣西里商业街S13</td><td>819米</td><td>43元</td><td>湘菜</td></tr>
+                <tr><td>5</td><td>鱼你在一起</td><td>沣西里先河瞰都</td><td>844米</td><td>29元</td><td>快餐</td></tr>
+                <tr><td>6</td><td>荣鹏酸汤水饺</td><td>同德佳苑</td><td>854米</td><td>21元</td><td>快餐</td></tr>
+                <tr><td>7</td><td>霸碗盖码饭</td><td>沣西里先河瞰都</td><td>878米</td><td>15元</td><td>快餐</td></tr>
+                <tr><td>8</td><td>禾瑞汉中鲜鱼庄</td><td>同德路沣西一小南侧</td><td>895米</td><td>40元</td><td>中餐</td></tr>
+                <tr><td>9</td><td>臻品宴·粤菜海鲜</td><td>总部经济园7号楼</td><td>902米</td><td>108元</td><td>高端中餐</td></tr>
+                <tr><td>10</td><td>丰捭阖黄焖鸡米饭</td><td>沣西里S9号楼103</td><td>953米</td><td>25元</td><td>快餐</td></tr>
+                <tr><td>11</td><td>秦味苟师傅biangbiang面</td><td>沣西里S9号楼101</td><td>965米</td><td>13元</td><td>面馆</td></tr>
+                <tr><td>12</td><td>德元兰州牛肉面</td><td>沣西里S6号楼</td><td>992米</td><td>22元</td><td>快餐</td></tr>
+                <tr><td>13</td><td>五星剁馅水饺</td><td>沣西里先河瞰都</td><td>994米</td><td>21元</td><td>快餐</td></tr>
+                <tr><td>14</td><td>老八米线</td><td>沣西里商业街1051</td><td>996米</td><td>12元</td><td>快餐</td></tr>
+                <tr><td>15</td><td>老式砂锅</td><td>沣西里商业街</td><td>1.0公里</td><td>17元</td><td>中餐</td></tr>
+                <tr><td>16</td><td>霸舌生滚牛肉米粉</td><td>沣西里S8-102</td><td>1.0公里</td><td>23元</td><td>中餐</td></tr>
+                <tr><td>17</td><td>渔公子尚席</td><td>沣西国际大厦6楼</td><td>1.0公里</td><td>122元</td><td>高端中餐</td></tr>
+                <tr><td>18</td><td>正新鸡排</td><td>商贸学院西南角</td><td>1.0公里</td><td>13元</td><td>快餐</td></tr>
+                <tr><td>19</td><td>重庆鸡公煲</td><td>商贸学院西门二楼</td><td>1.0公里</td><td>30元</td><td>川菜</td></tr>
+                <tr><td>20</td><td>三宝家米皮</td><td>同德晨曦园</td><td>1.2公里</td><td>14元</td><td>快餐</td></tr>
+
+                <tr><td colspan="6" class="area-header" style="background:#FFF0E8;color:#FF6B35;">商圈2：沣西吾悦广场（1.0-1.2km，共15家）</td></tr>
+                <tr><td>21</td><td>蜀大侠火锅</td><td>吾悦广场4楼</td><td>1.1公里</td><td>67元</td><td>火锅</td></tr>
+                <tr><td>22</td><td>大芊金串串火锅</td><td>吾悦广场4楼</td><td>1.1公里</td><td>68元</td><td>火锅串串</td></tr>
+                <tr><td>23</td><td>见青山翘脚牛肉</td><td>吾悦广场4楼</td><td>1.1公里</td><td>110元</td><td>火锅</td></tr>
+                <tr><td>24</td><td>许府牛火锅</td><td>吾悦广场4楼</td><td>1.0公里</td><td>46元</td><td>火锅</td></tr>
+                <tr><td>25</td><td>古鲁特烤肉自助</td><td>吾悦广场负一楼</td><td>1.1公里</td><td>62元</td><td>自助烤肉</td></tr>
+                <tr><td>26</td><td>奎梨韩国烤肉</td><td>吾悦广场4楼</td><td>1.1公里</td><td>75元</td><td>韩餐</td></tr>
+                <tr><td>27</td><td>胖哥俩肉蟹煲</td><td>吾悦广场4楼</td><td>1.1公里</td><td>71元</td><td>中餐</td></tr>
+                <tr><td>28</td><td>蛮涮自助小火锅</td><td>吾悦广场5楼</td><td>1.1公里</td><td>57元</td><td>自助小火锅</td></tr>
+                <tr><td>29</td><td>花马肆云南米线</td><td>吾悦广场5楼</td><td>1.1公里</td><td>36元</td><td>快餐</td></tr>
+                <tr><td>30</td><td>疆湖传说新疆炒米粉</td><td>吾悦秦潮里</td><td>1.1公里</td><td>20元</td><td>快餐</td></tr>
+                <tr><td>31</td><td>华莱士全鸡汉堡</td><td>吾悦秦潮里</td><td>1.2公里</td><td>18元</td><td>快餐</td></tr>
+                <tr><td>32</td><td>池奈日式咖喱蛋包饭</td><td>吾悦广场5楼</td><td>1.0公里</td><td>37元</td><td>日料</td></tr>
+                <tr><td>33</td><td>花宝街石锅鸡公煲</td><td>吾悦广场5楼</td><td>1.0公里</td><td>20元</td><td>川菜</td></tr>
+                <tr><td>34</td><td>李想大虾火锅</td><td>吾悦广场5楼</td><td>1.0公里</td><td>41元</td><td>火锅</td></tr>
+                <tr><td>35</td><td>万万子茶壶小火锅</td><td>吾悦广场5楼</td><td>1.1公里</td><td>45元</td><td>小火锅</td></tr>
+
+                <tr><td colspan="6" class="area-header">商圈3：同文路金科世界城（1.4-1.6km，共20家）</td></tr>
+                <tr><td>36</td><td>奔客怪叔叔火锅</td><td>同文路金科世界城</td><td>1.6公里</td><td>58元</td><td>火锅</td></tr>
+                <tr><td>37</td><td>东北老家菜铁锅炖</td><td>金科世界城S2</td><td>1.5公里</td><td>57元</td><td>中餐</td></tr>
+                <tr><td>38</td><td>家里村张伟铜锅涮肉</td><td>金科世界城35栋</td><td>1.5公里</td><td>57元</td><td>火锅</td></tr>
+                <tr><td>39</td><td>柳州肥姨姐螺蛳粉</td><td>金科世界城S1</td><td>1.5公里</td><td>15元</td><td>快餐</td></tr>
+                <tr><td>40</td><td>黄师傅海鲜烧烤</td><td>同文路20130号</td><td>1.6公里</td><td>47元</td><td>烧烤</td></tr>
+                <tr><td>41</td><td>要德鱼庄</td><td>金科世界城</td><td>1.5公里</td><td>34元</td><td>中餐</td></tr>
+                <tr><td>42</td><td>红火锅</td><td>金科世界城S1</td><td>1.5公里</td><td>58元</td><td>火锅</td></tr>
+                <tr><td>43</td><td>鸿盛邢厨私房菜</td><td>金科世界城2期</td><td>1.5公里</td><td>44元</td><td>中餐</td></tr>
+                <tr><td>44</td><td>陈家小馆铁锅炖</td><td>金科世界城S1</td><td>1.5公里</td><td>45元</td><td>中餐</td></tr>
+                <tr><td>45</td><td>西域百福椒麻鸡</td><td>金科世界城10栋</td><td>1.5公里</td><td>26元</td><td>快餐</td></tr>
+                <tr><td>46</td><td>豪友虾馆淄博烧烤</td><td>金科城社区S1</td><td>1.5公里</td><td>45元</td><td>烧烤</td></tr>
+                <tr><td>47</td><td>久禧市井老火锅</td><td>同文路20106号</td><td>1.5公里</td><td>51元</td><td>火锅</td></tr>
+                <tr><td>48</td><td>福来沾延安沾沾</td><td>金科世界城一期</td><td>1.5公里</td><td>41元</td><td>串串</td></tr>
+                <tr><td>49</td><td>温记重庆纸包鱼</td><td>同文路龙台观路</td><td>1.5公里</td><td>45元</td><td>川菜</td></tr>
+                <tr><td>50</td><td>成成麻辣烫</td><td>金科世界城8号楼</td><td>1.4公里</td><td>21元</td><td>快餐</td></tr>
+                <tr><td>51</td><td>邢老三肉丸糊辣汤</td><td>金科世界城15号</td><td>1.4公里</td><td>18元</td><td>快餐</td></tr>
+                <tr><td>52</td><td>文姐开口笑蘸饺</td><td>金科世界城一期</td><td>1.5公里</td><td>13元</td><td>快餐</td></tr>
+                <tr><td>53</td><td>曼玲粥</td><td>金科世界城一期</td><td>1.5公里</td><td>13元</td><td>快餐</td></tr>
+                <tr><td>54</td><td>胖锦东米线凉皮</td><td>金科世界城一期</td><td>1.4公里</td><td>12元</td><td>快餐</td></tr>
+                <tr><td>55</td><td>鸡柳大人</td><td>金科世界城S1</td><td>1.5公里</td><td>15元</td><td>快餐</td></tr>
+            </tbody>
+        </table>
+        <p style="font-size:12px;color:#999;margin-top:12px;">数据来源：高德地图商户数据 · 三大商圈共55家 · 采集时间2026-09-25</p>
+    </div>
+
+    <!-- 学生好评关键词 -->
+    <div class="section">
+        <h2>✅ 学生好评关键词（近半年抖音/小红书）</h2>
+        <div class="two-col">
+            <div>
+                <div class="review">
+                    "陕服的同学们可真幸福"
+                    <div class="source">小红书 @星星泡饭🌟 · 4天前 · 44赞</div>
+                </div>
+                <div class="review">
+                    "金科世界城椒香热辣串串，人均20就美美撸串了，79.9四人套餐"
+                    <div class="source">抖音 @方言优选 · 5月前 · 64赞</div>
+                </div>
+                <div class="review">
+                    "在校门口卖黄焖鸡，没想到生意这么火"
+                    <div class="source">抖音 @你我山巅自相逢 · 4月前 · 251赞</div>
+                </div>
+                <div class="review">
+                    "第一次来到陕服，有咸职与镐京的同学专程奔赴而来，餐虽有余，人心向暖"
+                    <div class="source">抖音 @馍饭夫妻 · 4月前 · 153赞</div>
+                </div>
+            </div>
+            <div>
+                <div class="review">
+                    "镐京食堂特别宽敞明亮，各种小吃面食应有尽有，价格非常亲民"
+                    <div class="source">抖音 @亮龙水漆-陆增生 · 2026.8.22 · 116赞</div>
+                </div>
+                <div class="review">
+                    "陕服尚街食堂干饭指南，美食多样、环境舒适、三餐无忧"
+                    <div class="source">抖音 @博兴餐饮集团 · 3月前 · 50赞</div>
+                </div>
+                <div class="review">
+                    "咸职食堂一镜到底来啦！三层美食全覆盖，平价大碗，奶茶小吃全都有，十几块吃饱吃好，大专干饭天花板"
+                    <div class="source">抖音 @A小冉学姐 · 7月前 · 204赞</div>
+                </div>
+                <div class="review">
+                    "咸职新食堂一楼布置完毕，开学美食集合🔥"
+                    <div class="source">抖音 @碳水狂热分子 · 8月前 · 10赞</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 学生吐槽关键词 -->
+    <div class="section">
+        <h2>❌ 学生吐槽关键词（近半年差评/抱怨）</h2>
+        <div class="two-col">
+            <div>
+                <div class="review" style="border-left-color:#C62828;">
+                    "从夯到拉，锐评一下商贸食堂"
+                    <div class="source">抖音 @商贸小马学长 · 2026.4.1 · 349赞</div>
+                </div>
+                <div class="review" style="border-left-color:#C62828;">
+                    "陕服的食堂楼梯眼神好的人都会踩空"
+                    <div class="source">小红书 @正义化身 · 2026.9.14 · 25赞</div>
+                </div>
+                <div class="review" style="border-left-color:#C62828;">
+                    "商场咋也没人气了？四五层餐饮几乎没食客"
+                    <div class="source">抖音 · 2026.9.18 · 周边商圈吐槽</div>
+                </div>
+            </div>
+            <div>
+                <div class="review" style="border-left-color:#C62828;">
+                    "吾悦停车场绕死了，晚上10点电梯都关完了"
+                    <div class="source">抖音 · 2026.5.1 · 吾悦广场差评</div>
+                </div>
+                <div class="review" style="border-left-color:#C62828;">
+                    "商户退租沣西吾悦到期未退押金，没有退款额度，新租户入场才退"
+                    <div class="source">抖音 @二三里资讯 · 2026.6.2 · 商户投诉</div>
+                </div>
+                <div class="review" style="border-left-color:#C62828;">
+                    "美容养生会所虚假宣传诱导消费，软磨硬泡让我分三次付了2000元"
+                    <div class="source">黑猫投诉 · 2026.5.11 · 吾悦广场商户</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 学生校外需求 单独章节 -->
+    <div class="section">
+        <h2>🎯 学生校外商业需求深度分析（重点）</h2>
+        
+        <h3 style="color:#2E5D4E;margin-bottom:16px;">🔥 学生现在去哪玩（现状）</h3>
+        <div class="three-col" style="margin-bottom:24px;">
+            <div class="need-card">
+                <h3>🏙️ 去西安市区</h3>
+                <ul>
+                    <li>西安创意街区打卡</li>
+                    <li>白鹿原大学城商业街</li>
+                    <li>嫌本地没地方玩，跑西安</li>
+                    <li>西安地铁直达免费好玩</li>
+                </ul>
+            </div>
+            <div class="need-card">
+                <h3>🌊 咸阳本地闲逛</h3>
+                <ul>
+                    <li>咸阳湖citywalk</li>
+                    <li>廊桥、清渭楼打卡</li>
+                    <li>北平街夜市</li>
+                    <li>沣水湾不夜港（10万平）</li>
+                </ul>
+            </div>
+            <div class="need-card">
+                <h3>☕ 社交娱乐</h3>
+                <ul>
+                    <li>网红咖啡馆/小院咖啡</li>
+                    <li>whiskey吧/小酒馆</li>
+                    <li>桌球俱乐部</li>
+                    <li>烧烤+KTV综合体</li>
+                </ul>
+            </div>
+        </div>
+
+        <h3 style="color:#C62828;margin-bottom:16px;">❌ 学生痛点吐槽（我们的机会）</h3>
+        <div class="two-col" style="margin-bottom:24px;">
+            <div>
+                <div class="review" style="border-left-color:#C62828;">
+                    "没地方去，只能去西安市区玩"
+                    <div class="source">学生普遍反馈 · 近半年</div>
+                </div>
+                <div class="review" style="border-left-color:#C62828;">
+                    "周边商铺9-10点就关门，下晚自习没地方逛"
+                    <div class="source">学生普遍反馈</div>
+                </div>
+                <div class="review" style="border-left-color:#C62828;">
+                    "女生爱拍照，但周边没颜值高的打卡点"
+                    <div class="source">陕服女生多 · 小红书</div>
+                </div>
+            </div>
+            <div>
+                <div class="review" style="border-left-color:#C62828;">
+                    "宿舍太挤，想找个地方坐着聊天约会"
+                    <div class="source">学生普遍反馈</div>
+                </div>
+                <div class="review" style="border-left-color:#C62828;">
+                    "缺台球、桌游、剧本杀这些娱乐"
+                    <div class="source">抖音学生评论</div>
+                </div>
+                <div class="review" style="border-left-color:#C62828;">
+                    "生活费低于1500过得很憋屈"
+                    <div class="source">抖音 @蜡笔大新 · 2月前</div>
+                </div>
+            </div>
+        </div>
+
+        <h3 style="color:#FF6B35;margin-bottom:16px;">💡 LOOP PARK 机会匹配</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>学生需求</th>
+                    <th>现状（没有）</th>
+                    <th>LOOP PARK 我们怎么做</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>晚上10点后没地方去</strong></td>
+                    <td>周边10点关门，吾悦10点电梯全关</td>
+                    <td>开到晚上12点，夜市+小酒馆+深夜食堂</td>
+                </tr>
+                <tr>
+                    <td><strong>没地方拍照打卡</strong></td>
+                    <td>周边都是普通饭馆，没颜值</td>
+                    <td>做高颜值街区、拍照打卡点、网红墙</td>
+                </tr>
+                <tr>
+                    <td><strong>没地方社交聊天</strong></td>
+                    <td>宿舍太挤，饭馆吃完就走</td>
+                    <td>咖啡馆、小酒馆、共享客厅、自习区</td>
+                </tr>
+                <tr>
+                    <td><strong>没地方玩娱乐</strong></td>
+                    <td>缺台球、桌游、剧本杀</td>
+                    <td>台球厅、桌游、剧本杀、电竞</td>
+                </tr>
+                <tr>
+                    <td><strong>不想跑西安</strong></td>
+                    <td>本地没地方玩，学生跑西安</td>
+                    <td>做咸阳学生自己的潮玩街区</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 公寓产品分析 单独章节 -->
+    <div class="section">
+        <h2>🏠 LOOP PARK 学生公寓产品分析</h2>
+        
+        <h3 style="color:#2E5D4E;margin-bottom:16px;">学生宿舍痛点对比</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>学校</th>
+                    <th>宿舍现状</th>
+                    <th>学生吐槽点</th>
+                    <th>我们的机会</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>陕国贸（1.4万）</strong></td>
+                    <td>6-8人间，北区南区宿舍，有搬宿舍问题</td>
+                    <td>"千万不要来这里啊啊啊"、"避雷"、搬宿舍折腾</td>
+                    <td>1500元/月双人间独立卫浴，比学校宿舍好太多，情侣/考研/想安静的学生刚需</td>
+                </tr>
+                <tr>
+                    <td><strong>陕服（1万，女生多）</strong></td>
+                    <td>女生多，宿舍条件一般，6人间</td>
+                    <td>女生对住宿环境要求高，太挤了</td>
+                    <td>38㎡双人间，空调独卫，女生最爱</td>
+                </tr>
+                <tr>
+                    <td><strong>镐京（8千）</strong></td>
+                    <td>相对好一点，但也是6-8人间</td>
+                    <td>想有私人空间、想安静学习考研</td>
+                    <td>24H自习+安静公寓，考研党首选</td>
+                </tr>
+                <tr>
+                    <td><strong>咸阳职院（8千）</strong></td>
+                    <td>大专宿舍条件一般</td>
+                    <td>实习期间想在校外住</td>
+                    <td>实习+考研+情侣，三类客群</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3 style="color:#2E5D4E;margin:24px 0 16px;">公寓目标用户画像（按优先级）</h3>
+        <div class="two-col">
+            <div>
+                <div class="review">
+                    <strong>P0 考研/考公党（最核心）</strong>
+                    <div style="margin-top:8px;font-size:13px;line-height:1.8;">
+                    · 人数：约8%学生，每校约600-1000人<br>
+                    · 痛点：宿舍太吵，学不进去<br>
+                    · 需求：安静、24H自习、独卫<br>
+                    · 付费意愿：<span class="tag tag-green">★★★★★</span><br>
+                    · 租期：长租（一学期起）
+                    </div>
+                </div>
+                <div class="review">
+                    <strong>P1 情侣约会</strong>
+                    <div style="margin-top:8px;font-size:13px;line-height:1.8;">
+                    · 人数：约15%学生有对象<br>
+                    · 痛点：宿舍不方便，酒店太贵<br>
+                    · 需求：私密性、干净、便宜<br>
+                    · 付费意愿：<span class="tag tag-green">★★★★</span><br>
+                    · 租期：短租/钟点房/日租
+                    </div>
+                </div>
+            </div>
+            <div>
+                <div class="review">
+                    <strong>P2 实习/兼职党</strong>
+                    <div style="margin-top:8px;font-size:13px;line-height:1.8;">
+                    · 人数：大三约20%在实习<br>
+                    · 痛点：宿舍关门早，赶不上<br>
+                    · 需求：离学校近、灵活<br>
+                    · 付费意愿：<span class="tag tag-orange">★★★</span><br>
+                    · 租期：灵活月付
+                    </div>
+                </div>
+                <div class="review">
+                    <strong>P3 家境好想享受</strong>
+                    <div style="margin-top:8px;font-size:13px;line-height:1.8;">
+                    · 人数：约5%学生<br>
+                    · 痛点：宿舍太挤，想有私人空间<br>
+                    · 需求：环境好、舒服<br>
+                    · 付费意愿：<span class="tag tag-green">★★★★</span><br>
+                    · 租期：整学期
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <h3 style="color:#FF6B35;margin:24px 0 16px;">公寓产品定价（已确定）</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>场景</th>
+                    <th>价格</th>
+                    <th>包含</th>
+                    <th>目标客群</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>学期中正价</strong></td>
+                    <td>1500元/月</td>
+                    <td>包水电网，每人100度电+3吨水</td>
+                    <td>P0考研党、P3享受型</td>
+                </tr>
+                <tr>
+                    <td><strong>开业优惠价</strong></td>
+                    <td>1200元/月</td>
+                    <td>前3个月，包水电网</td>
+                    <td>首批种子用户</td>
+                </tr>
+                <tr>
+                    <td><strong>寒暑假保管费</strong></td>
+                    <td>800元/月</td>
+                    <td>房间保留+开学前深度保洁</td>
+                    <td>P0考研党留校</td>
+                </tr>
+                <tr>
+                    <td><strong>日租/钟点房</strong></td>
+                    <td>80-120元/天</td>
+                    <td>独立卫浴、空调、WiFi</td>
+                    <td>P1情侣、探亲家长</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3 style="color:#2E5D4E;margin:24px 0 16px;">增值服务（已确定先上）</h3>
+        <div class="two-col">
+            <div>
+                <h4>🧹 保洁服务</h4>
+                <ul style="line-height:2;font-size:14px;">
+                    <li>钟点保洁：30元/次</li>
+                    <li>深度保洁：80元/次</li>
+                    <li>包月保洁：100元/月（每周1次）</li>
+                </ul>
+            </div>
+            <div>
+                <h4>💻 电脑租赁</h4>
+                <ul style="line-height:2;font-size:14px;">
+                    <li>基础办公本：100元/月</li>
+                    <li>游戏本：200元/月</li>
+                    <li>苹果MacBook：250元/月</li>
+                    <li>首批17台，总投入7.4万</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- KOL/KOC 达人资源库 -->
+    <div class="section">
+        <h2>🎤 四校周边KOL/KOC达人资源库（抖音+小红书）</h2>
+        
+        <h3 style="color:#2E5D4E;margin-bottom:16px;">🔥 头部达人（赞100+，优先合作）</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>博主名</th>
+                    <th>平台</th>
+                    <th>赞数</th>
+                    <th>覆盖学校</th>
+                    <th>内容方向</th>
+                    <th>合作建议</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>@万能学姐（26新生版）</strong></td>
+                    <td>抖音</td>
+                    <td>1089+589+158赞</td>
+                    <td>咸职</td>
+                    <td>咸职官方学姐，校园生活vlog</td>
+                    <td><span class="tag tag-orange">P0</span> 公寓探店+开学季宣发</td>
+                </tr>
+                <tr>
+                    <td><strong>@商贸小马学长（迎新版）</strong></td>
+                    <td>抖音</td>
+                    <td>349+168赞</td>
+                    <td>陕国贸</td>
+                    <td>食堂锐评，学生真实视角</td>
+                    <td><span class="tag tag-orange">P0</span> 反差营销+吐槽向探店</td>
+                </tr>
+                <tr>
+                    <td><strong>@你我山巅自相逢</strong></td>
+                    <td>抖音</td>
+                    <td>518+251+71赞</td>
+                    <td>陕服门口</td>
+                    <td>00后校门口摆摊vlog</td>
+                    <td><span class="tag tag-orange">P0</span> 市集招商+创业故事联动</td>
+                </tr>
+                <tr>
+                    <td><strong>@Bestme_0</strong></td>
+                    <td>小红书</td>
+                    <td>425赞/153评论</td>
+                    <td>陕国贸</td>
+                    <td>陕国贸深度吐槽帖</td>
+                    <td><span class="tag tag-orange">P0</span> 学生痛点共鸣+公寓种草</td>
+                </tr>
+                <tr>
+                    <td><strong>@馍饭夫妻</strong></td>
+                    <td>抖音</td>
+                    <td>153+80赞</td>
+                    <td>陕服/咸职/镐京</td>
+                    <td>夫妻摆摊，四校学生都来吃</td>
+                    <td><span class="tag tag-orange">P0</span> 直接请他们来市集摆摊+拍视频</td>
+                </tr>
+                <tr>
+                    <td><strong>@小粥</strong></td>
+                    <td>抖音</td>
+                    <td>340赞</td>
+                    <td>咸职</td>
+                    <td>咸职美食天堂种草</td>
+                    <td><span class="tag tag-green">P1</span> 餐饮探店合作</td>
+                </tr>
+                <tr>
+                    <td><strong>@A小冉学姐</strong></td>
+                    <td>抖音</td>
+                    <td>204赞</td>
+                    <td>咸职</td>
+                    <td>咸职食堂一镜到底</td>
+                    <td><span class="tag tag-green">P1</span> 学生公寓探店</td>
+                </tr>
+                <tr>
+                    <td><strong>@泡芙（镐京驾校）</strong></td>
+                    <td>抖音</td>
+                    <td>233赞</td>
+                    <td>镐京</td>
+                    <td>镐京本地号，学生关注多</td>
+                    <td><span class="tag tag-green">P1</span> 镐京学生触达</td>
+                </tr>
+                <tr>
+                    <td><strong>@酱小吖·卤味官方号</strong></td>
+                    <td>抖音</td>
+                    <td>200赞</td>
+                    <td>四校巡回</td>
+                    <td>高校巡回摆摊，卤味</td>
+                    <td><span class="tag tag-green">P1</span> 市集联动+招商</td>
+                </tr>
+                <tr>
+                    <td><strong>@亮龙水漆-陆增生</strong></td>
+                    <td>抖音</td>
+                    <td>116赞</td>
+                    <td>镐京</td>
+                    <td>镐京食堂测评</td>
+                    <td><span class="tag tag-green">P1</span> 镐京学生触达</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3 style="color:#2E5D4E;margin:24px 0 16px;">⭐ 中腰部达人（赞30-100，性价比高）</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>博主名</th>
+                    <th>平台</th>
+                    <th>赞数</th>
+                    <th>覆盖学校</th>
+                    <th>内容方向</th>
+                    <th>合作建议</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>@沫儿-ENFJ</strong></td>
+                    <td>小红书</td>
+                    <td>48赞/45评论</td>
+                    <td>陕服</td>
+                    <td>陕服鸡公煲探店，老食客</td>
+                    <td><span class="tag tag-green">P1</span> 美食探店+学生种草</td>
+                </tr>
+                <tr>
+                    <td><strong>@星星泡饭🌟</strong></td>
+                    <td>小红书</td>
+                    <td>44赞/35评论</td>
+                    <td>陕服</td>
+                    <td>陕服校内新店预告，学生蹲开业</td>
+                    <td><span class="tag tag-green">P1</span> 开业活动宣发</td>
+                </tr>
+                <tr>
+                    <td><strong>@商贸小玖学姐</strong></td>
+                    <td>小红书</td>
+                    <td>42赞</td>
+                    <td>陕国贸</td>
+                    <td>陕国贸新生答疑</td>
+                    <td><span class="tag tag-green">P1</span> 新生季公寓推广</td>
+                </tr>
+                <tr>
+                    <td><strong>@正义化身</strong></td>
+                    <td>小红书</td>
+                    <td>25赞</td>
+                    <td>陕服</td>
+                    <td>陕服食堂楼梯吐槽</td>
+                    <td><span class="tag tag-green">P1</span> 吐槽向反差营销</td>
+                </tr>
+                <tr>
+                    <td><strong>@小姚超超</strong></td>
+                    <td>抖音</td>
+                    <td>318赞</td>
+                    <td>咸阳本地</td>
+                    <td>咸阳美食探店</td>
+                    <td><span class="tag tag-green">P1</span> 餐饮推广</td>
+                </tr>
+                <tr>
+                    <td><strong>@本嘻今天去哪</strong></td>
+                    <td>抖音</td>
+                    <td>113赞</td>
+                    <td>陕服对面</td>
+                    <td>陕服对面大盘鸡探店</td>
+                    <td><span class="tag tag-green">P1</span> 学生向探店</td>
+                </tr>
+                <tr>
+                    <td><strong>@起个啥名呀</strong></td>
+                    <td>抖音</td>
+                    <td>99赞</td>
+                    <td>沣西本地</td>
+                    <td>沣西本地创业vlog</td>
+                    <td><span class="tag tag-green">P1</span> 本地生活联动</td>
+                </tr>
+                <tr>
+                    <td><strong>@篱落的轻餐官方号</strong></td>
+                    <td>抖音</td>
+                    <td>81+31+22赞</td>
+                    <td>四校</td>
+                    <td>四校轻食配送</td>
+                    <td><span class="tag tag-green">P1</span> 轻食品类招商合作</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3 style="color:#2E5D4E;margin:24px 0 16px;">🌱 尾部KOC（赞10-30，免费置换即可）</h3>
+        <div class="three-col">
+            <div class="need-card">
+                <h3>陕服KOC</h3>
+                <ul>
+                    <li>@阿楠学长（食堂篇）</li>
+                    <li>@那就等着沦陷吧</li>
+                    <li>@来啦直男（东北铁锅炖）</li>
+                    <li>@启真味（大学食堂探店）</li>
+                    <li>@婷子吃喝玩乐</li>
+                </ul>
+            </div>
+            <div class="need-card">
+                <h3>陕国贸KOC</h3>
+                <ul>
+                    <li>@超学长（食堂哪家强）</li>
+                    <li>@呕家之圣药（空调贵吐槽）</li>
+                    <li>@小溯（学长学姐避雷）</li>
+                    <li>@陕商院生活圈（官号）</li>
+                    <li>@商贸超学长（逛校园）</li>
+                </ul>
+            </div>
+            <div class="need-card">
+                <h3>镐京+咸职KOC</h3>
+                <ul>
+                    <li>@小知（陕科食记）</li>
+                    <li>@小茹学姐（镐京官号）</li>
+                    <li>@咸职小高学姐（咸职官号）</li>
+                    <li>@小橙学姐🍊（咸职宿舍）</li>
+                    <li>@小熊手工麻糍（四校摆摊）</li>
+                </ul>
+            </div>
+        </div>
+
+        <h3 style="color:#FF6B35;margin:24px 0 16px;">💡 合作策略：CPS分佣模式</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>达人层级</th>
+                    <th>数量</th>
+                    <th>合作方式</th>
+                    <th>预算/人</th>
+                    <th>预期效果</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>头部P0（10个）</strong></td>
+                    <td>10个</td>
+                    <td>深度合作+分佣+免费体验</td>
+                    <td>0元坑位费，到店转化分佣20%</td>
+                    <td>每条视频触达5000+学生</td>
+                </tr>
+                <tr>
+                    <td><strong>中腰部P1（8个）</strong></td>
+                    <td>8个</td>
+                    <td>免单置换+分佣</td>
+                    <td>一顿饭免单=0成本</td>
+                    <td>每条笔记触达1000+学生</td>
+                </tr>
+                <tr>
+                    <td><strong>尾部KOC（20+）</strong></td>
+                    <td>20+</td>
+                    <td>免费体验+打卡送小礼品</td>
+                    <td>成本<50元/人</td>
+                    <td>铺量种草，学生觉得身边人都在去</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 竞品：吾悦广场 -->
+    <div class="section">
+        <h2>🏬 竞品商圈：沣西吾悦广场分析</h2>
+        <div class="two-col">
+            <div>
+                <h3 style="color:#C62828;margin-bottom:12px;">吾悦的问题（我们的机会）</h3>
+                <ul style="line-height:2;font-size:14px;">
+                    <li>✖️ 人气越来越差，四五层餐饮几乎没食客</li>
+                    <li>✖️ 退租不退押金，新租户入场才退</li>
+                    <li>✖️ 美容店虚假宣传诱导消费</li>
+                    <li>✖️ 停车场绕死，晚上10点电梯全关</li>
+                    <li>✖️ 汉堡节太贵，不如肯德基</li>
+                    <li>✖️ 位置偏，学生不爱去</li>
+                </ul>
+            </div>
+            <div>
+                <h3 style="color:#2E5D4E;margin-bottom:12px;">我们怎么打</h3>
+                <ul style="line-height:2;font-size:14px;">
+                    <li>✅ 离学校更近（500m vs 吾悦2km）</li>
+                    <li>✅ 更懂学生（平价、夜市、体验型）</li>
+                    <li>✅ 开到更晚（12点 vs 10点关门）</li>
+                    <li>✅ 不坑学生（明码标价，无套路）</li>
+                    <li>✅ 做社交场景（能逛、能玩、能打卡）</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- 核心洞察 -->
+    <div class="insight">
+        <h2>🎯 LOOP PARK 核心机会洞察（V4升级版）</h2>
+        <ul>
+            <li><strong>学生最大痛点不是吃不好，是没地方玩、没地方住：</strong>四个学校食堂都不错，但宿舍都是6-8人间，学生对住宿环境抱怨很多，我们公寓是刚需中的刚需</li>
+            <li><strong>时间窗口巨大：</strong>周边商户9-10点就关门，吾悦10点电梯全关，学生下晚自习10点后完全没地方去，我们做到12点就是绝对优势</li>
+            <li><strong>学生在跑西安：</strong>本地没地方玩，学生周末跑西安市区，我们做咸阳学生自己的潮玩街区，把客流留下来</li>
+            <li><strong>吾悦在走下坡路：</strong>商户退租、差评一堆、没人气，我们正好接盘学生客流</li>
+            <li><strong>公寓用户很清晰：</strong>考研党是P0（最稳定、最愿意花钱），情侣是P1（客单价高），实习党是P2</li>
+            <li><strong>别跟食堂卷吃饭：</strong>镐京咸职食堂都很好，我们不做"比食堂好吃"，做"食堂没有的、新鲜的、好玩的、能住的"</li>
+        </ul>
+    </div>
+
+    <!-- 数据来源 -->
+    <div class="section">
+        <h2>📊 数据来源与信源</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>数据类型</th>
+                    <th>平台</th>
+                    <th>样本量</th>
+                    <th>采集时间</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>商户位置/距离/人均</td><td>高德地图</td><td>55家餐饮商户</td><td>2026-09-25</td></tr>
+                <tr><td>学生评论/讨论</td><td>抖音</td><td>50+条视频内容</td><td>2026-09-25</td></tr>
+                <tr><td>学生笔记/种草</td><td>小红书</td><td>30+条笔记</td><td>2026-09-25</td></tr>
+                <tr><td>学生评论深挖</td><td>小红书</td><td>6条笔记250+条评论</td><td>2026-09-25</td></tr>
+                <tr><td>商户差评/投诉</td><td>黑猫投诉/大众点评</td><td>10+条投诉</td><td>2026年累计</td></tr>
+                <tr><td>学生校外需求</td><td>抖音/小红书</td><td>20+条学生吐槽/种草</td><td>近半年</td></tr>
+                <tr><td>KOL/KOC达人资源</td><td>抖音+小红书</td><td>38个达人（18头部+中腰部+20+尾部KOC）</td><td>2026-09-25</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    // 饼图 - 55家品类分布
+    var pie = echarts.init(document.getElementById('pieChart'));
+    pie.setOption({
+        backgroundColor: '#f8f6f2',
+        color: ['#2E5D4E', '#FF6B35', '#4A8B72', '#7AB89F', '#FFB199'],
+        tooltip: { trigger: 'item' },
+        legend: { bottom: 0 },
+        series: [{
+            type: 'pie',
+            radius: ['40%', '70%'],
+            data: [
+                { value: 25, name: '快餐小吃' },
+                { value: 12, name: '火锅串串' },
+                { value: 10, name: '中餐面馆' },
+                { value: 4, name: '烤肉自助' },
+                { value: 4, name: '高端餐厅' }
+            ]
+        }]
+    });
+
+    // 柱状图 - 55家价格带
+    var bar = echarts.init(document.getElementById('barChart'));
+    bar.setOption({
+        backgroundColor: '#f8f6f2',
+        color: ['#2E5D4E'],
+        tooltip: { trigger: 'axis' },
+        xAxis: {
+            type: 'category',
+            data: ['10-20元', '20-40元', '40-60元', '60-100元', '100元+']
+        },
+        yAxis: { type: 'value' },
+        series: [{
+            type: 'bar',
+            data: [20, 20, 8, 5, 2],
+            itemStyle: { color: '#2E5D4E' },
+            label: { show: true, position: 'top' }
+        }]
+    });
+</script>
+</body>
+</html>
