@@ -98,4 +98,4 @@ flowchart TD
 
 ---
 
-*定稿端：LOOP-PARK-SOP（GitHub: loop-park-sop）；依据 CANON V2.18；定稿后回流登记 Xloop-KB REGISTRY。*
+*定稿端：LOOP-PARK-SOP（GitHub: loop-park-sop）；依据 CANON V2.18；定稿后回流登记 LoopPark-KB REGISTRY。*

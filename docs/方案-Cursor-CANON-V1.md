@@ -1,5 +1,5 @@
 > 🗄 **历史方案稿（2026-09-22 多 Agent 方案对比用），已定稿归档，不作现行规则。**
-> 现行规则一律以权威 `E:\Obsidian-Vaults\Xloop-KB\Loop-OS\CANON.md`（当前 **V2.7**）为准。
+> 现行规则一律以权威 `E:\Obsidian-Vaults\LoopPark-KB\Loop-OS\CANON.md`（当前 **V2.7**）为准。
 > 本文件仅保留作决策过程的留痕，请勿据此执行归档动作。
 
 # Cursor 方案 · CANON（指针统一，不搬家）
@@ -21,7 +21,7 @@
 
 现在不是缺知识库，是 **同一件事有五六个「正式版」**：
 
-- SOP 桌面仓、E 盘 `looppark`、XLOOP 文档仓、WorkBuddy、三份 Obsidian、Notion、飞书，各写各的
+- SOP 桌面仓、E 盘 `looppark`、LOOP PARK 文档仓、WorkBuddy、三份 Obsidian、Notion、飞书，各写各的
 - 文件号冲突：桌面 `35` 是 IP 内容，RAG `35` 是四方 SOP，Obsidian 又占成 `42`
 - 六个 Agent 各有本地工作区，升格没有门禁，后改的覆盖先改的
 - 已有《多端同步配置手册》规定「先改桌面再复制」，但没有多 Agent 边界

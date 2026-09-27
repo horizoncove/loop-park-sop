@@ -89,4 +89,4 @@
 
 ---
 
-*本 SOP 定稿端：LOOP-PARK-SOP（GitHub: loop-park-sop）；定稿后回流登记至 Xloop-KB Loop-OS REGISTRY。依据 CANON V2.18。*
+*本 SOP 定稿端：LOOP-PARK-SOP（GitHub: loop-park-sop）；定稿后回流登记至 LoopPark-KB Loop-OS REGISTRY。依据 CANON V2.18。*

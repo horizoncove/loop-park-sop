@@ -18,7 +18,7 @@
 
 | 层 | 唯一事实源 | 铁律 |
 |---|---|---|
-| **① 口径层** | `E:\Obsidian-Vaults\Xloop-KB\Loop-OS\CANON.md`（当前 V2.18） | 全员只认这一份，**禁止自带口径**；桌面与 `.kb-contract` 下同名文件均为指针 |
+| **① 口径层** | `E:\Obsidian-Vaults\LoopPark-KB\Loop-OS\CANON.md`（当前 V2.18） | 全员只认这一份，**禁止自带口径**；桌面与 `.kb-contract` 下同名文件均为指针 |
 | **② 流程层** | 桌面 `LOOP-PARK-SOP` 编号体系（当前至 59） | 干活只走已有 SOP；没有对应 SOP 才允许新建编号，**禁止另起炉灶平行体系** |
 | **③ 状态层** | `~\.kb-contract\` 三件套：`AGENT-TASKBOARD`（在干）/ `KB-LEDGER`（干完）/ `_conflicts\`（撞车） | append-only；先查后干；认领即登记 |
 
@@ -34,7 +34,7 @@
 2. **按 SOP 干活**：引用对应 SOP 编号干活；口径数字一律回 CANON 与真实数据源（数据铁律：绝不编造）。
 3. **干完记 LEDGER**：追加一行（时间/Agent/域/动作/内容/备注），并 `git commit`（规矩 9：防并发覆盖）。
 4. **先生验收**：向先生交付时给结论与文件路径，标注「依据 SOP-xx / CANON V2.18」。
-5. **冻结入库**：定稿级产出按 `xloop-kb-freeze` 流程登记 REGISTRY（SOP 类按规矩 8 在 SOP-DESK 区回流指针，不搬正文）。
+5. **冻结入库**：定稿级产出按 `looppark-kb-freeze` 流程登记 REGISTRY（SOP 类按规矩 8 在 SOP-DESK 区回流指针，不搬正文）。
 
 ## 4. 撞车处理
 
@@ -61,7 +61,7 @@
 | minimax（openclaw 壳） | `~\.openclaw\workspace\AGENTS.md` | ✅ 已铺 |
 | qclaw | `~\.qclaw\workspace\AGENTS.md` | ✅ 已铺 |
 | deepseek-harness | Electron 壳，**无规则文件注入位** | ⚠️ 无自动加载；开场第一条消息贴本 SOP §2-§3，或由先生在其系统提示中粘贴指针块 |
-| 豆包 | `D:\Doubao\CANON-ENTRY.md`（开场入口，9/22 已铺 CANON；参谋定位，草稿投 Xloop-KB\90-Inbox\doubao\） | ✅ 已铺（2026-09-26 先生查漏后补齐） |
+| 豆包 | `D:\Doubao\CANON-ENTRY.md`（开场入口，9/22 已铺 CANON；参谋定位，草稿投 LoopPark-KB\90-Inbox\doubao\） | ✅ 已铺（2026-09-26 先生查漏后补齐） |
 | workbuddy | 本工作区记忆 + 契约层 | ✅ 原生执行 |
 
 **新 Agent 上机流程**：找到其指令加载位 → 追加 §7 指针块 → 在本表登记一行 → LEDGER 记账。
@@ -73,7 +73,7 @@
 
 **开工前必查、认领即追加、完工再追加**：`C:\Users\Administrator\.kb-contract\AGENT-TASKBOARD.md`（append-only，禁止改他人历史行）。
 - **撞车** → 立即停手，产出投 `~\.kb-contract\_conflicts\`，由先生裁决
-- **口径** → 只认 CANON V2.18（`E:\Obsidian-Vaults\Xloop-KB\Loop-OS\CANON.md`），禁止自带口径
+- **口径** → 只认 CANON V2.18（`E:\Obsidian-Vaults\LoopPark-KB\Loop-OS\CANON.md`），禁止自带口径
 - **流程** → 干活只走 SOP 编号体系（桌面 `LOOP-PARK-SOP`）；内容/舆情方向必查 57/58/09/59，禁止另起炉灶
 - **完工** → 记 `~\.kb-contract\KB-LEDGER.md` + git commit
 - **人工只留三个决策位**：选题四选一 · B 级终审 · 橙/红舆情拍板，其余交给机制
