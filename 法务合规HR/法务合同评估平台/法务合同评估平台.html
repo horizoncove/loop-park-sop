@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LOOP PARK 法务合同评估平台</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232E5D4E'/%3E%3Ccircle cx='32' cy='34' r='16' fill='none' stroke='%23FF6B35' stroke-width='5'/%3E%3Cpath d='M20 46 L44 46' stroke='%23f8f6f2' stroke-width='5' stroke-linecap='round'/%3E%3C/svg%3E">
+<style>
+:root{
+  --lp-green:#2E5D4E; --lp-green-deep:#1f4236; --lp-orange:#FF6B35; --lp-cream:#f8f6f2;
+  --lp-red:#D94841; --lp-amber:#E8A33D; --lp-ink:#22301f; --lp-gray:#6b7a66; --lp-line:#e2ddd2;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'PingFang SC','Microsoft YaHei',system-ui,sans-serif;background:var(--lp-cream);color:var(--lp-ink);font-size:15px;line-height:1.6}
+.app{max-width:1280px;margin:0 auto;padding:0 20px 60px}
+/* ===== 顶栏 ===== */
+.topbar{display:flex;align-items:center;gap:26px;padding:16px 0 14px;border-bottom:1px solid var(--lp-line);flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:17px;color:var(--lp-green-deep)}
+.brand .logo{width:30px;height:30px;border-radius:8px;background:var(--lp-green);display:flex;align-items:center;justify-content:center;color:#fff}
+.nav{display:flex;gap:6px;flex-wrap:wrap}
+.nav button{border:none;background:transparent;padding:8px 16px;border-radius:999px;font-size:14px;color:var(--lp-gray);cursor:pointer;font-family:inherit}
+.nav button.on{background:var(--lp-green);color:#fff;font-weight:600}
+.top-meta{margin-left:auto;font-size:13px;color:var(--lp-gray);background:#fff;border:1px solid var(--lp-line);border-radius:999px;padding:6px 14px}
+/* ===== 通用 ===== */
+.view{display:none;padding-top:22px}
+.view.on{display:block}
+h2.sec{font-size:16px;color:var(--lp-green-deep);margin:26px 0 12px;padding-left:10px;border-left:4px solid var(--lp-orange)}
+.kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
+.kpi{background:#fff;border:1px solid var(--lp-line);border-radius:12px;padding:16px 18px}
+.kpi .t{font-size:13px;color:var(--lp-gray)}
+.kpi .v{font-size:26px;font-weight:700;color:var(--lp-green-deep);margin:4px 0 2px}
+.kpi .s{font-size:12px;color:var(--lp-gray)}
+.card{background:#fff;border:1px solid var(--lp-line);border-radius:12px;padding:18px 20px}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:860px){.grid-2{grid-template-columns:1fr}}
+.tag{display:inline-block;font-size:11.5px;padding:2px 8px;border-radius:999px;font-weight:600}
+.tag.red{background:#fbe4e2;color:var(--lp-red)}
+.tag.orange{background:#ffe8d9;color:#c25a1e}
+.tag.green{background:#e2efe8;color:var(--lp-green)}
+.tag.gray{background:#ece9e1;color:var(--lp-gray)}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th{background:#f2efe8;color:var(--lp-gray);font-weight:600;text-align:left;padding:9px 12px;border-bottom:1px solid var(--lp-line);white-space:nowrap}
+td{padding:9px 12px;border-bottom:1px solid var(--lp-line);vertical-align:top}
+tr:hover td{background:#faf8f3}
+.btn{border:1px solid var(--lp-green);background:var(--lp-green);color:#fff;padding:7px 16px;border-radius:8px;font-size:13.5px;cursor:pointer;font-family:inherit}
+.btn.ghost{background:#fff;color:var(--lp-green)}
+.btn.orange{background:var(--lp-orange);border-color:var(--lp-orange)}
+.btn.sm{padding:4px 10px;font-size:12.5px;border-radius:6px}
+/* ===== 总览 ===== */
+.bar-row{display:flex;align-items:center;gap:10px;font-size:13px;margin-bottom:8px}
+.bar-row .nm{width:120px;color:var(--lp-gray);flex-shrink:0}
+.bar-row .bar{flex:1;height:18px;background:#f2efe8;border-radius:9px;overflow:hidden}
+.bar-row .bar i{display:block;height:100%;border-radius:9px;background:var(--lp-green)}
+.bar-row .num{width:52px;text-align:right;color:var(--lp-ink);font-weight:600}
+.todo-item{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px dashed var(--lp-line);font-size:13.5px}
+.todo-item:last-child{border-bottom:none}
+.todo-item .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+/* ===== 合同库 ===== */
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.tabs button{border:1px solid var(--lp-line);background:#fff;padding:6px 13px;border-radius:999px;font-size:13px;color:var(--lp-gray);cursor:pointer;font-family:inherit}
+.tabs button.on{background:var(--lp-green);border-color:var(--lp-green);color:#fff;font-weight:600}
+.searchbox{display:flex;gap:8px;margin-bottom:14px}
+.searchbox input{flex:1;max-width:360px;border:1px solid var(--lp-line);border-radius:8px;padding:8px 12px;font-size:14px;font-family:inherit}
+.tpl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+.tpl{background:#fff;border:1px solid var(--lp-line);border-radius:10px;padding:13px 15px;cursor:pointer}
+.tpl:hover{border-color:var(--lp-green)}
+.tpl .nm{font-size:14px;font-weight:600;color:var(--lp-green-deep)}
+.tpl .desc{font-size:12.5px;color:var(--lp-gray);margin-top:3px}
+.tpl .meta{display:flex;justify-content:space-between;align-items:center;margin-top:8px}
+.form-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.form-row input,.form-row select{border:1px solid var(--lp-line);border-radius:8px;padding:7px 10px;font-size:13.5px;font-family:inherit}
+.form-row input.wide{flex:1;min-width:180px}
+/* ===== 风险评估 ===== */
+.risk-cat{border:1px solid var(--lp-line);border-radius:12px;background:#fff;margin-bottom:10px;overflow:hidden}
+.risk-cat .hd{display:flex;align-items:center;gap:10px;padding:13px 18px;cursor:pointer;font-size:14.5px;font-weight:600}
+.risk-cat .hd .arr{margin-left:auto;color:var(--lp-gray);transition:transform .2s}
+.risk-cat.open .hd .arr{transform:rotate(90deg)}
+.risk-cat .bd{display:none;padding:4px 18px 16px;border-top:1px dashed var(--lp-line)}
+.risk-cat.open .bd{display:block}
+.risk-cat .bd .sub{font-size:13px;color:var(--lp-gray);margin:10px 0 6px}
+.risk-cat .bd ul{margin:0 0 8px 18px;font-size:13.5px}
+.risk-cat .bd li{margin-bottom:4px}
+/* ===== 评估器 ===== */
+.assess-wrap{display:grid;grid-template-columns:1fr 340px;gap:16px;align-items:start}
+@media(max-width:960px){.assess-wrap{grid-template-columns:1fr}}
+.pick-type{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+.pick-type button{border:1px solid var(--lp-line);background:#fff;padding:7px 14px;border-radius:999px;font-size:13.5px;cursor:pointer;font-family:inherit;color:var(--lp-ink)}
+.pick-type button.on{background:var(--lp-green);border-color:var(--lp-green);color:#fff;font-weight:600}
+.ck{display:flex;align-items:flex-start;gap:10px;padding:11px 4px;border-bottom:1px dashed var(--lp-line)}
+.ck:last-child{border-bottom:none}
+.ck .q{flex:1;font-size:14px}
+.ck .q .w{font-size:11.5px;color:var(--lp-gray)}
+.ck .opts{display:flex;gap:6px;flex-shrink:0}
+.ck .opts button{border:1px solid var(--lp-line);background:#fff;padding:4px 10px;border-radius:999px;font-size:12.5px;cursor:pointer;font-family:inherit;color:var(--lp-gray)}
+.ck .opts button.on-ok{background:#e2efe8;border-color:var(--lp-green);color:var(--lp-green);font-weight:600}
+.ck .opts button.on-no{background:#fbe4e2;border-color:var(--lp-red);color:var(--lp-red);font-weight:600}
+.ck .opts button.on-unk{background:#f6eeda;border-color:var(--lp-amber);color:#a97a1a;font-weight:600}
+.result-panel{position:sticky;top:16px;background:#fff;border:1px solid var(--lp-line);border-radius:12px;padding:18px}
+.result-panel .lv{font-size:30px;font-weight:800;letter-spacing:1px}
+.result-panel .score{font-size:13px;color:var(--lp-gray);margin:6px 0 12px}
+.prog{height:10px;background:#f2efe8;border-radius:5px;overflow:hidden;margin-bottom:14px}
+.prog i{display:block;height:100%;border-radius:5px}
+.res-list{font-size:13.5px}
+.res-list .item{padding:8px 0;border-bottom:1px dashed var(--lp-line)}
+.res-list .item:last-child{border-bottom:none}
+/* ===== 档案联动 ===== */
+.map-table td:first-child{font-weight:600;color:var(--lp-green-deep);white-space:nowrap}
+.map-table td a{color:var(--lp-orange);text-decoration:none}
+.map-table td a:hover{text-decoration:underline}
+.foot{margin-top:34px;padding-top:14px;border-top:1px solid var(--lp-line);font-size:12.5px;color:var(--lp-gray);text-align:center}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="topbar">
+    <div class="brand"><span class="logo"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"><path d="M9 12l2 2 4-4"/><path d="M12 3a9 9 0 100 18 9 9 0 000-18z"/></svg></span>LOOP PARK 法务合同评估平台</div>
+    <div class="nav">
+      <button class="on" data-view="overview">总览</button>
+      <button data-view="library">合同库</button>
+      <button data-view="risks">风险评估</button>
+      <button data-view="assessor">合同评估器</button>
+      <button data-view="maps">档案联动</button>
+    </div>
+    <div class="top-meta">运营主体：陕西中芯华影科技有限公司</div>
+  </div>
+
+  <!-- ===== 视图：总览 ===== -->
+  <div class="view on" id="view-overview">
+    <div class="kpi-row">
+      <div class="kpi"><div class="t">合同模板库</div><div class="v">40</div><div class="s">份可复用模板，覆盖 9 类业务</div></div>
+      <div class="kpi"><div class="t">在签合同</div><div class="v" id="ov-contract-n">0</div><div class="s">台账登记中（本地保存）</div></div>
+      <div class="kpi"><div class="t">待评估</div><div class="v" id="ov-assess-n">0</div><div class="s">建议每份合同签约前评估</div></div>
+      <div class="kpi"><div class="t">高风险合同</div><div class="v" id="ov-high-n">0</div><div class="s" id="ov-high-s">尚无评估记录</div></div>
+    </div>
+    <h2 class="sec">合同模板分布（40 份）</h2>
+    <div class="card" id="ov-tpl-bars"></div>
+    <div class="grid-2" style="margin-top:14px">
+      <div class="card">
+        <div style="font-size:14.5px;font-weight:600;color:var(--lp-green-deep);margin-bottom:6px">法务合规近期待办</div>
+        <div class="todo-item"><span class="dot" style="background:var(--lp-red)"></span>商标注册启动（35/41/43/25 类）<span class="tag red">本月</span></div>
+        <div class="todo-item"><span class="dot" style="background:var(--lp-orange)"></span>《职业打假应对手册》补充<span class="tag orange">P1</span></div>
+        <div class="todo-item"><span class="dot" style="background:var(--lp-orange)"></span>《履约方式对照表》防用工认定<span class="tag orange">P1</span></div>
+        <div class="todo-item"><span class="dot" style="background:var(--lp-green)"></span>预付卡备案核查<span class="tag green">P2</span></div>
+        <div class="todo-item"><span class="dot" style="background:var(--lp-green)"></span>背景音乐版权（音集协）签约<span class="tag green">P2</span></div>
+      </div>
+      <div class="card">
+        <div style="font-size:14.5px;font-weight:600;color:var(--lp-green-deep);margin-bottom:8px">评估机制说明</div>
+        <div style="font-size:13.5px;color:var(--lp-gray);line-height:1.9">
+          每份合同按类型匹配风险检查项 → 逐项核查（符合 / 不符合 / 不确定）→ 加权计分 → 输出 <span class="tag red">红</span>（禁止签署或法务介入）<span class="tag orange">橙</span>（整改后签署）<span class="tag green">绿</span>（可签署）三级结论，并自动关联对应 SOP 与档案。
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 视图：合同库 ===== -->
+  <div class="view" id="view-library">
+    <h2 class="sec" style="margin-top:0">在签合同台账</h2>
+    <div class="card">
+      <div class="form-row">
+        <input class="wide" id="c-name" placeholder="合同名称，如：商户入驻合作协议-茶饮A店">
+        <select id="c-type"><option value="">合同类型</option></select>
+        <input id="c-party" placeholder="相对方">
+        <input id="c-amt" placeholder="金额(万)" style="width:110px">
+        <button class="btn" id="c-add">登记入台账</button>
+      </div>
+      <table>
+        <thead><tr><th>合同名称</th><th>类型</th><th>相对方</th><th>金额(万)</th><th>登记时间</th><th>状态</th><th>操作</th></tr></thead>
+        <tbody id="c-table"></tbody>
+      </table>
+    </div>
+    <h2 class="sec">模板库（40 份）</h2>
+    <div class="searchbox"><input id="tpl-q" placeholder="搜索模板，如：劳动合同 / 租赁 / KOL"></div>
+    <div class="tabs" id="tpl-tabs"></div>
+    <div class="tpl-grid" id="tpl-grid"></div>
+  </div>
+
+  <!-- ===== 视图：风险评估 ===== -->
+  <div class="view" id="view-risks">
+    <h2 class="sec" style="margin-top:0">十一类法律风险 · 防控检查项（评估机制总览）</h2>
+    <div id="risk-cats"></div>
+  </div>
+
+  <!-- ===== 视图：合同评估器 ===== -->
+  <div class="view" id="view-assessor">
+    <h2 class="sec" style="margin-top:0">合同风险评估</h2>
+    <div class="card" style="margin-bottom:14px">
+      <div style="font-size:14px;font-weight:600;color:var(--lp-green-deep);margin-bottom:10px">① 选择合同类型</div>
+      <div class="pick-type" id="assess-types"></div>
+    </div>
+    <div class="assess-wrap">
+      <div class="card">
+        <div style="font-size:14px;font-weight:600;color:var(--lp-green-deep);margin-bottom:4px">② 逐项核查风险点</div>
+        <div style="font-size:12.5px;color:var(--lp-gray);margin-bottom:10px">如实选择每项实际状态；「不确定」计半权风险分。</div>
+        <div id="assess-items"></div>
+        <div style="text-align:right;margin-top:12px"><button class="btn orange" id="assess-reset">重置本次评估</button></div>
+      </div>
+      <div class="result-panel">
+        <div style="font-size:13px;color:var(--lp-gray)">评估结论</div>
+        <div class="lv" id="res-level">—</div>
+        <div class="score" id="res-score">尚未评估</div>
+        <div class="prog"><i id="res-prog" style="width:0%;background:var(--lp-gray)"></i></div>
+        <div class="res-list" id="res-list"><div class="item" style="color:var(--lp-gray)">选择合同类型并核查后，这里将输出风险等级、命中项与处置建议。</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 视图：档案联动 ===== -->
+  <div class="view" id="view-maps">
+    <h2 class="sec" style="margin-top:0">风险 × 合同 × SOP × 档案 联动索引</h2>
+    <div class="card">
+      <table class="map-table">
+        <thead><tr><th style="width:130px">风险域</th><th>关联合同类型</th><th>对应 SOP 细则</th><th>档案库位置</th></tr></thead>
+        <tbody id="map-table"></tbody>
+      </table>
+    </div>
+    <h2 class="sec">评估流程</h2>
+    <div class="card" style="font-size:13.5px;line-height:2">
+      ① 业务发起 → ② 选合同类型 → ③ 逐项核查 → ④ 自动评分定级 → ⑤ <span class="tag red">红</span>：法务介入，禁止签署 / <span class="tag orange">橙</span>：出具整改意见，整改后签署 / <span class="tag green">绿</span>：可签署 → ⑥ 已签合同登记台账，到期/履行中持续跟进。
+    </div>
+  </div>
+
+  <div class="foot">LOOP PARK 法务合同评估平台 · 本地运行，台账数据保存在浏览器 · 评估结论供内部决策参考，重大合同建议同步咨询执业律师</div>
+</div>
+
+<script>
+/* ============ 模板库数据（40份，按8类） ============ */
+const TPL_GROUPS=[
+ {g:'01-合同模板库',items:[
+  ['01','标准劳动合同模板','固定期限全日制员工'],
+  ['02','非全日制用工协议模板','兼职/小时工'],
+  ['03','实习协议模板','在校大学生'],
+  ['04','校内合伙人合作协议模板','个体户/合作关系'],
+  ['05','KOL达人合作协议模板','造星计划'],
+  ['30','保密协议模板','涉密岗位/合伙人'],
+  ['31','竞业限制协议模板','高管/核心运营'],
+  ['26','员工入职登记表模板','入职信息采集'],
+  ['27','员工离职交接清单模板','离职流程']]},
+ {g:'02-合同审查与用印',items:[
+  ['06','商铺租赁合同审查清单','与业主/商户'],
+  ['07','采购合同审查清单','宝藏星球供应链'],
+  ['08','标准用印申请单模板','用印留痕'],
+  ['09','合同审批流程SOP','含流程图'],
+  ['10','法律意见书模板','对外意见']]},
+ {g:'03-合规自查与证照',items:[
+  ['11','自营业态合规自查清单','7个业态分表'],
+  ['12','宝藏星球零售合规自查清单','零售/食安'],
+  ['13','活动市集合规自查清单','含报批流程'],
+  ['14','证照办理清单与时间表','按业态'],
+  ['15','大型活动安全许可报批SOP','1000人门槛'],
+  ['16','广告宣传合规审查清单','含极限词库']]},
+ {g:'04-安全与应急',items:[
+  ['17','数据安全与隐私保护SOP','含小程序'],
+  ['18','食品安全管理SOP','含临期/退换货'],
+  ['19','消防安全管理SOP','公众聚集场所'],
+  ['20','突发事件应急预案汇编','消防/食品/群体/舆情']]},
+ {g:'05-HR制度与员工关系',items:[
+  ['21','员工手册V1.0','完整版'],
+  ['22','考勤管理制度','排班/打卡'],
+  ['23','薪酬管理制度','含带宽表'],
+  ['24','绩效考核管理制度','含表格'],
+  ['25','各岗位招聘JD模板集','八将+店长+店员'],
+  ['28','试用期考核表模板','转正评估'],
+  ['29','新员工培训体系SOP','入职培训'],
+  ['32','员工奖惩管理制度','奖罚细则'],
+  ['33','社保公积金操作SOP','开户/增减员'],
+  ['34','灵活用工风险防控手册','兼职/合伙人'],
+  ['35','劳动争议处理SOP','仲裁应对']]},
+ {g:'06-供应商与知识产权',items:[
+  ['36','供应商合规准入清单','三证/质检'],
+  ['37','知识产权管理SOP','IP形象/商标/著作权']]},
+ {g:'07-报告与月报',items:[
+  ['38','反舞弊与举报制度','举报渠道'],
+  ['39','法律合规月报模板','月度报告'],
+  ['40','人力资源月报模板','月度报告']]},
+ {g:'P0/P1 新签文件',items:[
+  ['P0','公司主体设立操作清单','运营主体设立'],
+  ['P0','商业房屋租赁合同-母合同','与业主方'],
+  ['P0','小程序用户服务协议与隐私政策','C端上线前'],
+  ['P1','商户入驻合作协议','招商签约用'],
+  ['P1','街区物业管理服务协议','物业管理'],
+  ['P1','食品经营许可证办理指南','餐饮业态前置']]}
+];
+/* ============ 风险评估机制（9类合同 × 检查项） ============ */
+const RISK_TYPES=[
+ {id:'labor',name:'劳动合同',sop:'01/21/22/23',items:[
+  {q:'用工主体是否为陕西中芯华影科技有限公司（与盖章主体一致）',w:2,note:'主体错配=合同无效风险',sop:'01'},
+  {q:'必备条款齐全：合同期限、工作内容、工作地点、报酬、社保约定',w:2,note:'缺必备条款=可主张双倍工资差额',sop:'01'},
+  {q:'试用期期限合法（≤6个月且与合同期限匹配，不重复约定）',w:1,note:'违法约定试用期=赔偿',sop:'01'},
+  {q:'报酬不低于当地最低工资，且约定明确（构成/发放日/银行卡）',w:2,note:'劳动监察高频投诉点',sop:'23'},
+  {q:'双方签字盖章+签署日期齐全，员工已收执一份',w:2,note:'未签书面合同=双倍工资',sop:'01'},
+  {q:'保密/竞业条款按需约定（核心岗位）',w:1,note:'涉密岗位必备',sop:'30/31'},
+  {q:'是否同时存在考勤打卡/工牌工服等强管理事实（避免与非全日制混淆）',w:2,note:'名义劳动合同≠劳动关系唯一依据',sop:'34'}]},
+ {id:'part',name:'非全日制/兼职',sop:'02/34',items:[
+  {q:'平均每日工作≤4小时、每周累计≤24小时',w:2,note:'超时=被认定全日制',sop:'02'},
+  {q:'报酬结算周期≤15日（不得按月发）',w:1,note:'按月发=全日制特征',sop:'02'},
+  {q:'未约定试用期',w:2,note:'非全日制禁止约定试用期',sop:'02'},
+  {q:'协议明确用工性质为非全日制，双方签字齐全',w:2,note:'书面留痕',sop:'02'},
+  {q:'已评估工伤保险/意外险覆盖（无强制社保）',w:1,note:'工伤风险自担',sop:'34'}]},
+ {id:'intern',name:'实习协议',sop:'03',items:[
+  {q:'已核验在校生身份（学生证/学信网截图留存）',w:2,note:'非在校生=劳动关系',sop:'03'},
+  {q:'协议明确为实习/实践性质，非劳动关系',w:2,note:'避免事实劳动关系',sop:'03'},
+  {q:'实习场所安全评估+意外保险覆盖',w:2,note:'学生人身损害高发',sop:'03'},
+  {q:'报酬按劳务报酬结算，无考勤强制',w:1,note:'管理痕迹弱化',sop:'34'}]},
+ {id:'partner',name:'校内合伙人',sop:'04/34',items:[
+  {q:'协议明确为合作关系（个体户/团队），非雇佣',w:2,note:'核心条款',sop:'04'},
+  {q:'无排班/考勤/统一着装等强管理事实',w:2,note:'强管理=劳动关系',sop:'34'},
+  {q:'报酬与成果/业绩挂钩，非固定月薪',w:2,note:'固定月薪=劳动关系特征',sop:'04'},
+  {q:'双方主体信息真实完整（学生需核验身份）',w:1,note:'签约主体',sop:'04'},
+  {q:'账号/货品/资源归属已明确（避免离职带走资源）',w:1,note:'资产保护',sop:'04'}]},
+ {id:'kol',name:'KOL达人',sop:'05/16/37',items:[
+  {q:'账号归属约定明确（公司运营号 vs 达人个人号）',w:2,note:'账号是核心资产',sop:'05/37'},
+  {q:'内容审核权归公司（避免达人失控）',w:1,note:'内容合规',sop:'16'},
+  {q:'分成/结算模式清晰（按效果，非固定工资）',w:2,note:'固定工资=劳动关系',sop:'05'},
+  {q:'无考勤/坐班/工牌等雇佣管理痕迹',w:2,note:'劳动关系认定红线',sop:'34'},
+  {q:'肖像权/名誉权授权范围明确',w:1,note:'代言合规',sop:'16'},
+  {q:'违约与排他条款（跳单/私接商务）',w:1,note:'MCN常见纠纷',sop:'05'},
+  {q:'内容广告标识（广告法：达人推广须显著标明"广告"）',w:1,note:'虚假宣传连带',sop:'16'}]},
+ {id:'shoplease',name:'商铺租赁(我方出租/商户)',sop:'06/13',items:[
+  {q:'我方对物业有合法出租权（母合同允许转租/分租）',w:2,note:'无转租权=合同无效',sop:'06'},
+  {q:'租金/保证金/递增机制明确，押金退还条件清晰',w:1,note:'商户纠纷高发点',sop:'06'},
+  {q:'装修审批与复原义务约定',w:1,note:'装修损坏责任',sop:'06'},
+  {q:'消防/安全责任划分清楚（商户自担 vs 我方统一管理）',w:2,note:'事故责任边界',sop:'19'},
+  {q:'业态限制与品牌使用约定（LOOP PARK 品牌授权）',w:1,note:'品牌一致性',sop:'06'},
+  {q:'逾期欠租/违约腾退机制与违约金',w:2,note:'商户跑路风险',sop:'06'}]},
+ {id:'procure',name:'采购合同(供应链)',sop:'07/12/36',items:[
+  {q:'供应商资质三件套齐全（营业执照/食品经营许可/质检报告）',w:2,note:'进货硬门槛',sop:'36'},
+  {q:'质量标准与验收条款明确（抽检/退换货）',w:2,note:'批次质量问题',sop:'07'},
+  {q:'知识产权担保条款（供应商保证不侵权，防仿品）',w:2,note:'售假=连带责任',sop:'12'},
+  {q:'账期与付款节点清晰（验收后付款）',w:1,note:'货款纠纷',sop:'07'},
+  {q:'临期/滞销商品退换机制',w:1,note:'库存风险',sop:'18'},
+  {q:'违约与质量赔偿条款',w:1,note:'追责依据',sop:'07'}]},
+ {id:'landlease',name:'租赁(我方承租业主)',sop:'P0母合同/06',items:[
+  {q:'业主产权核实（不动产权证书/授权链完整）',w:2,note:'二房东链条需逐级授权',sop:'P0'},
+  {q:'免租期/装修期/租金递增机制明确',w:1,note:'成本测算基础',sop:'P0'},
+  {q:'转租/分租权限约定（商户入驻的前提）',w:2,note:'影响下游招商合法性',sop:'P0'},
+  {q:'违约/提前解约条款与装修补偿',w:2,note:'装修沉没成本',sop:'P0'},
+  {q:'物业/水电/消防责任边界',w:1,note:'日常运营',sop:'19'},
+  {q:'续租/优先承租权约定',w:1,note:'经营连续性',sop:'06'}]},
+ {id:'service',name:'物业/服务合同',sop:'P1物业协议',items:[
+  {q:'服务范围与质量标准明确（保洁/安保/维修）',w:1,note:'履约争议',sop:'P1'},
+  {q:'费用与调价机制清晰',w:1,note:'成本控制',sop:'P1'},
+  {q:'人身/财产损害责任边界与保险覆盖',w:2,note:'事故追责',sop:'20'},
+  {q:'KPI/考核与费用支付挂钩',w:1,note:'服务监督',sop:'P1'}]}
+];
+/* ============ 十一类风险总览（评估机制） ============ */
+const RISK_CATS=[
+ {lv:'red',name:'① 用工关系认定',scene:'KOL/合伙人/小时工名义合作、实际接受管理',conseq:'双倍工资+补缴社保+经济补偿+工伤',items:['协议类型与实际管理方式一致（无排班考勤/无工牌工服）','报酬按成果结算，非固定月薪','非全日制工时≤4h/日、24h/周，报酬≤15日结','大学生身份核验与实习性质条款','每类用工配《履约方式对照表》留痕'],sop:'02/03/04/05/34'},
+ {lv:'red',name:'② 食品安全',scene:'自营餐饮/市集摊位/宝藏星球食品类/临期商品',conseq:'十倍赔偿+行政处罚+职业打假批量索赔',items:['食品经营许可证在有效期内且按许可范围经营','供应商三证齐全+每批次质检报告留存','临期商品提前30天下架，专区明示','退换货流程与台账记录完整','从业人员健康证齐全'],sop:'12/18/36'},
+ {lv:'red',name:'③ 未成年人保护',scene:'小酒馆售酒/台球厅/电竞赛/内容触达未成年',conseq:'罚款+停业整顿+舆情爆点',items:['售酒点查验年龄（明显未成年拒绝销售）','娱乐场所营业时间与未成年人进入限制','KOL/广告内容不针对未成年宣传酒类','收银系统年龄提示标识'],sop:'11/16'},
+ {lv:'orange',name:'④ 合同违约',scene:'业主母租赁/商户入驻/供应商账期/装修工期',conseq:'违约赔偿+保证金纠纷+转租无效',items:['转租权限链条完整（母合同→商户）','违约金与解约条款可执行','履约保证金与退还条件明确','重大合同双签+法务复核'],sop:'06/07/P0'},
+ {lv:'orange',name:'⑤ 消防与活动安全',scene:'开业检查/1000人活动报批/球赛/电竞赛',conseq:'停业+责令整改+人身赔偿+刑责',items:['公众聚集场所开业前消防安全检查通过','≥1000人活动办理安全许可','应急预案+疏散演练（每季度）','活动现场医疗点与保险'],sop:'15/19/20'},
+ {lv:'orange',name:'⑥ 消费纠纷',scene:'会员卡/充值卡/虚假原价/线上七天无理由',conseq:'退一赔三+预付卡违规+12315处罚',items:['单用途预付卡备案（若发卡）','促销原价真实可溯源','小程序线上销售履行七天无理由','投诉处理48小时响应机制'],sop:'13/16'},
+ {lv:'orange',name:'⑦ 广告合规',scene:'KOL带货/市集海报/公众号推文',conseq:'20-100万罚款+虚假宣传连带',items:['极限词库逐条过检（最/第一/顶级）','达人推广标注"广告"','代言人身份核实（非未成年人）','宣传物料法务抽检'],sop:'16/05'},
+ {lv:'orange',name:'⑧ 税务与开票',scene:'灵活用工劳务报酬/多主体开票',conseq:'补税+滞纳金+罚款',items:['劳务报酬个税代扣代缴','灵活用工平台协议与完税凭证','商户/自营开票主体一致','每月核对申报记录'],sop:'33/34'},
+ {lv:'green',name:'⑨ 知识产权',scene:'萝卜公园商标/萝卜家族IP/活动名称/背景音乐',conseq:'商标被抢注+IP仿冒+音集协追缴',items:['核心类别商标注册（35/41/43/25类）','IP形象著作权登记','背景音乐版权授权（音集协）','对外授权模板统一'],sop:'37'},
+ {lv:'green',name:'⑩ 数据隐私',scene:'小程序用户信息/会员人脸/公共监控/达人粉丝数据',conseq:'个保法最高5000万或营业额5%罚款',items:['隐私政策与用户协议已上线','人脸识别单独同意+告知','监控区域标识与存储期限','达人个人信息处理授权'],sop:'17/P0'},
+ {lv:'green',name:'⑪ 舆情与群体事件',scene:'市集踩踏/顾客冲突/抖音差评/商户跑路曝光',conseq:'声誉损失+监管介入+群体索赔',items:['舆情响应SOP（2小时响应）','现场冲突处置流程','媒体统一口径发言人','事件复盘→风险库沉淀'],sop:'20/39'}
+];
+/* ============ 档案联动映射 ============ */
+const MAPS=[
+ ['用工关系认定','劳动合同/非全日制/实习/合伙人/KOL','01/02/03/04/05/30/31/34','05-HR制度与员工关系'],
+ ['食品安全','采购/商户入驻/市集摊位','07/12/18/36','03-合规自查与证照 / 06-供应商'],
+ ['未成年人保护','自营业态/活动','11/13/16','03-合规自查与证照'],
+ ['合同违约','母租赁/商铺租赁/采购/物业','06/07/08/09/P0','01-合同模板库 / 02-审查与用印'],
+ ['消防与活动安全','大型活动/市集/赛事','15/19/20','04-安全与应急'],
+ ['消费纠纷','自营业态/小程序','11/13/16/18','03-合规自查与证照'],
+ ['广告合规','KOL/宣传物料','16/05','03-合规自查与证照'],
+ ['税务与开票','灵活用工','33/34','05-HR制度与员工关系'],
+ ['知识产权','IP形象/品牌/音乐','37','06-供应商与知识产权'],
+ ['数据隐私','小程序/会员系统','17/P0','04-安全与应急'],
+ ['舆情与群体事件','活动/客诉/社媒','20/39','04-安全与应急 / 07-报告与月报']
+];
+/* ============ 状态 ============ */
+let contracts=JSON.parse(localStorage.getItem('lp-contracts')||'[]');
+let curType=null, ckState={};
+/* ============ 渲染 ============ */
+const $=s=>document.querySelector(s);
+function fmtDate(d){const x=new Date(d);return x.getMonth()+1+'/'+x.getDate()}
+function view(id){
+ document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('on',b.dataset.view===id));
+ document.querySelectorAll('.view').forEach(v=>v.classList.toggle('on',v.id==='view-'+id));
+ window.scrollTo(0,0);
+}
+document.querySelectorAll('.nav button').forEach(b=>b.onclick=()=>view(b.dataset.view));
+/* 总览 */
+function renderOverview(){
+ const tplCount={};
+ TPL_GROUPS.forEach(g=>g.items.forEach(i=>{const k=i[2];tplCount[k]=tplCount[k]||0;tplCount[k]++}));
+ $('#ov-tpl-bars').innerHTML=Object.entries(tplCount).map(([k,v])=>
+  '<div class="bar-row"><span class="nm">'+k+'</span><div class="bar"><i style="width:'+(v/9*100)+'%"></i></div><span class="num">'+v+'</span></div>').join('');
+ $('#ov-contract-n').textContent=contracts.length;
+ const hi=contracts.filter(c=>c.level==='red').length;
+ $('#ov-assess-n').textContent=contracts.filter(c=>!c.level).length;
+ $('#ov-high-n').textContent=hi;
+ $('#ov-high-s').textContent=hi>0?'发现高风险，立即法务介入':'尚无评估记录';
+}
+/* 合同库 */
+function renderTplTabs(){
+ $('#tpl-tabs').innerHTML='<button class="on" data-g="all">全部</button>'+TPL_GROUPS.map((g,i)=>'<button data-g="'+i+'">'+g.g+'</button>').join('');
+ $('#tpl-tabs').querySelectorAll('button').forEach(b=>b.onclick=()=>{
+  $('#tpl-tabs').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));
+  renderTplGrid(b.dataset.g);
+ });
+}
+function renderTplGrid(g){
+ const q=($('#tpl-q').value||'').trim();
+ const list=[];
+ TPL_GROUPS.forEach((gr,gi)=>{if(g!=='all'&&String(g)!==String(gi))return;gr.items.forEach(it=>{
+  const name=it[1],desc=it[2];
+  if(q&&!(name.includes(q)||desc.includes(q)))return;
+  list.push('<div class="tpl"><div class="nm">'+name+'</div><div class="desc">'+desc+'</div><div class="meta"><span class="tag gray">'+gr.g.replace('01-','').replace('02-','').replace('03-','').replace('04-','').replace('05-','').replace('06-','').replace('07-','').replace('P0/','')+'</span><span style="font-size:12px;color:var(--lp-orange)">'+it[0]+'</span></div></div>');
+ });});
+ $('#tpl-grid').innerHTML=list.join('')||'<div style="color:var(--lp-gray);font-size:13.5px">未找到匹配模板</div>';
+}
+$('#tpl-q').addEventListener('input',()=>renderTplGrid('all'));
+function renderCTypeSel(){
+ const opts='<option value="">合同类型</option>'+RISK_TYPES.map(t=>'<option value="'+t.id+'">'+t.name+'</option>').join('');
+ $('#c-type').innerHTML=opts;
+}
+function renderContractTable(){
+ $('#c-table').innerHTML=contracts.map((c,i)=>{
+  const lv=c.level?('<span class="tag '+(c.level==='red'?'red':c.level==='orange'?'orange':'green')+'">'+(c.level==='red'?'高风险':c.level==='orange'?'中风险':'低风险')+'</span>'):'<span class="tag gray">待评估</span>';
+  return '<tr><td>'+c.name+'</td><td>'+c.type+'</td><td>'+c.party+'</td><td>'+(c.amt||'-')+'</td><td>'+fmtDate(c.dt)+'</td><td>'+lv+'</td><td><button class="btn ghost sm" data-del="'+i+'">删除</button></td></tr>';
+ }).join('')||'<tr><td colspan="7" style="color:var(--lp-gray);text-align:center">暂无登记合同，上方登记第一份</td></tr>';
+ $('#c-table').querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{contracts.splice(+b.dataset.del,1);saveContracts()});
+}
+$('#c-add').onclick=()=>{
+ const name=$('#c-name').value.trim(),type=$('#c-type').value,party=$('#c-party').value.trim(),amt=$('#c-amt').value.trim();
+ if(!name||!type){alert('请填写合同名称并选择类型');return}
+ contracts.unshift({name,type:RISK_TYPES.find(t=>t.id===type)?.name||type,party,amt,dt:Date.now(),level:null});
+ $('#c-name').value='';$('#c-party').value='';$('#c-amt').value='';
+ saveContracts();
+};
+function saveContracts(){localStorage.setItem('lp-contracts',JSON.stringify(contracts));renderContractTable();renderOverview()}
+/* 风险评估总览 */
+function renderRiskCats(){
+ $('#risk-cats').innerHTML=RISK_CATS.map(c=>{
+  const cls=c.lv==='red'?'red':c.lv==='orange'?'orange':'green';
+  const nm=c.lv==='red'?'高风险域':c.lv==='orange'?'中风险域':'低风险域';
+  return '<div class="risk-cat"><div class="hd"><span class="tag '+cls+'">'+nm+'</span><span>'+c.name+'</span><span style="font-size:12px;color:var(--lp-gray);font-weight:400">'+c.scene+'</span><span class="arr">▶</span></div><div class="bd">'+
+   '<div class="sub">主要后果：<b style="color:var(--lp-ink)">'+c.conseq+'</b></div>'+
+   '<div class="sub">防控检查项：</div><ul>'+c.items.map(i=>'<li>'+i+'</li>').join('')+'</ul>'+
+   '<div class="sub">关联 SOP：<span class="tag gray">'+c.sop+'</span></div></div></div>';
+ }).join('');
+ $('#risk-cats').querySelectorAll('.risk-cat').forEach(el=>el.querySelector('.hd').onclick=()=>el.classList.toggle('open'));
+}
+/* 评估器 */
+function renderAssessTypes(){
+ $('#assess-types').innerHTML=RISK_TYPES.map((t,i)=>'<button data-i="'+i+'">'+t.name+'</button>').join('');
+ $('#assess-types').querySelectorAll('button').forEach(b=>b.onclick=()=>{
+  $('#assess-types').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));
+  curType=RISK_TYPES[+b.dataset.i]; ckState={};
+  renderAssessItems(); calcResult();
+ });
+}
+function renderAssessItems(){
+ if(!curType){$('#assess-items').innerHTML='<div style="color:var(--lp-gray);font-size:13.5px">请先选择合同类型</div>';return}
+ $('#assess-items').innerHTML=curType.items.map((it,i)=>{
+  const st=ckState[i]||'';
+  const btns=[['ok','符合'],['no','不符合'],['unk','不确定']].map(([k,txt])=>{
+   const on=st===k?(' on-'+k):'';
+   return '<button class="'+k+on+'" data-i="'+i+'" data-k="'+k+'">'+txt+'</button>';
+  }).join('');
+  return '<div class="ck"><div class="q">'+it.q+'<div class="w">权重 '+it.w+' ｜ '+it.note+' ｜ SOP '+it.sop+'</div></div><div class="opts">'+btns+'</div></div>';
+ }).join('');
+ $('#assess-items').querySelectorAll('button[data-i]').forEach(b=>b.onclick=()=>{
+  const i=+b.dataset.i,k=b.dataset.k;
+  ckState[i]=ckState[i]===k?'':k;
+  renderAssessItems(); calcResult();
+ });
+}
+function calcResult(){
+ if(!curType){$('#res-level').textContent='—';$('#res-score').textContent='尚未评估';$('#res-prog').style.width='0%';return}
+ let score=0,miss=[],unkn=0,total=0;
+ curType.items.forEach((it,i)=>{
+  const w=it.w;total+=w;
+  const st=ckState[i];
+  if(st==='no'){score+=w;miss.push({q:it.q,sop:it.sop})}
+  else if(st==='unk'){score+=w*0.5;unkn++}
+ });
+ const pct=Math.min(100,score/total*100);
+ const lv=score<2?{k:'green',t:'可签署'}:score<5?{k:'orange',t:'整改后签署'}:{k:'red',t:'禁止签署·法务介入'};
+ $('#res-level').textContent=lv.t;
+ $('#res-level').style.color=lv.k==='green'?'var(--lp-green)':lv.k==='orange'?'var(--lp-orange)':'var(--lp-red)';
+ $('#res-score').textContent='风险分 '+score.toFixed(1)+' / '+total+'（不确定项 '+unkn+' 项按半权计）';
+ $('#res-prog').style.width=pct+'%';
+ $('#res-prog').style.background=lv.k==='green'?'var(--lp-green)':lv.k==='orange'?'var(--lp-orange)':'var(--lp-red)';
+ $('#res-list').innerHTML=miss.length
+  ? miss.map(m=>'<div class="item"><b style="color:var(--lp-red)">⚠ '+m.q+'</b><br><span style="color:var(--lp-gray)">处置：按 SOP '+m.sop+' 补正后再签署</span></div>').join('')
+  : '<div class="item" style="color:var(--lp-green)">未命中高风险项'+(unkn?'，但存在 '+unkn+' 项待核实：请补证后复核':'')+'。建议结合对应 SOP 完成签约流程。</div>';
+}
+$('#assess-reset').onclick=()=>{ckState={};renderAssessItems();calcResult()};
+/* 档案联动 */
+function renderMaps(){
+ $('#map-table').innerHTML=MAPS.map(m=>'<tr><td>'+m[0]+'</td><td>'+m[1]+'</td><td>'+m[2]+'</td><td>'+m[3]+'</td></tr>').join('');
+}
+/* 初始化 */
+renderOverview();renderTplTabs();renderTplGrid('all');renderCTypeSel();renderContractTable();renderRiskCats();renderAssessTypes();renderMaps();
+</script>
+</body>
+</html>

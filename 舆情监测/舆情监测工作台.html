@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LOOP PARK 舆情监测工作台</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%232E5D4E' stroke-width='2'><path d='M9 10h6M12 7v6M5 8l3-5h8l3 5v8l-3 5H8l-3-5z'/></svg>">
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lucide@0.462.0/dist/umd/lucide.min.js"></script>
+<style>
+:root{
+  --green:#2E5D4E; --green-dark:#1E3D33; --orange:#FF6B35; --cream:#f8f6f2;
+  --green-light:#E8F0ED; --orange-light:#FFF0E8; --gray-900:#1c2622; --gray-700:#333;
+  --gray-500:#666; --gray-300:#999; --line:#e0ddd8; --white:#fff;
+  --blue:#3B82F6; --red:#E5484D; --yellow:#F5A623; --shadow:0 2px 12px rgba(0,0,0,.08);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:"PingFang SC","Microsoft YaHei","Noto Sans SC",system-ui,sans-serif;background:var(--cream);color:var(--gray-700);font-size:14px;line-height:1.6}
+a{color:inherit;text-decoration:none}
+/* ===== 顶栏 ===== */
+.topbar{position:sticky;top:0;z-index:100;background:var(--green-dark);color:#fff;display:flex;align-items:center;gap:20px;padding:0 24px;height:56px}
+.topbar .logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:16px;white-space:nowrap}
+.topbar .logo .badge{background:var(--orange);color:#fff;font-size:10px;padding:2px 8px;border-radius:100px;letter-spacing:.5px}
+.topbar .status{display:flex;align-items:center;gap:12px;font-size:12px;color:#cfe0d8;margin-left:auto}
+.topbar .status .dot{width:8px;height:8px;border-radius:50%;background:var(--orange);box-shadow:0 0 6px var(--orange)}
+nav{display:flex;gap:4px;overflow-x:auto}
+nav .tab{padding:8px 14px;border-radius:8px;font-size:13px;color:#cfe0d8;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:6px;transition:all .2s}
+nav .tab:hover{background:rgba(255,255,255,.08);color:#fff}
+nav .tab.active{background:var(--orange);color:#fff;font-weight:600}
+nav .tab svg{width:15px;height:15px}
+/* ===== 布局 ===== */
+.wrap{max-width:1440px;margin:0 auto;padding:20px 24px 60px}
+.view{display:none}
+.view.active{display:block}
+/* ===== 卡片 ===== */
+.card{background:var(--white);border-radius:12px;box-shadow:var(--shadow);padding:20px 22px;margin-bottom:18px}
+.card h3{font-size:15px;color:var(--green);font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.card h3 svg{width:17px;height:17px;color:var(--orange)}
+.card .sub{font-size:12px;color:var(--gray-500);margin-top:-8px;margin-bottom:12px}
+.grid{display:grid;gap:18px}
+.grid-4{grid-template-columns:repeat(4,1fr)}
+.grid-3{grid-template-columns:repeat(3,1fr)}
+.grid-2{grid-template-columns:repeat(2,1fr)}
+@media(max-width:1100px){.grid-4{grid-template-columns:repeat(2,1fr)}.grid-3{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:700px){.grid-4,.grid-3,.grid-2{grid-template-columns:1fr}.card{min-width:0}.topbar{flex-wrap:wrap;height:auto;padding:10px 16px;gap:10px}.topbar .status{margin-left:0}.wrap{padding:14px 12px 40px}.tbl-scroll{max-width:100%;overflow-x:auto;min-width:0}.tbl-scroll table{min-width:540px}.btn{min-height:44px}body{font-size:15px}input,select,textarea{font-size:16px}}
+/* ===== 指标卡 ===== */
+.stat{background:var(--white);border-radius:12px;box-shadow:var(--shadow);padding:18px 20px;position:relative;overflow:hidden}
+.stat .icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:10px}
+.stat .icon svg{width:20px;height:20px;color:#fff}
+.stat .num{font-size:26px;font-weight:800;color:var(--green-dark);line-height:1.2}
+.stat .num small{font-size:13px;color:var(--gray-500);font-weight:400;margin-left:4px}
+.stat .label{font-size:12px;color:var(--gray-500);margin-top:4px}
+.stat .trend{position:absolute;top:16px;right:16px;font-size:11px;padding:2px 8px;border-radius:100px}
+.trend.up{background:var(--green-light);color:var(--green)}
+.trend.warn{background:var(--orange-light);color:var(--orange)}
+/* ===== 表格 ===== */
+table{width:100%;border-collapse:collapse;table-layout:fixed}
+th,td{padding:9px 10px;text-align:left;vertical-align:top;word-break:break-word}
+th{background:var(--green-light);color:var(--green);font-size:12px;font-weight:600;border-bottom:2px solid var(--green)}
+td{border-bottom:1px solid var(--line);font-size:13px}
+tr:hover td{background:#faf9f6}
+.tbl-scroll{overflow-x:auto}
+/* ===== 标签 ===== */
+.tag{display:inline-block;padding:2px 10px;border-radius:100px;font-size:11px;font-weight:600;white-space:nowrap}
+.tag.blue{background:#E8F0FE;color:var(--blue)}
+.tag.yellow{background:#FEF5E7;color:#B7791F}
+.tag.orange{background:var(--orange-light);color:var(--orange)}
+.tag.red{background:#FDECEC;color:var(--red)}
+.tag.green{background:var(--green-light);color:var(--green)}
+.tag.gray{background:#f0efec;color:var(--gray-500)}
+/* ===== 按钮 ===== */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;border:none;cursor:pointer;transition:all .2s;font-family:inherit}
+.btn svg{width:15px;height:15px}
+.btn-primary{background:var(--orange);color:#fff}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(255,107,53,.35)}
+.btn-ghost{background:transparent;color:var(--green);border:1.5px solid var(--green)}
+.btn-ghost:hover{background:var(--green-light)}
+.btn-sm{padding:5px 10px;font-size:12px}
+/* ===== 表单 ===== */
+.form-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.form-grid.col2{grid-template-columns:repeat(2,1fr)}
+@media(max-width:900px){.form-grid,.form-grid.col2{grid-template-columns:1fr}}
+label{font-size:12px;color:var(--gray-500);display:block;margin-bottom:4px;font-weight:500}
+input,select,textarea{width:100%;padding:8px 12px;border:1.5px solid var(--line);border-radius:8px;font-size:13px;font-family:inherit;background:#fff;color:var(--gray-700);outline:none;transition:border .2s}
+input:focus,select:focus,textarea:focus{border-color:var(--green)}
+textarea{resize:vertical;min-height:64px}
+/* ===== 分级四色 ===== */
+.level-card{border-radius:12px;padding:18px 20px;color:#fff;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:8px}
+.level-card .lv{font-size:20px;font-weight:800;display:flex;align-items:center;gap:8px}
+.level-card .lv svg{width:20px;height:20px}
+.level-card .def{font-size:12px;opacity:.95}
+.level-card .tm{font-size:12px;background:rgba(255,255,255,.18);border-radius:8px;padding:6px 10px;margin-top:4px}
+.level-card .tm b{display:block;font-size:11px;opacity:.8;margin-bottom:2px}
+.lv-blue{background:linear-gradient(135deg,#3B82F6,#2563EB)}
+.lv-yellow{background:linear-gradient(135deg,#F5A623,#DD8A00)}
+.lv-orange{background:linear-gradient(135deg,#FF6B35,#E64A19)}
+.lv-red{background:linear-gradient(135deg,#E5484D,#C62F33)}
+/* ===== 时间轴 ===== */
+.timeline{display:grid;grid-template-columns:72px 24px 1fr;gap:0;margin:8px 0}
+.timeline .t-time{font-size:12px;color:var(--gray-500);text-align:right;padding:12px 8px 12px 0;font-weight:600}
+.timeline .t-dot{justify-self:center;display:flex;flex-direction:column;align-items:center}
+.timeline .t-dot .c{width:12px;height:12px;border-radius:50%;background:var(--orange);border:3px solid var(--orange-light);margin-top:14px;z-index:1}
+.timeline .t-dot .line{flex:1;width:2px;background:var(--line);min-height:20px}
+.timeline .t-content{padding:10px 0 10px 10px}
+.timeline .t-content b{color:var(--green-dark)}
+.timeline .t-content p{font-size:12px;color:var(--gray-500);margin-top:2px}
+/* ===== 话术 ===== */
+.hua{background:#faf9f6;border:1px solid var(--line);border-left:3px solid var(--green);border-radius:8px;padding:12px 14px;margin-bottom:10px;font-size:13px;position:relative}
+.hua .copy{position:absolute;top:8px;right:8px;padding:4px 8px;font-size:11px;border:1px solid var(--line);border-radius:6px;background:#fff;color:var(--gray-500);cursor:pointer;display:flex;align-items:center;gap:4px}
+.hua .copy:hover{color:var(--green);border-color:var(--green)}
+.hua .copy svg{width:12px;height:12px}
+/* ===== 预警横幅 ===== */
+.alert-banner{display:flex;align-items:center;gap:12px;padding:12px 18px;border-radius:10px;margin-bottom:16px;font-size:13px}
+.alert-banner svg{width:18px;height:18px;flex-shrink:0}
+.alert-ok{background:var(--green-light);color:var(--green)}
+.alert-warn{background:var(--orange-light);color:var(--orange)}
+/* ===== 列表 ===== */
+.kv{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px dashed var(--line);font-size:13px}
+.kv:last-child{border:none}
+.kv b{color:var(--green-dark)}
+.kv span{color:var(--gray-500);text-align:right;max-width:65%}
+/* ===== 空状态 ===== */
+.empty{text-align:center;padding:36px 20px;color:var(--gray-300);font-size:13px}
+.empty svg{width:36px;height:36px;margin-bottom:8px;opacity:.5}
+.chart-box{width:100%;height:300px}
+.chart-box.sm{height:220px}
+.footer{margin-top:24px;text-align:center;font-size:11px;color:var(--gray-300);padding:20px 0;border-top:1px solid var(--line)}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--green-dark);color:#fff;padding:10px 22px;border-radius:8px;font-size:13px;opacity:0;transition:all .3s;z-index:999;box-shadow:0 4px 16px rgba(0,0,0,.25)}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.hidden{display:none!important}
+.section-tip{font-size:12px;color:var(--gray-500);background:var(--green-light);border-radius:8px;padding:8px 12px;margin-bottom:12px}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FF6B35" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2" fill="#FF6B35" stroke="none"/><path d="M12 3v4M12 17v4M3 12h4M17 12h4"/></svg>
+    LOOP PARK 舆情监测工作台 <span class="badge">V1.0</span>
+  </div>
+  <nav>
+    <div class="tab active" data-view="overview"><i data-lucide="layout-dashboard"></i>总览</div>
+    <div class="tab" data-view="monitor"><i data-lucide="search-check"></i>监测执行</div>
+    <div class="tab" data-view="response"><i data-lucide="siren"></i>分级响应</div>
+    <div class="tab" data-view="events"><i data-lucide="clipboard-list"></i>事件台账</div>
+    <div class="tab" data-view="daily"><i data-lucide="file-text"></i>日报生成</div>
+    <div class="tab" data-view="scripts"><i data-lucide="messages-square"></i>话术库</div>
+    <div class="tab" data-view="sources"><i data-lucide="database"></i>数据源</div>
+  </nav>
+  <div class="status"><span class="dot"></span>今日待监测 · <span id="todayStr"></span></div>
+</div>
+
+<div class="wrap">
+
+<!-- ===== 视图：总览 ===== -->
+<div class="view active" id="view-overview">
+  <div class="alert-banner alert-warn" id="ovAlert">
+    <i data-lucide="shield-alert"></i>
+    <span id="ovAlertText">监测体系就绪：抖音/小红书登录态已打通，今日按清单执行。</span>
+  </div>
+  <div class="grid grid-4" style="margin-bottom:18px">
+    <div class="stat"><div class="icon" style="background:var(--green)"><i data-lucide="radio-tower"></i></div><div class="num" id="ovTotal">0<small>条</small></div><div class="label">本月累计舆情记录</div></div>
+    <div class="stat"><div class="icon" style="background:var(--orange)"><i data-lucide="alert-triangle"></i></div><div class="num" id="ovWarn">0<small>条</small></div><div class="label">待处理（黄+）</div></div>
+    <div class="stat"><div class="icon" style="background:var(--blue)"><i data-lucide="message-circle"></i></div><div class="num" id="ovToday">0<small>条</small></div><div class="label">今日新增</div></div>
+    <div class="stat"><div class="icon" style="background:#8B5CF6"><i data-lucide="activity"></i></div><div class="num" id="ovPos">0<small>%</small></div><div class="label">正面占比（近30天）</div></div>
+  </div>
+
+  <div class="grid grid-2">
+    <div class="card">
+      <h3><i data-lucide="pie-chart"></i> 近30天舆情情感分布</h3>
+      <div class="chart-box" id="chartSentiment"></div>
+      <div class="section-tip">口径：事件台账中近30天记录按 正面 / 负面 / 中性 统计。</div>
+    </div>
+    <div class="card">
+      <h3><i data-lucide="bar-chart-3"></i> 各平台舆情量（近30天）</h3>
+      <div class="chart-box" id="chartPlatform"></div>
+      <div class="section-tip">口径：事件台账按平台聚合。</div>
+    </div>
+  </div>
+
+  <div class="grid grid-2">
+    <div class="card">
+      <h3><i data-lucide="monitor-check"></i> 平台监测状态</h3>
+      <div class="tbl-scroll"><table>
+        <colgroup><col style="width:22%"><col style="width:44%"><col style="width:20%"><col style="width:14%"></colgroup>
+        <thead><tr><th>平台</th><th>监测内容</th><th>覆盖状态</th><th>频次</th></tr></thead>
+        <tbody id="platformBody"></tbody>
+      </table></div>
+    </div>
+    <div class="card">
+      <h3><i data-lucide="target"></i> 今日待办（按监测清单）</h3>
+      <div class="kv"><b>10:00 第一次扫描</b><span>小红书 / 抖音 / 点评美团 / 表白墙</span></div>
+      <div class="kv"><b>20:00 第二次扫描</b><span>重复关键词 + 自有账号评论区</span></div>
+      <div class="kv"><b>有异常</b><span>填记录模板 → 黄色以上立刻上报</span></div>
+      <div class="kv"><b>周五下午</b><span>每周复盘 + 更新关键词</span></div>
+      <div style="margin-top:12px"><button class="btn btn-ghost btn-sm" onclick="go('monitor')"><i data-lucide="arrow-right"></i>进入监测执行</button></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3><i data-lucide="trending-up"></i> 舆情趋势（近14天新增量）</h3>
+    <div class="chart-box" id="chartTrend"></div>
+  </div>
+</div>
+
+<!-- ===== 视图：监测执行 ===== -->
+<div class="view" id="view-monitor">
+  <div class="card">
+    <h3><i data-lucide="search-check"></i> 监测平台与频次</h3>
+    <div class="tbl-scroll"><table>
+      <colgroup><col style="width:14%"><col style="width:40%"><col style="width:14%"><col style="width:16%"><col style="width:16%"></colgroup>
+      <thead><tr><th>平台</th><th>监测内容</th><th>频次</th><th>状态</th><th>负责人</th></tr></thead>
+      <tbody id="monitorTable"></tbody>
+    </table></div>
+  </div>
+
+  <div class="grid grid-2">
+    <div class="card">
+      <h3><i data-lucide="key-square"></i> 品牌核心词</h3>
+      <div style="display:flex;flex-wrap:wrap;gap:8px" id="kwBrand"></div>
+      <h3 style="margin-top:18px"><i data-lucide="store"></i> 业态相关词</h3>
+      <div style="display:flex;flex-wrap:wrap;gap:8px" id="kwBiz"></div>
+      <h3 style="margin-top:18px"><i data-lucide="map-pin"></i> 场景相关词</h3>
+      <div style="display:flex;flex-wrap:wrap;gap:8px" id="kwScene"></div>
+    </div>
+    <div class="card">
+      <h3><i data-lucide="users"></i> 监测账号清单</h3>
+      <div class="tbl-scroll"><table>
+        <colgroup><col style="width:22%"><col style="width:34%"><col style="width:20%"><col style="width:24%"></colgroup>
+        <thead><tr><th>类型</th><th>账号</th><th>平台</th><th>备注</th></tr></thead>
+        <tbody id="accountTable"></tbody>
+      </table></div>
+      <h3 style="margin-top:18px"><i data-lucide="flag"></i> 竞品监测圈（2–3km 大商业）</h3>
+      <div id="compList" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 视图：分级响应 ===== -->
+<div class="view" id="view-response">
+  <div class="alert-banner alert-warn"><i data-lucide="siren"></i>发现舆情 → 初步判断级别 → 蓝色直接处理归档；黄色以上上报 → 定策略 → 执行 → 跟踪闭环 → 归档。</div>
+  <div class="grid grid-4" style="margin-bottom:18px">
+    <div class="level-card lv-blue"><div class="lv"><i data-lucide="circle-dot"></i>蓝 · 一般</div><div class="def">零星负面（1-2条无扩散）· 个人小抱怨 · 无媒体/大V转发</div><div class="tm"><b>处理</b>无需上报，工作日汇总，事后归档</div><div class="tm"><b>上报时限</b>无需</div></div>
+    <div class="level-card lv-yellow"><div class="lv"><i data-lucide="triangle-alert"></i>黄 · 重要</div><div class="def">多条负面（3+）· 社群多人吐槽 · 本地小V（1k-1w粉）· 连续3+差评</div><div class="tm"><b>处理</b>即时上报，2h 首响口径，先生拍板</div><div class="tm"><b>上报时限</b>即时</div></div>
+    <div class="level-card lv-orange"><div class="lv"><i data-lucide="octagon-alert"></i>橙 · 紧急</div><div class="def">大V/群体集中吐槽 · 上同城榜 · 500人大群讨论 · 24h转发点赞过百</div><div class="tm"><b>处理</b>15min 上报，1h 首响口径，八将紧急会议</div><div class="tm"><b>上报时限</b>15min</div></div>
+    <div class="level-card lv-red"><div class="lv"><i data-lucide="shield-x"></i>红 · 重大</div><div class="def">安全事故 · 法律风险 · 省级以上媒体 · 全网热搜</div><div class="tm"><b>处理</b>5min 上报，30min 首响口径，先生终审，法律介入</div><div class="tm"><b>上报时限</b>5min</div></div>
+  </div>
+
+  <div class="grid grid-2">
+    <div class="card">
+      <h3><i data-lucide="git-branch"></i> 响应流程总览</h3>
+      <div class="timeline">
+        <div class="t-time">发现</div><div class="t-dot"><div class="c"></div><div class="line"></div></div><div class="t-content"><b>发现舆情</b><p>平台扫描 / 现场反馈 / 社群爆料</p></div>
+        <div class="t-time">判断</div><div class="t-dot"><div class="c"></div><div class="line"></div></div><div class="t-content"><b>初步判断级别</b><p>蓝 / 黄 / 橙 / 红 四级</p></div>
+        <div class="t-time">分流</div><div class="t-dot"><div class="c"></div><div class="line"></div></div><div class="t-content"><b>蓝色 → 直接处理</b><p>本人处理 → 归档记录</p></div>
+        <div class="t-time">上报</div><div class="t-dot"><div class="c"></div><div class="line"></div></div><div class="t-content"><b>黄色以上 → 上报你</b><p>你定策略 → 我执行</p></div>
+        <div class="t-time">闭环</div><div class="t-dot"><div class="c"></div></div><div class="t-content"><b>跟踪闭环 → 归档</b><p>确认满意度 + 记录结果 + 推动整改</p></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3><i data-lucide="message-circle-heart"></i> 响应话术原则</h3>
+      <div class="kv"><b>态度第一</b><span>先道歉 / 感谢，再解释</span></div>
+      <div class="kv"><b>不杠</b><span>永远不跟用户硬刚</span></div>
+      <div class="kv"><b>有温度</b><span>萝卜家族拟人化语气</span></div>
+      <div class="kv"><b>给方案</b><span>不光道歉，还说怎么解决</span></div>
+      <div class="kv"><b>不公开内部问题</b><span>对外统一口径</span></div>
+      <div style="margin-top:14px"><button class="btn btn-ghost btn-sm" onclick="go('scripts')"><i data-lucide="arrow-right"></i>去话术库取模板</button></div>
+      <h3 style="margin-top:20px"><i data-lucide="check-circle-2"></i> 闭环跟踪（每次必做）</h3>
+      <div class="section-tip">1. 确认对方是否满意 · 2. 记录处理结果 · 3. 共性问题推动内部整改 · 4. 复盘更优处理方式</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 视图：事件台账 ===== -->
+<div class="view" id="view-events">
+  <div class="card">
+    <h3><i data-lucide="plus-circle"></i> 录入新舆情事件</h3>
+    <div class="form-grid">
+      <div><label>发现时间</label><input type="date" id="evDate"></div>
+      <div><label>平台</label><select id="evPlatform"><option>抖音</option><option>小红书</option><option>大众点评</option><option>美团</option><option>高德地图</option><option>微博</option><option>B站</option><option>校园社群</option><option>现场反馈</option><option>其他</option></select></div>
+      <div><label>级别（自动建议，可改）</label><select id="evLevel"><option value="blue">蓝 · 一般</option><option value="yellow">黄 · 重要</option><option value="orange">橙 · 紧急</option><option value="red">红 · 重大</option></select></div>
+      <div><label>情感</label><select id="evSentiment"><option value="pos">正面</option><option value="neg">负面</option><option value="neu">中性</option></select></div>
+      <div style="grid-column:1/-1"><label>标题 / 内容摘要</label><input type="text" id="evTitle" placeholder="例：某点评 3 星「价格有点贵」"></div>
+      <div style="grid-column:1/-1"><label>原帖 / 信源链接</label><input type="text" id="evUrl" placeholder="https://…（舆情溯源必须）"></div>
+      <div style="grid-column:1/-1"><label>处理记录（措施 / 结果 / 闭环）</label><textarea id="evNote" placeholder="例：已道歉并给出补偿方案，对方接受，共性问题已推动整改"></textarea></div>
+    </div>
+    <div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap">
+      <button class="btn btn-primary" onclick="addEvent()"><i data-lucide="save"></i>保存事件</button>
+      <button class="btn btn-ghost" onclick="exportEvents()"><i data-lucide="download"></i>导出 JSON</button>
+      <label class="btn btn-ghost" style="cursor:pointer"><i data-lucide="upload"></i>导入 JSON<input type="file" id="importFile" accept=".json" class="hidden" onchange="importEvents(this)"></label>
+    </div>
+  </div>
+  <div class="card">
+    <h3><i data-lucide="clipboard-list"></i> 舆情事件台账 <span class="tag gray" id="evCount">0 条</span></h3>
+    <div class="tbl-scroll"><table>
+      <colgroup><col style="width:9%"><col style="width:8%"><col style="width:30%"><col style="width:10%"><col style="width:10%"><col style="width:24%"><col style="width:9%"></colgroup>
+      <thead><tr><th>时间</th><th>平台</th><th>内容摘要</th><th>级别</th><th>情感</th><th>处理记录</th><th></th></tr></thead>
+      <tbody id="evTable"></tbody>
+    </table></div>
+    <div class="empty hidden" id="evEmpty"><i data-lucide="inbox"></i><div>暂无舆情事件，先录入第一条。</div></div>
+  </div>
+</div>
+
+<!-- ===== 视图：日报生成 ===== -->
+<div class="view" id="view-daily">
+  <div class="card">
+    <h3><i data-lucide="calendar-clock"></i> 生成今日舆情日报</h3>
+    <div class="section-tip">自动汇总：今日新增事件 + 待办清单 + 平台监测状态。生成后可复制到飞书文档或归档到日报目录。</div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <button class="btn btn-primary" onclick="genDaily()"><i data-lucide="wand-2"></i>生成日报</button>
+      <button class="btn btn-ghost" id="copyDailyBtn" onclick="copyDaily()"><i data-lucide="copy"></i>复制全文</button>
+      <button class="btn btn-ghost" onclick="saveDailyFile()"><i data-lucide="download"></i>保存为 .md</button>
+    </div>
+  </div>
+  <div class="card">
+    <h3><i data-lucide="file-text"></i> 日报预览</h3>
+    <pre id="dailyPreview" style="background:#1E3D33;color:#e8f0ed;border-radius:10px;padding:18px;font-size:12.5px;line-height:1.8;white-space:pre-wrap;font-family:'Cascadia Code','JetBrains Mono',Consolas,monospace;max-height:520px;overflow:auto"></pre>
+  </div>
+</div>
+
+<!-- ===== 视图：话术库 ===== -->
+<div class="view" id="view-scripts">
+  <div class="card">
+    <h3><i data-lucide="messages-square"></i> 常用回复话术库</h3>
+    <div class="section-tip">直接复制套用。原则：先道歉 / 感谢 → 再解释 → 给方案 → 不杠。</div>
+    <div id="scriptGroups"></div>
+  </div>
+</div>
+
+<!-- ===== 视图：数据源 ===== -->
+<div class="view" id="view-sources">
+  <div class="grid grid-2">
+    <div class="card">
+      <h3><i data-lucide="database"></i> 平台覆盖状态</h3>
+      <div class="tbl-scroll"><table>
+        <colgroup><col style="width:22%"><col style="width:44%"><col style="width:34%"></colgroup>
+        <thead><tr><th>平台</th><th>覆盖状态</th><th>说明</th></tr></thead>
+        <tbody id="srcTable"></tbody>
+      </table></div>
+    </div>
+    <div class="card">
+      <h3><i data-lucide="list-checks"></i> 能做到 vs 做不到</h3>
+      <div class="section-tip"><b>能做到：</b>通用搜索公开内容 · 博主公开内容 · 新闻报道 · 商户公开评分评价摘要</div>
+      <div class="section-tip" style="background:var(--orange-light)"><b>做不到：</b>平台后台完整评论区（需登录+反爬）· 博主粉丝画像详细数据（付费数据平台）· 实时监控（每日跑一次）· 点评完整差评列表</div>
+      <div class="section-tip">反爬严格，直接爬会被封。深度数据后续可购飞瓜 / 新红会员，或用浏览器手动看。</div>
+      <h3 style="margin-top:16px"><i data-lucide="shield-check"></i> 数字纪律</h3>
+      <div class="section-tip">不发明覆盖度百分比；覆盖状态用三档：已打通 / 仅公开搜索 / 未覆盖。</div>
+    </div>
+  </div>
+  <div class="card">
+    <h3><i data-lucide="link-2"></i> 关联文档</h3>
+    <div class="tbl-scroll"><table>
+      <colgroup><col style="width:36%"><col style="width:64%"></colgroup>
+      <thead><tr><th>文档</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td>00-5km全域舆情监测系统方案</td><td>监测平台矩阵 / 每日流程 / 日报模板 / 限制说明</td></tr>
+        <tr><td>01-监测清单</td><td>平台×频次×负责人 / 关键词清单 / 账号清单 / 每日流程</td></tr>
+        <tr><td>02-分级响应SOP</td><td>四级标准 / 响应时限 / 流程 / 话术原则</td></tr>
+        <tr><td>03-常见场景预案</td><td>场景化处置预案</td></tr>
+        <tr><td>04-舆情记录模板</td><td>事件记录字段规范</td></tr>
+        <tr><td>06-常用回复话术库</td><td>分类话术模板</td></tr>
+        <tr><td>07/08-周报月报模板</td><td>周期汇报模板</td></tr>
+        <tr><td>09-舆情自动化分析流水线SOP</td><td>采集→研判→处置自动化</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+</div>
+
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ===== 基础数据（口径：舆情体系文档） ===== */
+const PLATFORMS = [
+  {name:'抖音', scope:'周边探店视频、博主、评论区', status:'已打通', freq:'每日2次', owner:'风谣'},
+  {name:'小红书', scope:'周边种草笔记、博主、评论', status:'已打通', freq:'每日2次', owner:'风谣'},
+  {name:'大众点评', scope:'商户评价、评分、差评', status:'仅公开搜索', freq:'每日1次', owner:'现场运营'},
+  {name:'美团', scope:'团购评价、差评', status:'仅公开搜索', freq:'每日1次', owner:'现场运营'},
+  {name:'高德地图', scope:'新开商户、位置、评分', status:'仅公开搜索', freq:'每日1次', owner:'现场运营'},
+  {name:'微博', scope:'本地热点、学生吐槽', status:'仅公开搜索', freq:'每日1次', owner:'风谣'},
+  {name:'B站', scope:'周边探店UP主', status:'仅公开搜索', freq:'每周1次', owner:'风谣'},
+  {name:'百度地图', scope:'周边商户、评论', status:'仅公开搜索', freq:'每周1次', owner:'现场运营'},
+  {name:'校园渠道', scope:'4校贴吧、表白墙、社群', status:'已打通', freq:'每日1次', owner:'校内合伙人'},
+  {name:'现场反馈', scope:'顾客投诉、意见簿、客服', status:'已打通', freq:'实时', owner:'现场运营'}
+];
+const KWS = {
+  brand:['LOOP PARK','Loop Park','环路公园','萝卜公园'],
+  biz:['宝藏星球 LOOP','沣西大学城 夜市','沣西 台球厅','沣西 自习室','咸阳职院 附近 玩','陕服 附近 聚餐'],
+  scene:['沣西 周末去哪','沣西 大学生 约会','沣西 大学城 逛街','西咸新区 夜市']
+};
+const ACCOUNTS = [
+  {type:'自有账号', name:'LOOP PARK官方号', platform:'小红书', note:'看评论区'},
+  {type:'自有账号', name:'LOOP PARK官方号', platform:'抖音', note:'看评论区'},
+  {type:'商户账号', name:'宝藏星球', platform:'大众点评', note:'看差评'},
+  {type:'本地号', name:'沣西生活指南', platform:'微信/抖音', note:'监测是否被提及'},
+  {type:'校园号', name:'陕服表白墙', platform:'QQ空间/微信', note:'监测学生讨论'},
+  {type:'校园号', name:'咸阳职院表白墙', platform:'QQ空间/微信', note:'监测学生讨论'}
+];
+const COMPS = ['沣西吾悦广场·秦潮里','沣西里商业街','国润季','沣渭世纪中心','奥园','星空夜市（供给监测）'];
+const SCRIPTS = [
+  {g:'一、通用感谢类', items:[
+    ['好评回复','谢谢宝子的认可～萝卜毛已经把你的夸奖记下啦！我们继续努力，下次来玩给你小惊喜😉'],
+    ['建议回复','感谢你的宝贵建议！我们已经反馈给运营团队了，会认真考虑的～欢迎常来监督！'],
+    ['提问回复','你好呀！这个问题是这样的：XXX。还有其他问题随时问我～']]},
+  {g:'二、负面道歉类', items:[
+    ['服务不好','实在不好意思！给你带来不好的体验了😣 我们马上整改，谢谢你提醒我们！下次来如果还有问题直接找现场工作人员，马上解决～'],
+    ['环境问题','抱歉抱歉！这个确实是我们的问题，已经安排保洁/维修马上处理了。以后我们会增加巡检频次，谢谢你指出来！'],
+    ['排队太久','谢谢大家这么热情！让大家久等了真的不好意思😣 下午X点后人会少一些，可以错峰来～排队的同学找工作人员领个小礼品，辛苦啦！'],
+    ['价格争议','理解你的感受～我们选品的时候确实考虑了性价比，而且还有每周活动可以参与，算下来还是很划算的～下次来可以看看XX款，性价比超高！']]},
+  {g:'三、活动相关', items:[
+    ['活动取消/改期','不好意思通知大家，原定XX的活动因为XX原因改到XX了。给大家带来不便非常抱歉，已经报名的同学我们会单独联系补偿福利～'],
+    ['活动人太多','谢谢大家这么热情！今天确实超预期了，我们下次一定提前做好分流准备。今天没玩够的同学，凭本次消费记录下次来领个小福利～'],
+    ['活动奖品问题','关于奖品的问题，我们核实了一下：XXX。给大家造成误解非常抱歉，现在统一解释一下：XXX。有问题的同学私信我们处理～']]},
+  {g:'四、安全/投诉类', items:[
+    ['投诉处理','非常抱歉听到这个情况。我们非常重视，已经在核实了，XX小时内给你答复。请你私信我们你的联系方式，我们详细沟通处理。'],
+    ['安全问题','首先非常关心你的情况，你还好吗？我们第一时间送你去了XX，目前情况XX。我们会全力配合处理，承担相应责任。后续进展会及时告知。'],
+    ['食品安全','抱歉给你带来了不好的体验。我们已经第一时间下架了相关商品，正在送检。有同样情况的同学请联系我们，我们承担医药费和相关赔偿。']]},
+  {g:'五、辟谣/澄清类', items:[
+    ['不实信息澄清','关于最近大家关心的XX问题，这里统一说明一下：实际情况是XXX，大家不要轻信不实信息哦～有问题随时找官方号核实！'],
+    ['谣言应对','最近看到一些关于LOOP PARK的不实传言，这里统一澄清：XXX。我们一直致力于给大家好的体验，也请大家不信谣不传谣，谢谢理解～']]},
+  {g:'六、朋友圈/社群日常', items:[
+    ['每日问候','早呀！新的一天，LOOP PARK又开门啦～今天天气不错，下课来逛逛？'],
+    ['活动预热','本周末有大事发生！先卖个关子，猜猜是什么？猜对的同学到时候有小礼物哦～'],
+    ['下雨天','下雨天也挡不住想玩的心～今天在室内自习室/酒馆的同学，我们给你备了热饮，快来避雨！'],
+    ['天气热','今天太热了！宝藏星球冰淇淋买一送一，快来降温～']]},
+  {g:'七、回复注意事项', items:[
+    ['要做的','第一时间回复（越短越好）· 态度诚恳先道歉/感谢 · 给具体解决方案 · 朋友语气不要官方腔 · 解决完跟进结果'],
+    ['不要做的','不杠、不说「我们没错」· 不复制粘贴官方模板 · 不推卸责任 · 不在评论区吵架 · 不暴露内部细节']]}
+];
+/* ===== 状态与工具 ===== */
+let events = [];
+try{events = JSON.parse(localStorage.getItem('lp_events')||'[]')}catch(e){events=[]}
+const LV = {blue:['蓝','blue'],yellow:['黄','yellow'],orange:['橙','orange'],red:['红','red']};
+const SEN = {pos:['正面','green'],neg:['负面','red'],neu:['中性','gray']};
+const today = new Date().toISOString().slice(0,10);
+function fmt(d){return (d||'').slice(0,10)}
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200)}
+function go(v){document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x.dataset.view===v));document.querySelectorAll('.view').forEach(x=>x.classList.toggle('active',x.id==='view-'+v));window.scrollTo({top:0});if(v==='events'||v==='overview'){renderEvents();renderOverview();renderCharts()}}
+document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>go(t.dataset.view)));
+document.getElementById('todayStr').textContent = new Date().toLocaleDateString('zh-CN',{month:'long',day:'numeric',weekday:'short'});
+document.getElementById('evDate').value = today;
+/* ===== 渲染：监测执行 ===== */
+function renderMonitor(){
+  document.getElementById('monitorTable').innerHTML = PLATFORMS.map(p=>`<tr><td>${esc(p.name)}</td><td>${esc(p.scope)}</td><td>${esc(p.freq)}</td><td><span class="tag ${p.status==='已打通'?'green':p.status==='仅公开搜索'?'gray':'orange'}">${esc(p.status)}</span></td><td>${esc(p.owner)}</td></tr>`).join('');
+  document.getElementById('kwBrand').innerHTML = KWS.brand.map(k=>`<span class="tag green">${esc(k)}</span>`).join('');
+  document.getElementById('kwBiz').innerHTML = KWS.biz.map(k=>`<span class="tag green">${esc(k)}</span>`).join('');
+  document.getElementById('kwScene').innerHTML = KWS.scene.map(k=>`<span class="tag green">${esc(k)}</span>`).join('');
+  document.getElementById('accountTable').innerHTML = ACCOUNTS.map(a=>`<tr><td>${esc(a.type)}</td><td>${esc(a.name)}</td><td>${esc(a.platform)}</td><td>${esc(a.note)}</td></tr>`).join('');
+  document.getElementById('compList').innerHTML = COMPS.map(c=>`<span class="tag orange">${esc(c)}</span>`).join('');
+}
+/* ===== 渲染：总览 ===== */
+function renderPlatformBody(){
+  document.getElementById('platformBody').innerHTML = PLATFORMS.map(p=>`<tr><td>${esc(p.name)}</td><td>${esc(p.scope)}</td><td><span class="tag ${p.status==='已打通'?'green':'gray'}">${esc(p.status)}</span></td><td>${esc(p.freq)}</td></tr>`).join('');
+}
+function renderOverview(){
+  const now = new Date();
+  const monthAgo = new Date(now.getTime()-30*864e5).toISOString().slice(0,10);
+  const monthEv = events.filter(e=>e.date>=monthAgo);
+  const todayEv = events.filter(e=>e.date===today);
+  const warn = events.filter(e=>e.level==='yellow'||e.level==='orange'||e.level==='red');
+  const pos = monthEv.filter(e=>e.sentiment==='pos').length;
+  document.getElementById('ovTotal').innerHTML = events.length+'<small>条</small>';
+  document.getElementById('ovWarn').innerHTML = warn.length+'<small>条</small>';
+  document.getElementById('ovToday').innerHTML = todayEv.length+'<small>条</small>';
+  document.getElementById('ovPos').innerHTML = (monthEv.length?Math.round(pos/monthEv.length*100):0)+'<small>%</small>';
+  const warnMsg = warn.length?`当前有 ${warn.length} 条黄级以上舆情待处理，请进入事件台账跟进。`:'监测体系就绪：抖音/小红书登录态已打通，今日按清单执行。';
+  document.getElementById('ovAlertText').textContent = warnMsg;
+  document.getElementById('ovAlert').className = 'alert-banner '+(warn.length?'alert-warn':'alert-ok');
+}
+/* ===== 图表 ===== */
+const chColor=['#2E5D4E','#FF6B35','#4A8B72','#7AB89F','#FFB199'];
+function renderCharts(){
+  if(typeof echarts==='undefined'){['chartSentiment','chartPlatform','chartTrend'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML='<div class="empty" style="padding:60px 20px">图表组件加载失败，请检查网络后刷新</div>'});return}
+  const now=new Date();const monthAgo=new Date(now.getTime()-30*864e5).toISOString().slice(0,10);
+  const monthEv=events.filter(e=>e.date>=monthAgo);
+  /* 情感 */
+  const sen=[monthEv.filter(e=>e.sentiment==='pos').length,monthEv.filter(e=>e.sentiment==='neg').length,monthEv.filter(e=>e.sentiment==='neu').length];
+  const c1=echarts.init(document.getElementById('chartSentiment'));
+  c1.setOption({backgroundColor:'transparent',color:chColor,tooltip:{trigger:'item',formatter:'{b}: {c} 条 ({d}%)',confine:true},
+    legend:{bottom:0,textStyle:{color:'#666',fontSize:11}},
+    series:[{type:'pie',radius:['42%','68%'],center:['50%','44%'],avoidLabelOverlap:true,
+      label:{color:'#333',fontSize:11},labelLine:{length:10},
+      data:[{value:sen[0],name:'正面'},{value:sen[1],name:'负面'},{value:sen[2],name:'中性'}]}]});
+  /* 平台 */
+  const plat={};monthEv.forEach(e=>{plat[e.platform]=(plat[e.platform]||0)+1});
+  const pnames=Object.keys(plat).sort((a,b)=>plat[b]-plat[a]);
+  const c2=echarts.init(document.getElementById('chartPlatform'));
+  c2.setOption({backgroundColor:'transparent',color:[chColor[0]],tooltip:{trigger:'axis',confine:true},
+    grid:{left:46,right:20,top:14,bottom:26},
+    xAxis:{type:'category',data:pnames,axisLabel:{color:'#666',fontSize:10,interval:0,rotate:pnames.length>4?28:0}},
+    yAxis:{type:'value',minInterval:1,splitLine:{lineStyle:{color:'#e0ddd8'}},axisLabel:{color:'#999',fontSize:10}},
+    series:[{type:'bar',barMaxWidth:34,data:pnames.map(n=>plat[n]),itemStyle:{borderRadius:[6,6,0,0]}}]});
+  /* 趋势 */
+  const days=14;const dayArr=[];const dayCnt=[];
+  for(let i=days-1;i>=0;i--){const d=new Date(now.getTime()-i*864e5).toISOString().slice(0,10);dayArr.push(d.slice(5));dayCnt.push(events.filter(e=>e.date===d).length)}
+  const c3=echarts.init(document.getElementById('chartTrend'));
+  c3.setOption({backgroundColor:'transparent',color:[chColor[1]],tooltip:{trigger:'axis',confine:true},
+    grid:{left:40,right:20,top:18,bottom:26},
+    xAxis:{type:'category',data:dayArr,boundaryGap:false,axisLabel:{color:'#666',fontSize:10}},
+    yAxis:{type:'value',minInterval:1,splitLine:{lineStyle:{color:'#e0ddd8'}},axisLabel:{color:'#999',fontSize:10}},
+    series:[{name:'新增',type:'line',smooth:true,symbol:'circle',symbolSize:5,data:dayCnt,areaStyle:{opacity:.18}}]});
+  window.addEventListener('resize',()=>{c1.resize();c2.resize();c3.resize()});
+}
+/* ===== 事件台账 ===== */
+function save(){localStorage.setItem('lp_events',JSON.stringify(events))}
+function addEvent(){
+  const date=document.getElementById('evDate').value||today;
+  const platform=document.getElementById('evPlatform').value;
+  const level=document.getElementById('evLevel').value;
+  const sentiment=document.getElementById('evSentiment').value;
+  const title=document.getElementById('evTitle').value.trim();
+  const url=document.getElementById('evUrl').value.trim();
+  const note=document.getElementById('evNote').value.trim();
+  if(!title){toast('请填写内容摘要');return}
+  if(!url){toast('舆情溯源必须填写原帖链接（红线）');return}
+  events.push({id:Date.now(),date,platform,level,sentiment,title,url,note});
+  save();renderEvents();renderOverview();renderCharts();
+  document.getElementById('evTitle').value='';document.getElementById('evUrl').value='';document.getElementById('evNote').value='';
+  toast('已保存，可在日报生成中引用');
+}
+function renderEvents(){
+  document.getElementById('evCount').textContent=events.length+' 条';
+  document.getElementById('evEmpty').classList.toggle('hidden',events.length>0);
+  document.getElementById('evTable').innerHTML=events.slice().sort((a,b)=>b.date.localeCompare(a.date)).map(e=>{
+    const lv=LV[e.level]||LV.blue;const sn=SEN[e.sentiment]||SEN.neu;
+    return `<tr><td>${esc(e.date)}</td><td>${esc(e.platform)}</td><td>${esc(e.title)}<div style="font-size:11px;color:var(--gray-300)"><a href="${esc(e.url)}" target="_blank" style="color:var(--green)">信源 ↗</a></div></td><td><span class="tag ${lv[1]}">${lv[0]}</span></td><td><span class="tag ${sn[1]}">${sn[0]}</span></td><td>${esc(e.note)}</td><td><button class="btn btn-ghost btn-sm" onclick="delEvent(${e.id})"><i data-lucide="trash-2"></i></button></td></tr>`;
+  }).join('');
+  if(window.lucide)lucide.createIcons();
+}
+function delEvent(id){events=events.filter(e=>e.id!==id);save();renderEvents();renderOverview();renderCharts();toast('已删除')}
+function exportEvents(){
+  const blob=new Blob([JSON.stringify(events,null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='舆情事件台账-'+today+'.json';a.click();toast('已导出 JSON');
+}
+function importEvents(input){
+  const f=input.files[0];if(!f)return;
+  const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);if(!Array.isArray(d))throw 0;events=d;save();renderEvents();renderOverview();renderCharts();toast('导入 '+d.length+' 条')}catch(e){toast('JSON 格式不正确')}};r.readAsText(f);input.value='';
+}
+/* ===== 日报 ===== */
+function genDaily(){
+  const d=new Date();const ds=d.toLocaleDateString('zh-CN',{year:'numeric',month:'long',day:'numeric',weekday:'long'});
+  const todayEv=events.filter(e=>e.date===today);
+  const openWarn=events.filter(e=>(e.level==='yellow'||e.level==='orange'||e.level==='red')&&!e.note);
+  const lines=[];
+  lines.push('# LOOP PARK 每日舆情简报（'+today+'）');
+  lines.push('');
+  lines.push('> **监测方式：** 浏览器登录后抓取（抖音+小红书已打通）');
+  lines.push('> **数据来源：** 抖音搜索、小红书搜索、通用搜索、高德地图');
+  lines.push('');
+  lines.push('---');
+  lines.push('');
+  lines.push('## 一、品牌舆情');
+  if(!todayEv.length)lines.push('- **抖音：** 0条\n- **小红书：** 0条\n- **重点：** 无公开讨论，正常。');
+  else todayEv.forEach(e=>lines.push('- ['+e.platform+'] '+e.title+'（'+LV[e.level][0]+'级 · 信源：'+e.url+'）'));
+  lines.push('');
+  lines.push('## 二、竞品动态（2–3km 大商业圈层五家）');
+  lines.push('- 沣西吾悦广场（秦潮里）：待扫描');
+  lines.push('- 国润季：待扫描');
+  lines.push('- 沣西里商业街 / 沣渭世纪中心 / 奥园：待扫描');
+  lines.push('- 周边夜市供给（星空夜市）：待扫描');
+  lines.push('');
+  lines.push('## 三、周边商户动态');
+  lines.push('- 新开业：待扫描');
+  lines.push('- 闭店：待扫描');
+  lines.push('- 差评集中点：待扫描');
+  lines.push('');
+  lines.push('## 四、高校动态（陕国贸 / 陕服 / 镐京 / 咸阳职院）');
+  lines.push('- 待扫描');
+  lines.push('');
+  lines.push('## 五、内容素材');
+  lines.push('- 抖音爆款：待扫描');
+  lines.push('- 小红书爆款：待扫描');
+  lines.push('');
+  lines.push('## 六、今日建议');
+  lines.push('- 风险预警：'+(openWarn.length?'待处理 '+openWarn.length+' 条黄级以上舆情':'无'));
+  lines.push('- 机会点：待识别');
+  lines.push('');
+  lines.push('---');
+  lines.push('*生成工具：LOOP PARK 舆情监测工作台 V1.0*');
+  document.getElementById('dailyPreview').textContent=lines.join('\n');
+  toast('日报已生成，可复制或保存');
+}
+function copyDaily(){const t=document.getElementById('dailyPreview').textContent;if(!t){toast('先点击「生成日报」');return}if(navigator.clipboard)navigator.clipboard.writeText(t);const ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();toast('已复制全文')}
+function saveDailyFile(){const t=document.getElementById('dailyPreview').textContent;if(!t){toast('先点击「生成日报」');return}const blob=new Blob([t],{type:'text/markdown;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='舆情日报-'+today+'.md';a.click();toast('已保存 .md')}
+/* ===== 话术 ===== */
+function renderScripts(){
+  document.getElementById('scriptGroups').innerHTML=SCRIPTS.map(g=>{
+    const items=g.items.map(it=>`<div class="hua">${esc(it[1])}<button class="copy" onclick="copyScript(this,'${esc(it[1]).replace(/'/g,"\\'")}')"><i data-lucide="copy"></i>复制</button></div>`).join('');
+    return `<h3 style="margin:18px 0 10px;font-size:14px;color:var(--green);display:flex;align-items:center;gap:6px"><i data-lucide="tag" style="width:15px;height:15px;color:var(--orange)"></i>${esc(g.g)}</h3>${items}`;
+  }).join('');
+  if(window.lucide)lucide.createIcons();
+}
+function copyScript(btn,text){
+  const raw=btn.parentElement.firstChild.textContent.trim();
+  if(navigator.clipboard)navigator.clipboard.writeText(raw);
+  const ta=document.createElement('textarea');ta.value=raw;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();
+  toast('已复制话术');
+}
+/* ===== 数据源 ===== */
+function renderSources(){
+  document.getElementById('srcTable').innerHTML=PLATFORMS.filter(p=>['抖音','小红书','大众点评','美团','高德地图','微博','B站','百度地图'].includes(p.name)).map(p=>`<tr><td>${esc(p.name)}</td><td><span class="tag ${p.status==='已打通'?'green':'gray'}">${esc(p.status)}</span></td><td>${esc(p.status==='已打通'?'登录态可采集':'只能抓公开内容')}</td></tr>`).join('');
+}
+/* ===== 初始化 ===== */
+renderMonitor();renderPlatformBody();renderOverview();renderCharts();renderEvents();renderScripts();renderSources();
+if(window.lucide)lucide.createIcons();
+</script>
+</body>
+</html>
